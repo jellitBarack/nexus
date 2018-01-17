@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html class="layout-pf layout-pf-fixed">
+    <head>
+        <base href="http://127.0.0.1/citellus">
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>{% block title %}{% endblock %} - Citellus Web</title>
+        <meta name="description" content="Citellus Web">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="robots" content="all,follow">
+        <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/patternfly/3.24.0/css/patternfly.min.css">
+        <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/patternfly/3.24.0/css/patternfly-additions.min.css">
+        <link rel="shortcut icon" href="img/favicon.ico">
+        <style>
+        .container-fluid {
+            padding-left: 225px;
+        }
+        </style>
+        <!-- Tweaks for older IEs--><!--[if lt IE 9]>
+         <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+         <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script><![endif]-->
+    </head>
+    <body class="has-sidebar">
+        <nav class="navbar navbar-default navbar-pf-vertical" role="navigation">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a href="/" class="navbar-brand">
+                    <img class="navbar-brand-icon" src="https://github.com/zerodayz/citellus/raw/master/doc/citellus.png" width="30px" alt=""/> Citellus Web
+                </a>
+            </div><!-- /navbar-header -->
+            <nav class="collapse navbar-collapse">
+                <ul class="nav navbar-nav navbar-primary navbar-utility">
+                    <li>
+                        <a href="/citellus/cases">Cases</a>
+                    </li>
+                    <li>
+                        <a href="/citellus/upload">Upload</a>
+                    </li>
+                    <li>
+                        <a href="/citellus/history">History</a>
+                    </li>
+                </ul><!-- /navbar-primary -->
+                <ul class="nav navbar-nav navbar-right navbar-iconic navbar-utility">
+                    <li class="dropdown">
+                        <a href="#0" class="dropdown-toggle nav-item-iconic" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                            <span title="Help" class="fa pficon-help"></span>
+                            <span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                            <li><a href="https://github.com/zerodayz/citellus/blob/master/README.md">Usage Doc</a></li>
+                            <li><a href="https://github.com/zerodayz/citellus/tree/master/doc">Plugin Development</a></li>
+                            <li><a href="https://github.com/zerodayz/citellus/blob/master/CONTRIBUTING.md">Contribute</a></li>
+                        </ul>
+                    </li>
+                </ul><!-- /navbar-nav -->
+            </nav><!-- /navbar-collapse-->
+        </nav> <!--/navbar-->
+        <div class="nav-pf-vertical nav-pf-vertical-with-sub-menus">
+            <ul class="list-group">
+                <li class="list-group-item">
+                    <a href="#0">
+                        <span class="fa fa-dashboard" data-toggle="tooltip" title="Checks"></span>
+                        <span class="list-group-item-value">Checks</span>
+                    </a>
+                </li>
+                <li class="list-group-item">
+                     <a href="#0">
+                         <span class="fa fa-clone" data-toggle="tooltip" title="Metrics"></span>
+                         <span class="list-group-item-value">Compare</span>
+                     </a>
+                </li>
+                <li class="list-group-item">
+                    <a href="#0">
+                        <span class="fa fa-line-chart" data-toggle="tooltip" title="Metrics"></span>
+                        <span class="list-group-item-value">Metrics</span>
+                    </a>
+                </li>
+            </ul><!-- /list-group -->
+        </div><!-- /nav-pf-vertical -->
+    </nav><!-- /nav-pf-vertical -->
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-8 col-md-9">
+
+                <ol class="breadcrumb">
+                {%- for breadcrumb in breadcrumbs -%}
+                    <li><a href="{{ breadcrumb.url }}">{{ breadcrumb.text }}</a></li>
+                    {{ '/' if not loop.last }}
+                {%- endfor -%}
+                </ol>
+        {% block content %}{% endblock %}
+            </div><!-- /col-sm-8 -->
+        </div><!-- /row -->
+    </div><!-- /container-fluid -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/patternfly/3.24.0/js/patternfly.min.js"></script>
+</html>
