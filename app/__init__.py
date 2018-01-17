@@ -3,7 +3,8 @@ from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_migrate import Migrate
-
+from flask_breadcrumbs import current_breadcrumbs
+import datetime
 
 # local imports
 from config import app_config
@@ -13,23 +14,40 @@ db = SQLAlchemy()
 
 login_manager = LoginManager()
 
-def create_app(config_name):
+def create_app(config_name,cli = False):
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_object(app_config[config_name])
     app.config.from_pyfile('config.py')
-    db.init_app(app)
-    login_manager.init_app(app)
-    login_manager.login_message = "You must be logged in to access this page."
-    login_manager.login_view = "auth.login"
-    migrate = Migrate(app, db)
+
 
     from app import models
+    db.init_app(app)
+    migrate = Migrate(app, db)
 
-    @app.route('/')
-    def home():
-        return render_template("home.html")
+    if (cli is False):
+        login_manager.init_app(app)
+        login_manager.login_message = "You must be logged in to access this page."
+        login_manager.login_view = "auth.login"
 
-    def cases():
-        return render_template("cases.html")
+        from .admin import admin as admin_blueprint
+        app.register_blueprint(admin_blueprint, url_prefix='/admin')
+        from .cases import cases as cases_blueprint
+        app.register_blueprint(cases_blueprint, url_prefix='/cases')
+        from .checks import checks as checks_blueprint
+        app.register_blueprint(checks_blueprint, url_prefix='/checks')
+        from .cases import cases as cases_blueprint
+        app.register_blueprint(cases_blueprint, url_prefix='/cases')
+        from .history import history as history_blueprint
+        app.register_blueprint(history_blueprint, url_prefix='/history')
+        from .metrics import metrics as metrics_blueprint
+        app.register_blueprint(metrics_blueprint, url_prefix='/metrics')
+        from .compare import compare as compare_blueprint
+        app.register_blueprint(compare_blueprint, url_prefix='/compare')
+        from .reports import reports as reports_blueprint
+        app.register_blueprint(reports_blueprint, url_prefix='/reports')
+        from .auth import auth as auth_blueprint
+        app.register_blueprint(auth_blueprint)
+        from .home import home as home_blueprint
+        app.register_blueprint(home_blueprint)
 
     return app

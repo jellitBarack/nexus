@@ -1,0 +1,29 @@
+         {% block flash %}
+         {% with messages = get_flashed_messages() %}
+           {% if messages %}
+             {% for category, message in messages %}
+                 {% if category == "error" %}
+                     {% set class = "danger" %}
+                     {% set icon = "error-circle-o" %}
+                 {% elif category == "success" %}
+                     {% set class = "success" %}
+                     {% set icon = "ok" %}
+                 {% elif category == "warning" %}
+                     {% set class = "warning" %}
+                     {% set icon = "warning-triangle-o" %}
+                 {% elif category == "info" %}
+                     {% set class = "info" %}
+                     {% set icon = "info" %}
+                 {% endif %}
+ 
+             <div class="alert alert-{{ class }} alert-dismissable">
+                 <button type="button" class="close" data-dismiss="alert" aria-hidden="true">
+                     <span class="pficon pficon-close"></span>
+                 </button>
+                 <span class="pficon pficon-{{ icon }}"></span>
+                 {{ message }}
+             </div>
+             {% endfor %}
+           {% endif %}
+         {% endwith %}
+         {% endblock %}
