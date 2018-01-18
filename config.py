@@ -2,7 +2,7 @@ class Config(object):
     """
     Common configurations
     """
-
+    APPLICATION_ROOT = "/citellus"
     # Put any configurations here that are common across all environments
 
 class DevelopmentConfig(Config):

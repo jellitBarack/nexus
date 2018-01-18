@@ -1,10 +1,11 @@
-from flask import flash, redirect, render_template, url_for, current_app
+from flask import flash, redirect, render_template, url_for, current_app, request
 from flask_login import login_required, login_user, logout_user
 
 from . import auth
 from forms import LoginForm, RegistrationForm
 from .. import db
 from ..models import User
+from app import flash_errors
 import pprint
 import logging
 logger = logging.getLogger(__name__)
@@ -27,7 +28,7 @@ def register():
         # add user to the database
         db.session.add(user)
         db.session.commit()
-        flash('You have successfully registered! You may now login.','success')
+        flash('You have successfully registered! You may now login.', category='success')
 
         # redirect to the login page
         return redirect(url_for('auth.login'))
@@ -42,7 +43,8 @@ def login():
     Log an user in through the login form
     """
     form = LoginForm()
-    form.validate():
+    if form.validate() is False:
+        current_app.logger.debug(form)
     if form.validate_on_submit():
         # check whether user exists in the database and whether
         # the password entered matches the password in the database
@@ -56,7 +58,9 @@ def login():
 
         # when login details are incorrect
         else:
-            flash('Invalid username or password.','error')
+            flash('Invalid username or password.',category='error')
+    if request.method == "POST":
+        flash_errors(form)
 
     # load login template
     return render_template('auth/login.html', form=form, title='Login')
@@ -69,7 +73,7 @@ def logout():
     Log an user out through the logout link
     """
     logout_user()
-    flash('You have successfully been logged out.','success')
+    flash('You have successfully been logged out.', category='success')
 
     # redirect to the login page
     return redirect(url_for('auth.login'))

@@ -1,5 +1,5 @@
 # third-party imports
-from flask import Flask, render_template
+from flask import Flask, render_template, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_migrate import Migrate
@@ -18,6 +18,7 @@ def create_app(config_name,cli = False):
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_object(app_config[config_name])
     app.config.from_pyfile('config.py')
+    app.config['APPLICATION_ROOT'] = "/citellus"
 
 
     from app import models
@@ -50,4 +51,13 @@ def create_app(config_name,cli = False):
         from .home import home as home_blueprint
         app.register_blueprint(home_blueprint)
 
+
     return app
+
+def flash_errors(form):
+    for field, errors in form.errors.items():
+        for error in errors:
+            flash(u"Error in the %s field - %s" % (
+                getattr(form, field).label.text,
+                error
+            ), category="error")
