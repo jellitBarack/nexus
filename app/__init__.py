@@ -5,22 +5,47 @@ from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_breadcrumbs import current_breadcrumbs
 import datetime
+#, sys, os
+import logging, sys
+import logging.config
+import pprint
+
+
+LOGGING = {
+    'version': 1,
+    "disable_existing_loggers": True,
+    'formatters': { 
+        'debug_format': { 
+            'format': "%(asctime)s %(levelname)s %(filename)s:%(lineno)s %(funcName)s %(message)s" 
+        }
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'debug_format', 
+            'stream': 'ext://sys.stderr'
+        }
+    },
+    'root': {
+        'level': 'DEBUG',
+        'handlers': ['console']
+    },
+}
 
 # local imports
 from config import app_config
 
 # db variable initialization
 db = SQLAlchemy()
-
 login_manager = LoginManager()
 
 def create_app(config_name,cli = False):
+    logging.config.dictConfig(LOGGING)
+
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_object(app_config[config_name])
     app.config.from_pyfile('config.py')
     app.config['APPLICATION_ROOT'] = "/citellus"
-
-
     from app import models
     db.init_app(app)
     migrate = Migrate(app, db)
@@ -57,7 +82,4 @@ def create_app(config_name,cli = False):
 def flash_errors(form):
     for field, errors in form.errors.items():
         for error in errors:
-            flash(u"Error in the %s field - %s" % (
-                getattr(form, field).label.text,
-                error
-            ), category="error")
+            flash(u"Error in the %s field - %s" % (getattr(form, field).label.text,error), category="error")

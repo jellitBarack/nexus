@@ -1,31 +1,23 @@
-import os
+import os, sys
 
-from logging.config import dictConfig
 try:
     from flask_debugtoolbar import DebugToolbarExtension
 except:
     pass
 
+sys.path.append(os.path.dirname(__file__))
+from app import *
 
-dictConfig({
-    "version": 1,
-    "disable_existing_loggers": False,
-    "formatters": { "debug_format": { "format": "%(filename)-8s | %(module)-12s | %(funcName)s | %(lineno)d : %(message)s" }},
-    "handlers": { "console": { "class": "logging.StreamHandler", "formatter": "debug_format", "stream": "ext://sys.stdout" }}
-})
-
-from app import create_app
-
-config_name = os.getenv('FLASK_CONFIG')
+config_name = "development"
 try:
     toolbar = DebugToolbarExtension()
 except:
     pass
-app = create_app(config_name)
+application = create_app(config_name)
 try:
-    toolbar.init_app(app)
+    toolbar.init_app(application)
 except:
     pass
 
 if __name__ == '__main__':
-    app.run()
+    application.run()

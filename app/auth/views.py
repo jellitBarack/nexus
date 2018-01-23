@@ -43,8 +43,6 @@ def login():
     Log an user in through the login form
     """
     form = LoginForm()
-    if form.validate() is False:
-        current_app.logger.debug(form)
     if form.validate_on_submit():
         # check whether user exists in the database and whether
         # the password entered matches the password in the database

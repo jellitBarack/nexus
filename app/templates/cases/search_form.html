@@ -1,0 +1,14 @@
+        <div class="row">
+          <form class="form-horizontal" method="post" action="/citellus/cases/" role="form">
+            {{ form.csrf_token }}
+              <div class="form-group">
+                <label for="casenum" class="col-sm-3 col-md-3 control-label">Case Number</label>
+                  <div class="col-sm-3 col-md-3">
+                     {{ form.casenum(class='form-control', placeholder='02000000') }}
+                  </div><!-- /col -->
+                 <div class="col-sm-3 col-md-3">
+                   <button type="submit" class="btn btn-primary btn-lg" tabindex="4">Search</button>
+                 </div><!-- /col -->
+               </div><!-- /form-group -->
+             </form>
+         </div><!--/row-->
