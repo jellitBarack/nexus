@@ -4,6 +4,7 @@ class Config(object):
     """
     APPLICATION_ROOT = "/citellus"
     # Put any configurations here that are common across all environments
+    REPORT_FILE_NAMES = ("citellus.json", "magui.json")
 
 class DevelopmentConfig(Config):
     """
@@ -11,7 +12,7 @@ class DevelopmentConfig(Config):
     """
 
     DEBUG = True
-    SQLALCHEMY_ECHO = True
+    SQLALCHEMY_ECHO = False
     DEBUG_TB_INTERCEPT_REDIRECTS = False
 
 class ProductionConfig(Config):

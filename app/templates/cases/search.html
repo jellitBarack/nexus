@@ -3,7 +3,7 @@
 {% block body %}
 {% include 'cases/search_form.html' %}
 <div class="list-group list-view-pf list-view-pf-view">
-{% for r in citellusList %}
+{% for r in reportList %}
 <div class="list-group-item">
    <div class="list-view-pf-checkbox">
     <input type="checkbox">
@@ -28,7 +28,7 @@
     <div class="list-view-pf-body">
       <div class="list-view-pf-description">
         <div class="list-group-item-heading">
-          {{ r['name'] }}
+          <a href="/citellus/report/{{ r['report_id'] }}">{{ r['name'] }}</a>
         </div><!-- /list-group-item-heading -->
       </div><!-- /list-view-pf-description -->
       <div class="list-view-pf-additional-info">
@@ -52,6 +52,10 @@
             <span class="fa fa-check-circle-o"></span>
             <strong>{{ r['checks_okay'] }}</strong> Okay
           </div><!-- /list-view-pf-additional-info-item -->
+          <div class="list-view-pf-additional-info-item">
+            <span class="fa fa-microchip"></span>
+            <strong>{{ r['source'] }}</strong>
+           </div><!-- /list-view-pf-additional-info-item -->
         </div><!-- /list-view-pf-additional-info -->
     </div><!-- /list-view-pf-body -->
   </div><!-- /list-view-pf-main-info -->

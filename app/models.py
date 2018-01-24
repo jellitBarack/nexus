@@ -61,21 +61,31 @@ class Report(db.Model):
     __tablename__ = 'reports_metadata'
 
     id = db.Column(db.String, primary_key=True)
-    source = db.Column(db.String(60), unique=True)
-    live = db.Column(db.Boolean, unique=False, default=True)
+    source = db.Column(db.String(10))
+    live = db.Column(db.Boolean, default=True)
     when = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    execution_time = db.Column(db.SmallInteger)
     path = db.Column(db.String(200))
+    case_id = db.Column(db.Integer)
     checks = db.relationship("Check", backref="parent")
 
     def __init__(self, **kwargs):
-         super(Report, self).__init__()
+         super(Report, self).__init__(**kwargs)
          self.id = str(hashlib.md5(kwargs.pop('path').encode('UTF-8')).hexdigest())
+   
 
     def generate_id(self, path):
         return hashlib.md5(path.encode('UTF-8')).hexdigest()
 
     def __repr__(self):
-        return '<Report: {}>'.format(self.name)
+        """
+        out = ""
+        for attr in dir(self):
+            out += "obj.{0} = {1}".format(attr, getattr(self, attr))
+        return out
+        """
+        return '<Report: {}>'.format(self.id)
+ 
 
 class Check(db.Model):
     """
@@ -103,6 +113,9 @@ class Check(db.Model):
          super(Check, self).__init__()
          newid = kwargs.pop('plugin_id') + kwargs.pop('report_id')
          self.id = str(hashlib.md5(newid.encode('UTF-8')).hexdigest())
+
+    def __repr__(self):
+        return '<Check: {}>'.format(str(self))
 
 class History(db.Model):
     """
