@@ -4,6 +4,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from app import db, login_manager
 import datetime
+import hashlib
+import logging
+
 
 class User(UserMixin, db.Model):
     """
@@ -57,12 +60,19 @@ class Report(db.Model):
     """
     __tablename__ = 'reports_metadata'
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String, primary_key=True)
     source = db.Column(db.String(60), unique=True)
     live = db.Column(db.Boolean, unique=False, default=True)
     when = db.Column(db.DateTime, default=datetime.datetime.utcnow)
     path = db.Column(db.String(200))
     checks = db.relationship("Check", backref="parent")
+
+    def __init__(self, **kwargs):
+         super(Report, self).__init__()
+         self.id = str(hashlib.md5(kwargs.pop('path').encode('UTF-8')).hexdigest())
+
+    def generate_id(self, path):
+        return hashlib.md5(path.encode('UTF-8')).hexdigest()
 
     def __repr__(self):
         return '<Report: {}>'.format(self.name)
@@ -73,7 +83,7 @@ class Check(db.Model):
     """
     __tablename__ = 'reports_checks'
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String, primary_key=True)
     report_id = db.Column(db.Integer, db.ForeignKey('reports_metadata.id'))
     report = db.relationship("Report")
     category = db.Column(db.String(50))
@@ -88,6 +98,11 @@ class Check(db.Model):
     result_err = db.Column(db.Text)
     result_out = db.Column(db.Text)
     time = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+
+    def __init__(self, **kwargs):
+         super(Check, self).__init__()
+         newid = kwargs.pop('plugin_id') + kwargs.pop('report_id')
+         self.id = str(hashlib.md5(newid.encode('UTF-8')).hexdigest())
 
 class History(db.Model):
     """
