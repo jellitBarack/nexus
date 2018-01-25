@@ -1,0 +1,7 @@
+{% extends "layout/base.html" %}
+{% block title %}Site Map{% endblock %}
+{% block body %}
+{% for r in out: %}
+{{ r }}<br>
+{% endfor %}
+{% endblock %}

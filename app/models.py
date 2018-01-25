@@ -6,7 +6,7 @@ from app import db, login_manager
 import datetime
 import hashlib
 import logging
-
+from pprint import pformat
 
 class User(UserMixin, db.Model):
     """
@@ -47,7 +47,7 @@ class User(UserMixin, db.Model):
         return check_password_hash(self.password_hash, password)
 
     def __repr__(self):
-        return '<User: {}>'.format(self.username)
+        return pformat(vars(self))
 
 # Set up user_loader
 @login_manager.user_loader
@@ -67,7 +67,7 @@ class Report(db.Model):
     execution_time = db.Column(db.SmallInteger)
     path = db.Column(db.String(200))
     case_id = db.Column(db.Integer)
-    checks = db.relationship("Check", backref="parent")
+    checks = db.relationship("Check", back_populates="report")
 
     def __init__(self, **kwargs):
          super(Report, self).__init__(**kwargs)
@@ -78,13 +78,8 @@ class Report(db.Model):
         return hashlib.md5(path.encode('UTF-8')).hexdigest()
 
     def __repr__(self):
-        """
-        out = ""
-        for attr in dir(self):
-            out += "obj.{0} = {1}".format(attr, getattr(self, attr))
-        return out
-        """
-        return '<Report: {}>'.format(self.id)
+        return pformat(vars(self))
+
  
 
 class Check(db.Model):
@@ -94,8 +89,8 @@ class Check(db.Model):
     __tablename__ = 'reports_checks'
 
     id = db.Column(db.String, primary_key=True)
-    report_id = db.Column(db.Integer, db.ForeignKey('reports_metadata.id'))
-    report = db.relationship("Report")
+    report_id = db.Column(db.String(50), db.ForeignKey('reports_metadata.id'))
+    report = db.relationship("Report", back_populates="checks")
     category = db.Column(db.String(50))
     subcategory = db.Column(db.String(50))
     description = db.Column(db.String(250))
@@ -107,15 +102,15 @@ class Check(db.Model):
     result_rc = db.Column(db.SmallInteger)
     result_err = db.Column(db.Text)
     result_out = db.Column(db.Text)
-    time = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    execution_time = db.Column(db.Numeric(precision=6))
 
     def __init__(self, **kwargs):
-         super(Check, self).__init__()
+         super(Check, self).__init__(**kwargs)
          newid = kwargs.pop('plugin_id') + kwargs.pop('report_id')
          self.id = str(hashlib.md5(newid.encode('UTF-8')).hexdigest())
 
     def __repr__(self):
-        return '<Check: {}>'.format(str(self))
+        return pformat(vars(self))
 
 class History(db.Model):
     """
@@ -127,3 +122,6 @@ class History(db.Model):
     item_type = db.Column(db.Integer)
     item_id = db.Column(db.Integer)
     time = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+
+    def __repr__(self):
+        return pformat(vars(self))

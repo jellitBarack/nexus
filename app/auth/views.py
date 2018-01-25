@@ -1,15 +1,14 @@
 from flask import flash, redirect, render_template, url_for, current_app, request
 from flask_login import login_required, login_user, logout_user
-
-from . import auth
 from forms import LoginForm, RegistrationForm
-from .. import db
-from app.models import User
-from app import flash_errors
+
 import pprint
 import logging
-logger = logging.getLogger(__name__)
 
+from . import auth
+from app import db
+from app import flash_errors
+from app.models import User
 
 @auth.route('/register', methods=['GET', 'POST'])
 def register():

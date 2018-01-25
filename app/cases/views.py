@@ -32,15 +32,13 @@ def search():
             for f in current_app.config["REPORT_FILE_NAMES"]:
                 if f in files:
                     fullname = root + "/" + f
-                    report_id, results, source = add_report(fullname)
+                    report_id, results, source = add_report(fullname, form.casenum.data)
                     counts = loop_checks(report_id, results, source)
-                    logging.debug("Source: %s", source)
                     # add report to the web interface
                     if source == "magui":
                         icon = "microchip"
                     else:
                         icon = "cog"
-                    logging.debug(reportList)
                     reportList.append({"fullname": fullname, 
                                 "name": "/".join(root.split("/")[-2:]), 
                                 "report_id": report_id,
@@ -60,5 +58,19 @@ def search():
         flash_errors(form)
     return render_template('cases/search.html', form=form, title='Search sosreport in case')
 
-
-
+def has_no_empty_params(rule):
+    defaults = rule.defaults if rule.defaults is not None else ()
+    arguments = rule.arguments if rule.arguments is not None else ()
+    return len(defaults) >= len(arguments)
+    
+@cases.route("/site-map")
+def site_map():
+    links = []
+    for rule in current_app.url_map.iter_rules():
+        # Filter out rules we can't navigate to in a browser
+        # and rules that require parameters
+        if "GET" in rule.methods and has_no_empty_params(rule):
+            url = url_for(rule.endpoint, **(rule.defaults or {}))
+            links.append((url, rule.endpoint))
+    # links is now a list of url, endpoint tuples
+    return render_template('cases/test.html', out=links)
