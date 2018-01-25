@@ -53,6 +53,9 @@ The database is initialized based on the models.py file.
 Because sqlite doesn't support ALTER TABLE, if we change the schema in the models.py file, we need to flush the DB and recreate it:
 
 ```
+$ sudo -u apache bash
+$ id
+uid=48(apache) gid=48(apache) groups=48(apache) context=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
  $ pwd
  /var/www/citellus
  $ . .venv/bin/activate
@@ -68,16 +71,17 @@ Because sqlite doesn't support ALTER TABLE, if we change the schema in the model
 * Give read access to the /cases folder to apache
 ```
 # semanage fcontext -a -t httpd_sys_content_t '/cases(/.*)?'
+# chown -R apache:apache /cases/
 ```
 
 * Give write access to the sqlite database
 ```
 # semanage fcontext -a -t httpd_sys_rw_content_t '/var/www/citellus/app/citellus.db'
+# chown -R apache:apache /var/www/citellus/db/
 ```
 
 * Restorecon
 ```
-# chown -R apache:apache /var/www/citellus/db/
 # restorecon -R -F -v /var/www/citellus/db/ /cases/
 ```
 
