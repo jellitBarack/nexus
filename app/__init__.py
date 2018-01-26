@@ -42,7 +42,7 @@ login_manager = LoginManager()
 def create_app(config_name,cli = False):
     logging.config.dictConfig(LOGGING)
 
-    app = Flask(__name__, instance_relative_config=True)
+    app = Flask(__name__, instance_relative_config=True, static_url_path='/static')
     app.config.from_object(app_config[config_name])
     app.config.from_pyfile('config.py')
     app.config['APPLICATION_ROOT'] = "/citellus"

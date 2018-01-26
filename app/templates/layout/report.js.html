@@ -1,0 +1,141 @@
+<script>
+    var ft_min_char = 3;
+    // function to either check or uncheck all categories
+    function checkAllCat(checked) {
+        $(".check-category").each(function(i,j) {
+            $(this).prop("checked",checked);
+        });
+        $("#check_all").prop("checked",checked);
+        filterCards();
+    }
+    // function that applies all possible filters.
+    // it's called whenever a filter is triggered.
+    function filterCards() {
+        var count = 0;
+        var filter_status = $("#filter_status").val();
+        var filter_text = $("#filter_text").val();
+        var filter_category = "";
+        $(".check-category").each(function(i,j) {
+            if ($(this).prop("checked")) {
+                filter_category += $(this).attr("name") + "|";
+            }
+        });
+        filter_category = filter_category.slice(0, -1);
+        var cb_regex = new RegExp(filter_category);
+        $("#list-group > div").each(function(i,j) {
+            var plugin_cats = $(this).data("categories");
+            var plugin_txt = $(this).children('.plugin-error').first().text();
+            var plugin_name = $(this).data("name").toString();
+            var plugin_status = $(this).data("state");
+            // Validations:
+            // - if plugin categories match regex of checked categories
+            // - if plugin state match status filter
+            // - if plugin (name|text) match text filter, only if there's at least $ft_min_char char
+            if (cb_regex.test(plugin_cats) && /[a-z0-9]+/.test(cb_regex) && (filter_status == "all" || filter_status == $(this).data("state")) && (filter_text.length < ft_min_char || (filter_text.length >= ft_min_char && (plugin_txt && plugin_txt.toLowerCase().indexOf(filter_text) != -1) || (plugin_name && plugin_name.toLowerCase().indexOf(filter_text) != -1)))) {
+                $(this).show();
+                count += 1;
+            } else {
+                $(this).hide();
+            }
+        });
+        $("#numresults").html(count);
+    }
+    function sortPlugins(sortkey) {
+        var mylist = $("#list-group");
+        var listitems = mylist.children('div .list-group-item').get();
+        var sortdirection = $("#sortDirection").data("direction");
+        listitems.sort(function(a, b) {
+            if (sortkey == "priority") {
+                if (sortdirection == "desc") {
+                    return ($(b).data(sortkey) - $(a).data(sortkey));
+                } else {
+                    return ($(a).data(sortkey) - $(b).data(sortkey));
+                }
+            } else {
+                if (sortdirection == "desc") {
+                    return $(a).data(sortkey).toString().localeCompare($(b).data(sortkey).toString());
+                } else {
+                    return $(b).data(sortkey).toString().localeCompare($(a).data(sortkey).toString());
+                }
+            }
+        })
+        $.each(listitems, function(idx, itm) { mylist.append(itm); });
+    };
+    // This code is only executed when everything else is loaded
+    $(document).ready(function() {
+        if (window.location.hash.substr(1)) {
+            $('html, body').animate({
+                scrollTop: $("#" + window.location.hash.substr(1)).offset().top
+            }, 1000);
+            $("#" + window.location.hash.substr(1)).find(".fa-angle-right:first").toggleClass("fa-angle-down").end().toggleClass("list-view-pf-expand-active").find(".list-group-item-container").toggleClass("hidden").end().css("border","2px solid red");
+        }
+        // for some unknown reason, this is broken
+        $("#expandAll").click(function(e) {
+            $("#list-group > div").each(function(i,j) {
+                $(j).toggleClass("list-view-pf-expand-active").find(".list-group-item-container").toggleClass("hidden");
+            });
+        });
+
+        // listener when the user picks a status filter
+        $(".filter-status").click(function(e){
+            $("#filter_status").val($(this).data("filter"));
+            filterCards();
+        });
+        // listener when the user writes in the searchbox
+	    $("#filter_text").keyup(function(e) {
+            filterCards();
+    	});
+
+        // In this section, we have to attach events on the body
+        // because we are using dynamic elements
+
+        // listener when the user clicks on category check boxes
+        $("body").on("change",".check-category",function() {
+             filterCards();
+        });
+        // listener when the user checks or uncheck the "All categories"
+        $("body").on("change","#check_all",function() {
+            var cb = $(this);
+            checkAllCat(cb.prop("checked"));
+        });
+        // listener when someone is clicking on a badge in an expanded card
+        $("body").on("click",".category-badge",function() {
+            var cat = $(this).data("category");
+            checkAllCat(false);
+            $("#cb_cat_"+cat).prop("checked",true).change();
+        });
+        // click the list-view heading then expand a row
+        $("body").on("click",".list-group-item-header",function(event){
+            if(!$(event.target).is("button, a, input, .fa-ellipsis-v")){
+                $(this).find(".fa-angle-right").toggleClass("fa-angle-down").end().parent().toggleClass("list-view-pf-expand-active").find(".list-group-item-container").toggleClass("hidden");
+            }
+        })
+        // click the close button, hide the expand row and remove the active status
+        $("body").on("click",".list-group-item-container .close", function (){
+            $(this).parent().addClass("hidden").parent().removeClass("list-view-pf-expand-active").find(".fa-angle-right").removeClass("fa-angle-down");
+        })
+        $("body").on("click","#sortDirection",function(e) {
+            var sortdir = $("#sortDirection");
+            sortdir.removeClass()
+            if (sortdir.data("direction") == "desc" ) {
+                sortdir.addClass("fa fa-sort-amount-asc");
+                sortdir.data("direction","asc")
+            } else {
+                sortdir.addClass("fa fa-sort-amount-desc");
+                sortdir.data("direction","desc")
+            }
+            sortPlugins($("#plugin-sort").data("sortfield"));
+        });
+        $("body").on("click",".plugin-sort-field",function(e) {
+            var sortfield = $(this);
+            var sortkey = sortfield.html();
+            var sortkeyl = sortkey.toLowerCase();
+            var sortbutton = $(this).parent().parent().parent().find("button");
+            sortfield.parent().parent().find("li").removeClass("selected");
+            sortfield.parent().addClass("selected");
+            sortbutton.html(sortkey + ' <span class="caret"></span>');
+            sortbutton.data("sortfield",sortkeyl)
+            sortPlugins(sortkeyl);
+        });
+    }); // doc ready
+  </script>

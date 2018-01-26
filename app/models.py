@@ -102,6 +102,7 @@ class Check(db.Model):
     result_rc = db.Column(db.SmallInteger)
     result_err = db.Column(db.Text)
     result_out = db.Column(db.Text)
+    priority = db.Column(db.Integer)
     execution_time = db.Column(db.Numeric(precision=6))
 
     def __init__(self, **kwargs):

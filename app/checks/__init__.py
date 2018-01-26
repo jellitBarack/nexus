@@ -59,6 +59,8 @@ def add_check(report_id, c, source):
         c["long_name"] = c["plugin"]
     if "time" not in c:
         c["time"] = 0
+    if "priority" not in c:
+        c["priority"] = 0
     
     if c["plugin"] == "citellus-outputs" or c["plugin"] == "metadata-outputs":
         # Restructuring the citellus-outputs
@@ -114,6 +116,7 @@ def add_check(report_id, c, source):
                 result_rc=c[rs]["rc"],
                 result_err=c[rs]["err"],
                 result_out=c[rs]["out"],
+                priority=c["priority"],
                 execution_time=round(c["time"],6)
                 )
 

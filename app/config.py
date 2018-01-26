@@ -9,6 +9,26 @@ class Config(object):
     RC_OKAY = 10
     RC_FAILED = 20
     RC_SKIPPED = 30
+    PLUGIN_STATES = { 
+        10: { 
+            "icon": "fa fa-check-circle-o",
+            "state": "okay",
+            "class": "success",
+            "text_color": "text-black"
+        },
+        20: { 
+            "icon": "pficon pficon-error-circle-o",
+            "state": "failed",
+            "class": "danger",
+            "text_color": "text-black"
+        },
+        30: { 
+            "icon": "pficon pficon-help",
+            "state": "skipped",
+            "class": "info",
+            "text_color": "text-black"
+        }
+    }
     
 
 class DevelopmentConfig(Config):
