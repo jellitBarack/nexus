@@ -19,6 +19,7 @@ This web application is a frontend for the [Citellus](https://github.com/zeroday
 * sosreport caching
 * It's a lot easier working data out of a database. 
 * It's going to be fun to pull out all kind of statistics out of our customer's sosreport without having to grep in 7TB of files.
+* Store plugin metadata
 * We can easily implement nice features like history and preferences.
 
 # Installation
