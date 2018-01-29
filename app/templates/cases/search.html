@@ -1,4 +1,5 @@
 {% extends "layout/base.html" %}
+{% set active_page = "cases" %}
 {% block title %}Cases{% endblock %}
 {% block body %}
 {% include 'cases/search_form.html' %}
@@ -28,7 +29,7 @@
     <div class="list-view-pf-body">
       <div class="list-view-pf-description">
         <div class="list-group-item-heading">
-          <a href="{{ config["APPLICATION_ROOT"] }}/reports/{{ r['report_id'] }}">{{ r['name'] }}</a>
+          <a href="{{ url_for('reports.display_checks', report_id = r['report_id']) }}">{{ r['name'] }}</a>
         </div><!-- /list-group-item-heading -->
       </div><!-- /list-view-pf-description -->
       <div class="list-view-pf-additional-info">

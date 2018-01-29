@@ -91,6 +91,7 @@ class Check(db.Model):
     id = db.Column(db.String, primary_key=True)
     report_id = db.Column(db.String(50), db.ForeignKey('reports_metadata.id'))
     report = db.relationship("Report", back_populates="checks")
+    check_results = db.relationship("CheckResults", back_populates="check")
     category = db.Column(db.String(50))
     subcategory = db.Column(db.String(50))
     description = db.Column(db.String(250))
@@ -99,15 +100,36 @@ class Check(db.Model):
     backend = db.Column(db.String(50))
     long_name = db.Column(db.String(250))
     bugzilla = db.Column(db.String(250))
-    result_rc = db.Column(db.SmallInteger)
-    result_err = db.Column(db.Text)
-    result_out = db.Column(db.Text)
+    global_rc = db.Column(db.SmallInteger)
     priority = db.Column(db.Integer)
     execution_time = db.Column(db.Numeric(precision=6))
 
     def __init__(self, **kwargs):
          super(Check, self).__init__(**kwargs)
          newid = kwargs.pop('plugin_id') + kwargs.pop('report_id')
+         self.id = str(hashlib.md5(newid.encode('UTF-8')).hexdigest())
+
+    def __repr__(self):
+        return pformat(vars(self))
+
+class CheckResults(db.Model):
+    """
+    Plugins results
+    """
+    __tablename__ = 'check_results'
+
+    id = db.Column(db.String, primary_key=True)
+    check_id = db.Column(db.String(50), db.ForeignKey('reports_checks.id'))
+    check = db.relationship("Check", back_populates="check_results")
+    hostname = db.Column(db.String(100))
+    result_rc = db.Column(db.SmallInteger)
+    result_err = db.Column(db.Text)
+    result_out = db.Column(db.Text)
+
+
+    def __init__(self, **kwargs):
+         super(CheckResults, self).__init__(**kwargs)
+         newid = kwargs.pop('check_id') + kwargs.pop('hostname')
          self.id = str(hashlib.md5(newid.encode('UTF-8')).hexdigest())
 
     def __repr__(self):

@@ -7,6 +7,7 @@ import sys
 from collections import defaultdict
 from . import views
 from app.models import Check
+from app.models import CheckResults
 
 
 checks = Blueprint('checks', __name__)
@@ -40,11 +41,61 @@ def loop_checks(report_id, results, source):
     counts = defaultdict(int)
     
     for c in results:
+        # Sometimes the results are stored in result, results or sosreport. Let's guess this
         rs = result_string(c)
-        # Counting plugins
-        counts[c[rs]["rc"]] += 1
-        counts["total"] += 1
-        add_check(report_id, c, source)
+        # We need to keep a copy of these results
+        original_results = c[rs]
+        new_result = {}
+        new_result["out"] = {}
+        new_result["err"] = {}
+        new_result["rc"] = {}
+        if c["plugin"] == "citellus-outputs" or c["plugin"] == "metadata-outputs":
+            # Restructuring the citellus-outputs
+            original_err = c[rs]["err"]
+
+            # We determine a global return code for all the hosts in the report
+            # If one is failed, global is failed
+            # If all 3 are skipped, global is skipped
+            # Otherwize it's okay
+            global_rc = current_app.config["RC_OKAY"]
+            new_checklist = []
+            # We are going to convert the out and err to a string
+            # We loop through the citellus plugins
+            for element in original_err:
+                original_results = element["sosreport"]
+                del element["sosreport"]
+                # Keeping counts for the skipped
+                counts = defaultdict(int)
+                for host in original_results:
+                    if original_results[host]["rc"] == current_app.config["RC_FAILED"]:
+                        global_rc = current_app.config["RC_FAILED"]
+                    counts[original_results[host]["rc"]] += 1
+                    new_result["rc"][host] = original_results[host]["rc"]
+                    new_result["err"][host] = original_results[host]["err"]
+                    new_result["out"][host] = original_results[host]["out"]
+
+                if counts[current_app.config["RC_SKIPPED"]] == len(original_results):
+                    global_rc = current_app.config["RC_SKIPPED"]
+                element["global_rc"] = global_rc
+                element["result"] = new_result
+                counts["total"] += 1
+                counts[global_rc] += 1
+                add_check(report_id, element, source)
+        
+        else:
+            # It's easier to support magui if we convert regular citellus reports with the same
+            # Data structure as magui. So let's do this
+            new_result["rc"]["localhost"] = original_results["rc"]
+            new_result["err"]["localhost"] = original_results["err"]
+            new_result["out"]["localhost"] = original_results["out"]
+            if original_results["rc"]:
+                c["global_rc"] = original_results["rc"]
+            else:
+                 c["global_rc"] = current_app.config["RC_OKAY"]
+            c[rs] = new_result
+            counts[c["global_rc"]] += 1
+            counts["total"] += 1
+            add_check(report_id, c, source)
 
     return counts
 
@@ -62,49 +113,8 @@ def add_check(report_id, c, source):
     if "priority" not in c:
         c["priority"] = 0
     
-    if c["plugin"] == "citellus-outputs" or c["plugin"] == "metadata-outputs":
-        # Restructuring the citellus-outputs
-        original_err = c[rs]["err"]
-        # We determine a global return code for all the hosts in the report
-        # If one is failed, global is failed
-        # If all 3 are skipped, global is skipped
-        # Otherwize it's okay
-        global_rc = current_app.config["RC_OKAY"]
-
-        # We are going to convert the out and err to a string
-        global_out = ""
-        global_err = ""
-        new_checklist = []
-        # We loop through the citellus plugins
-        for element in original_err:
-            new_result = {}
-            original_results = element["sosreport"]
-            del element["sosreport"]
-            
-            # Keeping counts for the skipped
-            counts = defaultdict(int)
-            for host in original_results:
-
-                if original_results[host]["rc"] == current_app.config["RC_FAILED"]:
-                    global_rc = current_app.config["RC_FAILED"]
-                global_out += "# " + host + ":\n" + original_results[host]["out"]
-                global_err += "# " + host + ":\n" + original_results[host]["err"]
-                counts[original_results[host]["rc"]] += 1
-
-            if counts[current_app.config["RC_SKIPPED"]] == len(original_results):
-                global_rc = current_app.config["RC_SKIPPED"]
-
-            new_result["rc"] = global_rc
-            new_result["out"] = global_out
-            new_result["err"] = global_err
-            element["result"] = new_result
-            new_checklist.append(element)
-
-        loop_checks(report_id, new_checklist, source)
-        c[rs]["err"] = ""
-        c[rs]["out"] = ""
-
-    check = Check(report_id=report_id,
+    check = Check(
+                report_id=report_id,
                 category=c["category"],
                 subcategory=c["subcategory"],
                 description=c["description"],
@@ -113,14 +123,20 @@ def add_check(report_id, c, source):
                 backend=c["backend"],
                 long_name=c["long_name"],
                 bugzilla=c["bugzilla"],
-                result_rc=c[rs]["rc"],
-                result_err=c[rs]["err"],
-                result_out=c[rs]["out"],
                 priority=c["priority"],
+                global_rc=c["global_rc"],
                 execution_time=round(c["time"],6)
                 )
-
-    # add check to the database
     db.session.merge(check)
+    db.session.commit()
+    for hostname in c[rs]["rc"]:
+        check_result = CheckResults(
+                check_id = check.id,
+                hostname=hostname,
+                result_rc=c[rs]["rc"][hostname],
+                result_err=c[rs]["err"][hostname],
+                result_out=c[rs]["err"][hostname]
+        )
+        db.session.merge(check_result)
     db.session.commit()
     return check.id

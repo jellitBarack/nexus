@@ -20,16 +20,37 @@ from . import reports
 from app import db
 from app.models import Report
 from app.models import Check
-
-@reports.route('/<report_id>', methods=['GET', 'POST'])
+@reports.route('/upload', methods=['GET', 'POST'])
 @login_required
-def display_report(report_id):
-    report = db.session.query(Report).filter_by(id=report_id).options(subqueryload('checks')).first()
+def upload():
+    return render_template('layout/not-ready.html')
+
+@reports.route('/history', methods=['GET', 'POST'])
+@login_required
+def history():
+    return render_template('layout/not-ready.html')
+
+@reports.route('/<report_id>/metrics', methods=['GET', 'POST'])
+@login_required
+def display_metrics(report_id):
+    return render_template('layout/not-ready.html')
+
+@reports.route('/<report_id>/compare', methods=['GET', 'POST'])
+@login_required
+def compare(report_id):
+    return render_template('layout/not-ready.html')
+
+@reports.route('/<report_id>/checks', methods=['GET', 'POST'])
+@login_required
+def display_checks(report_id):
+    # Getting the checks from the DB
+    report = db.session.query(Report).filter_by(id=report_id).options(subqueryload('checks','check_results')).first()
     #logging.debug(report)
 
     # Getting a list of categories
     categories = defaultdict(int)
     for c in report.checks:
+        # Building the categories dict
         categories[c.category] += 1
         if c.subcategory != "":
             subcategories = c.subcategory.split("/")
@@ -39,13 +60,17 @@ def display_report(report_id):
         if c.category not in subcategories:
             subcategories.insert(0, c.category)
         c.all_categories = subcategories
-        c.plugin_html = current_app.config["PLUGIN_STATES"][c.result_rc]
+        for s in subcategories:
+            categories[s] += 1
+        
+        # Building the visual for the plugin state
+        c.plugin_html = current_app.config["PLUGIN_STATES"][c.global_rc]
         c.plugin_name = os.path.splitext(os.path.basename(c.plugin_path))[0]
-        logging.debug(c)
+
+        # Building the visual for the plugin priority
         if not hasattr(c, 'priority'):
             c.priority = 0
             c.priority_text = "info"
-
         if c.priority >= 666:
             c.priority_text = "critical"
             c.priority_class = "danger"
@@ -55,7 +80,8 @@ def display_report(report_id):
         else:
             c.priority_text = "informative"
             c.priority_class = "info"
-            
+
+        # Extracting the bugzilla informations            
         if re.match('^\d{7}$', c.plugin_name):
             c.bug_id = c.plugin_name
             c.bugzilla = "https://bugzilla.redhat.com/show_bug.cgi?id=" + str(c.bug_id)
@@ -65,13 +91,4 @@ def display_report(report_id):
                 c.bug_id = m.group(0)
             except:
                 pass
-        
-
-        for s in subcategories:
-            categories[s] += 1
-
-
-    
     return render_template('reports/show.html', report=report, categories=categories, title='sosreport')
-
-

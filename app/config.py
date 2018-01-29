@@ -13,19 +13,19 @@ class Config(object):
         10: { 
             "icon": "fa fa-check-circle-o",
             "state": "okay",
-            "class": "success",
+            "hclass": "success",
             "text_color": "text-black"
         },
         20: { 
             "icon": "pficon pficon-error-circle-o",
             "state": "failed",
-            "class": "danger",
+            "hclass": "danger",
             "text_color": "text-black"
         },
         30: { 
             "icon": "pficon pficon-help",
             "state": "skipped",
-            "class": "info",
+            "hclass": "info",
             "text_color": "text-black"
         }
     }

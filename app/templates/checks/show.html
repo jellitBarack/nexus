@@ -6,7 +6,7 @@
       </div> <!-- /list-view-pf-expand -->
       <div class="list-view-pf-main-info">
        <div class="list-view-pf-left">
-        <span class="{{ check.plugin_html.icon }} list-view-pf-icon-sm list-view-pf-icon-{{ check.plugin_html.class }}"></span><span class="badge badge-{{ check.priority_class }}">{{ check.priority_text }}</span>
+        <span class="{{ check.plugin_html.icon }} list-view-pf-icon-sm list-view-pf-icon-{{ check.plugin_html.hclass }}"></span><span class="badge badge-{{ check.priority_class }}">{{ check.priority_text }}</span>
        </div><!-- /list-view-pf-left -->
        <div class="list-view-pf-body">
         <div class="list-view-pf-description">
@@ -52,21 +52,27 @@
     
          <dt>Out</dt>
          <dd>
-            {% if check.result_out|length > 0 %} 
-            <pre>{{ check.result_out|urlize(40, true) }}</pre>
-            {% else %}
-            N/A 
-            {% endif %}
+             {% for result in check.check_results %}
+                <span class="badge badge-{{ config['PLUGIN_STATES'][result.result_rc]["hclass"] }}">{{ config['PLUGIN_STATES'][result.result_rc]["state"] }}</span> {{ result.hostname }}<br>
+                {% if result.result_out|length > 0 %}
+                <pre>{{ result.result_out|urlize(40, true) }}</pre>
+                {% else %}
+                  N/A<br>
+                {% endif %}
+              {% endfor %}
         </dd>
 
         <dt>Error</dt>
         <dd>
-           {% if check.result_err|length > 0 %} 
-           <pre>{{ check.result_err|urlize(40, true) }}</pre>
-           {% else %}
-           N/A 
-           {% endif %}
-        </dd>    
+            {% for result in check.check_results %}
+            <span class="badge badge-{{ config['PLUGIN_STATES'][result.result_rc]["hclass"] }}">{{ config['PLUGIN_STATES'][result.result_rc]["state"] }}</span> {{ result.hostname }}<br>
+            {% if result.result_err|length > 0 %}
+            <pre>{{ result.result_err|urlize(40, true) }}</pre>
+            {% else %}
+              N/A<br>
+            {% endif %}
+          {% endfor %}
+        </dd>
        </dl>
        <p>
        </p><!-- /p -->

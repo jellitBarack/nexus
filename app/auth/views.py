@@ -9,31 +9,6 @@ from app import db
 from app import flash_errors
 from app.models import User
 
-@auth.route('/register', methods=['GET', 'POST'])
-def register():
-    """
-    Handle requests to the /register route
-    Add an user to the database through the registration form
-    """
-    form = RegistrationForm()
-    if form.validate_on_submit():
-        user = User(email=form.email.data,
-                            username=form.username.data,
-                            first_name=form.first_name.data,
-                            last_name=form.last_name.data,
-                            password=form.password.data)
-
-        # add user to the database
-        db.session.add(user)
-        db.session.commit()
-        flash('You have successfully registered! You may now login.', category='success')
-
-        # redirect to the login page
-        return redirect(url_for('auth.login'))
-
-    # load registration template
-    return render_template('auth/register.html', form=form, title='Register')
-
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
     """
@@ -73,3 +48,8 @@ def logout():
 
     # redirect to the login page
     return redirect(url_for('auth.login'))
+
+@auth.route('/password')
+@login_required
+def password():
+    return render_template('layout/not-ready.html')
