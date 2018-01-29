@@ -41,6 +41,8 @@
          <dd>{{ check.execution_time }}</dd>
          <dt>Backend</dt>
          <dd>{{ check.backend }}</dd>
+         <dt>State</dt>
+         <dd><span class="badge badge-{{ config['PLUGIN_STATES'][check.global_rc]["hclass"] }}">{{ config['PLUGIN_STATES'][check.global_rc]["state"] }}</span></dd>
          <dt>Priority</dt>
          <dd><span class="badge badge-{{ check.priority_class }}">{{ check.priority_text }}</span></dd>
          <dt>Bugzilla</dt>
@@ -78,7 +80,7 @@
        </p><!-- /p -->
       </div><!-- /col-md-9 -->
       <div class="col-md-3">
-        <a href="#plugin-{{ check.plugin_id }}"><span class="fa fa-link"></span> Link</a>
+        <a href="#plugin-{{ check.id }}"><span class="fa fa-link"></span> Link</a>
       </div><!-- /col-md-3 -->
      </div><!-- /row -->
     </div><!-- /list-group-item-container -->

@@ -53,28 +53,27 @@ def loop_checks(report_id, results, source):
             # Restructuring the citellus-outputs
             original_err = c[rs]["err"]
 
-            # We determine a global return code for all the hosts in the report
-            # If one is failed, global is failed
-            # If all 3 are skipped, global is skipped
-            # Otherwize it's okay
-            global_rc = current_app.config["RC_OKAY"]
             new_checklist = []
             # We are going to convert the out and err to a string
             # We loop through the citellus plugins
             for element in original_err:
+                # We determine a global return code for all the hosts in the report
+                # If one is failed, global is failed
+                # If all 3 are skipped, global is skipped
+                # Otherwize it's okay
+                global_rc = current_app.config["RC_OKAY"]
                 original_results = element["sosreport"]
                 del element["sosreport"]
-                # Keeping counts for the skipped
-                counts = defaultdict(int)
+                hostcount = defaultdict(int)
                 for host in original_results:
                     if original_results[host]["rc"] == current_app.config["RC_FAILED"]:
                         global_rc = current_app.config["RC_FAILED"]
-                    counts[original_results[host]["rc"]] += 1
+                    hostcount[original_results[host]["rc"]] += 1
                     new_result["rc"][host] = original_results[host]["rc"]
                     new_result["err"][host] = original_results[host]["err"]
                     new_result["out"][host] = original_results[host]["out"]
 
-                if counts[current_app.config["RC_SKIPPED"]] == len(original_results):
+                if hostcount[current_app.config["RC_SKIPPED"]] == len(original_results):
                     global_rc = current_app.config["RC_SKIPPED"]
                 element["global_rc"] = global_rc
                 element["result"] = new_result

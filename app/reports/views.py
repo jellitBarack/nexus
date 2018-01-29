@@ -1,4 +1,4 @@
-from flask import flash, redirect, render_template, url_for, current_app, request
+from flask import flash, redirect, render_template, url_for, current_app, request, abort
 from flask_login import login_required
 from sqlalchemy.orm import subqueryload
 from collections import defaultdict
@@ -46,7 +46,8 @@ def display_checks(report_id):
     # Getting the checks from the DB
     report = db.session.query(Report).filter_by(id=report_id).options(subqueryload('checks','check_results')).first()
     #logging.debug(report)
-
+    if report is None:
+        abort(404,"Report not found")
     # Getting a list of categories
     categories = defaultdict(int)
     for c in report.checks:
