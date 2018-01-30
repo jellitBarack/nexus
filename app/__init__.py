@@ -43,6 +43,7 @@ def create_app(config_name,cli = False):
     logging.config.dictConfig(LOGGING)
 
     app = Flask(__name__, instance_relative_config=True, static_url_path='/static')
+
     app.config.from_object(app_config[config_name])
     app.config.from_pyfile('config.py')
     app.config['APPLICATION_ROOT'] = "/citellus"
@@ -71,12 +72,17 @@ def create_app(config_name,cli = False):
         app.register_blueprint(compare_blueprint, url_prefix='/compare')
         from .reports import reports as reports_blueprint
         app.register_blueprint(reports_blueprint, url_prefix='/reports')
+        from .errors import errors as errors_blueprint
+        app.register_blueprint(errors_blueprint, url_prefix='/errors')
         from .auth import auth as auth_blueprint
         app.register_blueprint(auth_blueprint)
         from .home import home as home_blueprint
         app.register_blueprint(home_blueprint)
 
-
+        @app.errorhandler(404)
+        @app.errorhandler(405)
+        def page_not_found(error):
+            return render_template("errors/reportnotfound.html"), 404
     return app
 
 def flash_errors(form):

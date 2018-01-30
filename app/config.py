@@ -29,6 +29,8 @@ class Config(object):
             "text_color": "text-black"
         }
     }
+    # we need to disable CSRF for the search form at the top
+    WTF_CSRF_ENABLED=False
     
 
 class DevelopmentConfig(Config):

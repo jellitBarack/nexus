@@ -47,7 +47,7 @@ def display_checks(report_id):
     report = db.session.query(Report).filter_by(id=report_id).options(subqueryload('checks','check_results')).first()
     #logging.debug(report)
     if report is None:
-        abort(404,"Report not found")
+        abort(404)
     # Getting a list of categories
     categories = defaultdict(int)
     for c in report.checks:

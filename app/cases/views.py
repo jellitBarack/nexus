@@ -31,7 +31,14 @@ def search():
         for root, dirs, files in os.walk(casepath, topdown=True):
             for f in current_app.config["REPORT_FILE_NAMES"]:
                 if f in files:
+                    sarfiles = []
                     fullname = root + "/" + f
+                    sardir = root + "/var/log/sa/"
+                    if os.path.isdir(sardir):
+                        for saroot, sadirs, sarfilelist in os.walk(sardir, topdown=True):
+                            for sarfile in sarfilelist:
+                                sarfiles.append(saroot + sarfile)
+                    sarfiles.sort(key=lambda x: os.path.getmtime(x))
                     report_id, results, source = add_report(fullname, form.casenum.data)
                     counts = loop_checks(report_id, results, source)
                     # add report to the web interface
@@ -43,6 +50,7 @@ def search():
                                 "name": "/".join(root.split("/")[-2:]), 
                                 "report_id": report_id,
                                 "icon": icon, 
+                                "sarfiles": sarfiles,
                                 "checks_total": counts["total"], 
                                 "checks_fail": counts[20], 
                                 "checks_skip": counts[30], 
@@ -62,15 +70,3 @@ def has_no_empty_params(rule):
     defaults = rule.defaults if rule.defaults is not None else ()
     arguments = rule.arguments if rule.arguments is not None else ()
     return len(defaults) >= len(arguments)
-    
-@cases.route("/site-map")
-def site_map():
-    links = []
-    for rule in current_app.url_map.iter_rules():
-        # Filter out rules we can't navigate to in a browser
-        # and rules that require parameters
-        if "GET" in rule.methods and has_no_empty_params(rule):
-            url = url_for(rule.endpoint, **(rule.defaults or {}))
-            links.append((url, rule.endpoint))
-    # links is now a list of url, endpoint tuples
-    return render_template('cases/test.html', out=links)

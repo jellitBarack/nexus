@@ -30,8 +30,19 @@
                     <li{% if "history" == active_page %} class="active"{% endif %}>
                         <a href="{{ url_for('reports.history') }}">History</a>
                     </li>
+
                 </ul><!-- /navbar-primary -->
                 <ul class="nav navbar-nav navbar-right navbar-iconic navbar-utility">
+                    <li>
+                        <form class="navbar-form" method="post" action="{{ config["APPLICATION_ROOT"] }}/cases/" role="form">
+                            <div class="input-group">
+                                <input type="text" class="form-control" placeholder="Case number" name="casenum" id="casenum">
+                                <div class="input-group-btn">
+                                    <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
+                                </div>
+                            </div>
+                        </form>
+                    </li>
                     <li class="dropdown">
                         <a href="#0" class="dropdown-toggle nav-item-iconic" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                             <span title="Help" class="fa pficon-help"></span> Help
