@@ -1,5 +1,5 @@
 # third-party imports
-from flask import Flask, render_template, flash
+from flask import Flask, render_template, flash, g, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_migrate import Migrate
@@ -9,6 +9,7 @@ import datetime
 import logging, sys
 import logging.config
 import pprint
+import time
 
 
 LOGGING = {
@@ -46,7 +47,7 @@ def create_app(config_name,cli = False):
 
     app.config.from_object(app_config[config_name])
     app.config.from_pyfile('config.py')
-    app.config['APPLICATION_ROOT'] = "/citellus"
+    #g.application_root = app.config['APPLICATION_ROOT']
     from app import models
     db.init_app(app)
     migrate = Migrate(app, db)
@@ -83,6 +84,11 @@ def create_app(config_name,cli = False):
         @app.errorhandler(405)
         def page_not_found(error):
             return render_template("errors/reportnotfound.html"), 404
+        @app.before_request
+        def before_request():
+            g.request_start_time = time.time()
+            g.request_time = lambda: "%.5fs" % (time.time() - g.request_start_time)
+
     return app
 
 def flash_errors(form):

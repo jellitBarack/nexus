@@ -139,5 +139,21 @@
   .badge a {
     color: #fff;
     margin-left: 0.1875rem;
-    vertical-align: text-bottom; }
+    vertical-align: text-bottom; 
+  }
   
+.has-sidebar footer {
+  left: 260px;
+  width: calc(100% - 240px - 40px);
+}
+footer {
+  border-top: 1px solid #D5D5D5;
+  bottom: 0;
+  font-size: 10px;
+  left: 20px;
+  line-height: 15px;
+  padding-bottom: 28px;
+  padding-top: 28px;
+  /* position: absolute;*/
+  width: calc(100% - 40px);
+}

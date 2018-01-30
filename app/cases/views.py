@@ -16,6 +16,7 @@ from app import flash_errors
 from app import db
 from app.checks import loop_checks
 from app.reports import add_report
+from app.metrics import get_file_date
 
 
 
@@ -31,22 +32,20 @@ def search():
         for root, dirs, files in os.walk(casepath, topdown=True):
             for f in current_app.config["REPORT_FILE_NAMES"]:
                 if f in files:
-                    sarfiles = []
                     fullname = root + "/" + f
-                    sardir = root + "/var/log/sa/"
+                    sardir = root + "/var/log/sa"
                     if os.path.isdir(sardir):
-                        for saroot, sadirs, sarfilelist in os.walk(sardir, topdown=True):
-                            for sarfile in sarfilelist:
-                                sarfiles.append(saroot + sarfile)
-                    sarfiles.sort(key=lambda x: os.path.getmtime(x))
-                    report_id, results, source = add_report(fullname, form.casenum.data)
-                    counts = loop_checks(report_id, results, source)
+                        sarfiles = get_file_date(sardir)
+                    else:
+                        sarfiles = []
+                    report_id, results, source, report_changed = add_report(fullname, form.casenum.data)
+                    counts = loop_checks(report_id, results, source, report_changed)
                     # add report to the web interface
                     if source == "magui":
                         icon = "microchip"
                     else:
                         icon = "cog"
-                    reportList.append({"fullname": fullname, 
+                    reportList.append({"fullname": fullname,
                                 "name": "/".join(root.split("/")[-2:]), 
                                 "report_id": report_id,
                                 "icon": icon, 

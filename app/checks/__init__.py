@@ -36,7 +36,7 @@ def result_string(c):
         result_string = "sosreport"
     return result_string
 
-def loop_checks(report_id, results, source):
+def loop_checks(report_id, results, source, report_changed):
     # looping through the plugin results
     counts = defaultdict(int)
     
@@ -79,7 +79,8 @@ def loop_checks(report_id, results, source):
                 element["result"] = new_result
                 counts["total"] += 1
                 counts[global_rc] += 1
-                add_check(report_id, element, source)
+                if report_changed is True:
+                    add_check(report_id, element, source)
         
         else:
             # It's easier to support magui if we convert regular citellus reports with the same
@@ -94,7 +95,8 @@ def loop_checks(report_id, results, source):
             c[rs] = new_result
             counts[c["global_rc"]] += 1
             counts["total"] += 1
-            add_check(report_id, c, source)
+            if report_changed is True:
+                add_check(report_id, c, source)
 
     return counts
 

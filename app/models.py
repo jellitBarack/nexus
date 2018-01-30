@@ -61,11 +61,13 @@ class Report(db.Model):
     __tablename__ = 'reports_metadata'
 
     id = db.Column(db.String, primary_key=True)
+    fullpath = db.Column(db.String(200))
     source = db.Column(db.String(10))
     live = db.Column(db.Boolean, default=True)
     when = db.Column(db.DateTime, default=datetime.datetime.utcnow)
     execution_time = db.Column(db.SmallInteger)
     path = db.Column(db.String(200))
+    md5sum = db.Column(db.String(200))
     case_id = db.Column(db.Integer)
     checks = db.relationship("Check", back_populates="report")
 
