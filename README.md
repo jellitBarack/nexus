@@ -22,6 +22,10 @@ This web application is a frontend for the [Citellus](https://github.com/zeroday
 * Store plugin metadata
 * We can easily implement nice features like history and preferences.
 
+# Known issues
+* The first time we load a case, it takes ~30 seconds to parse and insert all the data in the DB. This might be because that we're using db.merge.
+* It's my first python webapp, and I think some of the things could be better implement, like the helpers modules.
+
 # Installation
 ## User accounts
 
@@ -85,7 +89,7 @@ I didn't want to run make install because I want to keep sysstat-11 for system w
 
 I've included a copy of sadf binary in the bin/ folder. We now need to set the appropriate context on it (See SELinux Section)
 
-## Selinux
+## SELinux
 * Give read access to the /cases folder to apache
 ```
 # semanage fcontext -a -t httpd_sys_content_t '/cases(/.*)?'
@@ -98,7 +102,7 @@ I've included a copy of sadf binary in the bin/ folder. We now need to set the a
 # chown -R apache:apache /var/www/citellus/db/
 ```
 
-* Give execute access to the binary director
+* Give execute access to the binary directory
 ```
 # semanage fcontext -a -t httpd_sys_script_exec_t '/var/www/citellus/bin(/.*)?'
 # chown -R apache:apache /var/www/citellus/bin/

@@ -1,0 +1,134 @@
+{% extends "layout/base.html" %} {% set active_page = "metrics" %}{% block title %}Metrics{% endblock %} {% block body %}
+<h1>Metrics</h1>
+<div class="row toolbar-pf">
+    <div class="col-sm-12">
+        <form class="toolbar-pf-actions" method="post" action="{{ config[" APPLICATION_ROOT "] }}/metrics/" role="form">
+            <div class="form-group">
+                <button class="btn btn-primary" type="button">Refresh</button>
+                <div class="dropdown btn-group">
+                    <button type="button" name="activity" id="activity" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Activity <span class="caret"></span></button>
+                    <ul class="dropdown-menu">
+                        {% for a in activities %}
+                        <li><a href="#">{{ a }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <!-- /dropdown btn-group -->
+            </div>
+            <!-- /form-group -->
+            <div class="form-group toolbar-pf-filter">
+                <label class="sr-only" for="filter">Keys</label>
+                <div class="input-group">
+                    <div class="input-group-btn">
+                        <button type="button" name="filter_key" id="filter_key" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Keys <span class="caret"></span></button>
+                        <ul class="dropdown-menu">
+                        </ul>
+                    </div>
+                    <!-- /input-group-btn -->
+                    <div class="input-group-btn">
+                        <button type="button" name="filter_operator" id="filter_operator" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Operator <span class="caret"></span></button>
+                        <ul class="dropdown-menu">
+                            <li><a href="#">==</a></li>
+                            <li><a href="#">!=</a></li>
+                            <li><a href="#">is</a></li>
+                            <li><a href="#">is not</a></li>
+                            <li><a href="#">&gt;=</a></li>
+                            <li><a href="#">&gt;</a></li>
+                            <li><a href="#">&lt;=</a></li>
+                            <li><a href="#">&lt;</a></li>
+                        </ul>
+                    </div>
+                    <!-- /btn-group -->
+                    <input type="text" name="filter_value" id="filter_value" class="form-control" id="filter" placeholder="Key Value">
+                </div>
+                <!-- /input-group -->
+            </div>
+            <!-- /form-group toolbar-pf-filter -->
+            <div class="form-group">
+                <button class="btn btn-primary" type="button">Add Filter</button>
+            </div>
+            <div class="form-group">
+                <label for="start_date"></label>Start</label>
+
+                <div class='input-group date' id='group_start_date'>
+                    <input type='text' name="start_date" id="start_date" class="form-control" />
+                    <span class="input-group-addon">
+                            <span class="fa fa-calendar"></span>
+                    </span>
+                </div>
+            </div>
+            <!-- /form-group -->
+            <div class="form-group">
+                <label for="end_date"></label>End</label>
+
+                <div class='input-group date' id='group_end_date'>
+                    <input type='text' name="end_date" id="end_date" class="form-control" />
+                    <span class="input-group-addon">
+                            <span class="fa fa-calendar"></span>
+                    </span>
+                </div>
+            </div>
+            <!-- /form-group -->
+        </form>
+    </div>
+    <!-- /col-sm-12 -->
+</div>
+<!-- /row toolbar-pf -->
+<div class="row toolbar-pf-results">
+    <div class="col-sm-12">
+        <p>Active filters:</p>
+        <ul class="list-inline">
+            <!--<li>
+                <span class="label label-info">
+                  Name: nameofthething
+                  <a href="#"><span class="pficon pficon-close"></span></a>
+                </span>
+            </li>-->
+        </ul>
+        <p><a href="#">Clear All Filters</a></p>
+    </div>
+    <!-- /col -->
+</div>
+<!-- /row -->
+{% endblock %} {% block javascript %}
+<script src="{{ url_for('static', filename='js/moment-with-locales.js') }}"></script>
+<script src="{{ url_for('static', filename='js/bootstrap-datetimepicker.min.js') }}"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('#group_start_date').datetimepicker({
+            defaultDate: '{{ sarfiles[0]["filedate"].strftime("%Y-%m-%d")  }}',
+            format: "YYYY-MM-DD HH:mm:ss",
+            icons: {
+                time: "fa fa-clock-o",
+                date: "fa fa-calendar",
+                up: "fa fa-arrow-up",
+                down: "fa fa-arrow-down",
+                previous: "fa fa-chevron-circle-left",
+                next: "fa fa-chevron-circle-right",
+                today: "fa fa-calendar-times-o",
+                clear: "fa fa-trash",
+                close: "fa fa-close"
+            },
+            minDate: '{{ sarfiles[0]["filedate"].strftime("%Y-%m-%d") }}',
+            maxDate: '{{ sarfiles[-1]["filedate"].strftime("%Y-%m-%d")  }}'
+        });
+        $('#group_end_date').datetimepicker({
+            defaultDate: '{{ sarfiles[-1]["filedate"].strftime("%Y-%m-%d")  }}',
+            format: "YYYY-MM-DD HH:mm:ss",
+            icons: {
+                time: "fa fa-clock-o",
+                date: "fa fa-calendar",
+                up: "fa fa-arrow-up",
+                down: "fa fa-arrow-down",
+                previous: "fa fa-chevron-circle-left",
+                next: "fa fa-chevron-circle-right",
+                today: "fa fa-calendar-times-o",
+                clear: "fa fa-trash",
+                close: "fa fa-close"
+            },
+            minDate: '{{ sarfiles[0]["filedate"].strftime("%Y-%m-%d") }}',
+            maxDate: '{{ sarfiles[-1]["filedate"].strftime("%Y-%m-%d")  }}'
+        });
+    });
+</script>
+{% endblock %}

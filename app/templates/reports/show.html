@@ -1,95 +1,99 @@
-{% extends "layout/base.html" %}
-{% set active_page = "checks" %}
-{% block title %}{{ report.case_id }} - Report{% endblock %}
-{% block body %}
+{% extends "layout/base.html" %} {% set active_page = "checks" %} {% block title %}{{ report.case_id }} - Report{% endblock %} {% block body %}
 
 <div class="clearfix toolbar-pf">
- <div class="col-sm-12">
-  <form class="toolbar-pf-actions">
-   <div class="form-group toolbar-pf-filter">
-    <label class="sr-only" for="filter">Name</label>
-    <div class="input-group">
-     <div class="input-group-btn">
-      <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Name <span class="caret"></span></button>
-      <ul class="dropdown-menu">
-       <li class="selected"><a href="#">Full text</a></li>
-       <li><a href="#">Bugzilla</a></li>
-      </ul>
-     </div><!-- /btn-group -->
-     <input type="text" class="form-control" id="filter_text" placeholder="Filter...">
-    </div><!-- /input-group -->
-   </div><!-- /form-group toolbar-pf-filter -->
-   <div class="form-group">
-    <div class="dropdown btn-group">
-     <button id="plugin-sort" type="button" data-sortfield="priority" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Priority <span class="caret"></span></button>
-     <ul class="dropdown-menu">
-      <li class="selected"><a href="#" class="plugin-sort-field">Priority</a></li>
-      <li><a href="#" class="plugin-sort-field">State</a></li>
-      <li><a href="#" class="plugin-sort-field">Name</a></li>
-     </ul>
-    </div><!-- /dropdown btn-group -->
-    <button class="btn btn-link" type="button">
-     <span data-direction="desc" id="sortDirection" class="fa fa-sort-amount-desc"></span>
-    </button>
-    <input type="hidden" id="filter_status" value="all">
-    <div class="btn-group" role="group" aria-label="Status Filters">
-     <button type="button" class="btn btn-success filter-status" data-filter="okay">okay</button>
-     <button type="button" class="btn btn-danger filter-status" data-filter="failed">failed</button>
-     <button type="button" class="btn btn-warning filter-status" data-filter="skipped">skipped</button>
-     <button type="button" class="btn btn-dark filter-status" data-filter="all">all</button>
-    </div><!-- /btn-group -->
-   </div><!-- /form-group -->
-   <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-categories">Categories</button>
-   <button type="button" class="btn btn-secondary" id="expandAll">Expand All</button>
-   <div class="toolbar-pf-action-right">
-    <div class="form-group toolbar-pf-find">
-     <button class="btn btn-link btn-find" type="button">
-      <span class="fa fa-search"></span>
-     </button>
-     <div class="find-pf-dropdown-container">
-      <input type="text" class="form-control" id="find" placeholder="Find By Keyword...">
-      <div class="find-pf-buttons">
-       <span class="find-pf-nums">1 of 3</span>
-       <button class="btn btn-link" type="button">
-        <span class="fa fa-angle-up"></span>
-       </button>
-       <button class="btn btn-link" type="button">
-        <span class="fa fa-angle-down"></span>
-       </button>
-       <button class="btn btn-link btn-find-close" type="button">
-        <span class="pficon pficon-close"></span>
-       </button>
-      </div><!-- /find-pf-buttons -->
-     </div><!-- /find-pf-dropdown-container -->
-    </div><!-- /toolbar-pf-find -->
-   </div><!-- /toolbar-pf-action-right -->
-  </form>
-  <div class="clearfix toolbar-pf-results">
-   <div class="col-sm-12">
-    <h5><span id="numresults"></span> Results</h5>
-   </div><!-- /col -->
-  </div><!-- /row -->
- </div><!-- /col -->
-</div><!-- /row -->
+    <div class="col-sm-12">
+        <form class="toolbar-pf-actions">
+            <div class="form-group toolbar-pf-filter">
+                <label class="sr-only" for="filter">Name</label>
+                <div class="input-group">
+                    <div class="input-group-btn">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Name <span class="caret"></span></button>
+                        <ul class="dropdown-menu">
+                            <li class="selected"><a href="#">Full text</a></li>
+                            <li><a href="#">Bugzilla</a></li>
+                        </ul>
+                    </div>
+                    <!-- /btn-group -->
+                    <input type="text" class="form-control" id="filter_text" placeholder="Filter...">
+                </div>
+                <!-- /input-group -->
+            </div>
+            <!-- /form-group toolbar-pf-filter -->
+            <div class="form-group">
+                <div class="dropdown btn-group">
+                    <button id="plugin-sort" type="button" data-sortfield="priority" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Priority <span class="caret"></span></button>
+                    <ul class="dropdown-menu">
+                        <li class="selected"><a href="#" class="plugin-sort-field">Priority</a></li>
+                        <li><a href="#" class="plugin-sort-field">State</a></li>
+                        <li><a href="#" class="plugin-sort-field">Name</a></li>
+                    </ul>
+                </div>
+                <!-- /dropdown btn-group -->
+                <button class="btn btn-link" type="button">
+                    <span data-direction="desc" id="sortDirection" class="fa fa-sort-amount-desc"></span>
+                </button>
+                <input type="hidden" id="filter_status" value="all">
+                <div class="btn-group" role="group" aria-label="Status Filters">
+                    <button type="button" class="btn btn-success filter-status" data-filter="okay">okay</button>
+                    <button type="button" class="btn btn-danger filter-status" data-filter="failed">failed</button>
+                    <button type="button" class="btn btn-warning filter-status" data-filter="skipped">skipped</button>
+                    <button type="button" class="btn btn-dark filter-status" data-filter="all">all</button>
+                </div>
+                <!-- /btn-group -->
+            </div>
+            <!-- /form-group -->
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-categories">Categories</button>
+            <button type="button" class="btn btn-secondary" id="expandAll">Expand All</button>
+            <div class="toolbar-pf-action-right">
+                <div class="form-group toolbar-pf-find">
+                    <button class="btn btn-link btn-find" type="button">
+                        <span class="fa fa-search"></span>
+                    </button>
+                    <div class="find-pf-dropdown-container">
+                        <input type="text" class="form-control" id="find" placeholder="Find By Keyword...">
+                        <div class="find-pf-buttons">
+                            <span class="find-pf-nums">1 of 3</span>
+                            <button class="btn btn-link" type="button">
+                                <span class="fa fa-angle-up"></span>
+                            </button>
+                            <button class="btn btn-link" type="button">
+                                <span class="fa fa-angle-down"></span>
+                            </button>
+                            <button class="btn btn-link btn-find-close" type="button">
+                                <span class="pficon pficon-close"></span>
+                            </button>
+                        </div>
+                        <!-- /find-pf-buttons -->
+                    </div>
+                    <!-- /find-pf-dropdown-container -->
+                </div>
+                <!-- /toolbar-pf-find -->
+            </div>
+            <!-- /toolbar-pf-action-right -->
+        </form>
+        <div class="clearfix toolbar-pf-results">
+            <div class="col-sm-12">
+                <h5><span id="numresults"></span> Results</h5>
+            </div>
+            <!-- /col -->
+        </div>
+        <!-- /row -->
+    </div>
+    <!-- /col -->
+</div>
+<!-- /row -->
 
 <div class="clearfix row-cards-pf">
     <div id="list-group" class="list-group list-view-pf list-view-pf-view">
-{% for check in report.checks %}
-    {% with check=check %}
-    {% include "checks/show.html" %}
-    {% endwith %}
-{% endfor %}
-    </div><!-- /list-group -->
-</div><!-- /row-cards-pf -->
+        {% for check in report.checks %} {% with check=check %} {% include "checks/show.html" %} {% endwith %} {% endfor %}
+    </div>
+    <!-- /list-group -->
+</div>
+<!-- /row-cards-pf -->
 
 
-{% with categories=categories %}
-{% include "reports/modal-categories.html" %}
-{% endwith %}
+{% with categories=categories %} {% include "reports/modal-categories.html" %} {% endwith %}
 
 <a href="#" id="debug_report_in">Debug</a>
 <div id="debug_report_out" style="display:none"><pre>{{ report|pprint}}</pre></div>
-{% endblock %}
-{% block javascript %}
-{% include "layout/report.js.html" %}
-{% endblock %}
+{% endblock %} {% block javascript %} {% include "layout/report.js.html" %} {% endblock %}

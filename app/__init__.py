@@ -56,7 +56,7 @@ def create_app(config_name,cli = False):
         login_manager.init_app(app)
         login_manager.login_message = "You must be logged in to access this page."
         login_manager.login_view = "auth.login"
-
+        from .helpers import sysstat
         from .admin import admin as admin_blueprint
         app.register_blueprint(admin_blueprint, url_prefix='/admin')
         from .cases import cases as cases_blueprint
@@ -79,6 +79,7 @@ def create_app(config_name,cli = False):
         app.register_blueprint(auth_blueprint)
         from .home import home as home_blueprint
         app.register_blueprint(home_blueprint)
+
 
         @app.errorhandler(404)
         @app.errorhandler(405)

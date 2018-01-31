@@ -16,11 +16,12 @@ from app import flash_errors
 from app import db
 from app.checks import loop_checks
 from app.reports import add_report
-from app.metrics import get_file_date
+from app.helpers import sysstat
 
 
 
 @cases.route('/', methods=['GET', 'POST'])
+@login_required
 def search():
     """
     Handle requests for cases
