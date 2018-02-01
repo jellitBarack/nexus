@@ -2,7 +2,7 @@
 <html class="layout-pf layout-pf-fixed">
 
 <head>
-    {% include 'layout/head.html' %}
+    {% block head %} {% include 'layout/head.html' %} {% endblock %}
     <title>{% block title %}{% endblock %} - Citellus Web</title>
 </head>
 
@@ -22,22 +22,32 @@
         </div>
         <!-- /navbar-header -->
         <nav class="collapse navbar-collapse">
-            <ul class="nav navbar-nav navbar-primary navbar-utility">
+            <ul class="nav navbar-nav navbar-primary">
                 <li{% if "cases"==active_page %} class="active" {% endif %}>
-                    <a href="{{ url_for('cases.search') }}">Cases</a>
+                    <a class="nav-item-iconic" href="{{ url_for('cases.search') }}">Cases</a>
                     </li>
                     <li{% if "upload"==active_page %} class="active" {% endif %}>
-                        <a class="active" href="{{ url_for('reports.upload') }}">Upload</a>
+                        <a class="nav-item-iconic" href="{{ url_for('reports.upload') }}">Upload</a>
                         </li>
                         <li{% if "history"==active_page %} class="active" {% endif %}>
-                            <a href="{{ url_for('reports.history') }}">History</a>
+                            <a class="nav-item-iconic" href="{{ url_for('reports.history') }}">History</a>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#0" class="dropdown-toggle nav-item-iconic" id="dropdownMenuTools" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                    Tools
+                                    <span class="caret"></span>
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuTools">
+                                    <li><a href="http://diag-prod.gsslab.rdu2.redhat.com:82/" target="_blank">SOS Differenciator</a></li>
+                                    <li><a href="https://quest.gsslab.rdu2.redhat.com/quest?q=search%20kcs&t=true" target="_blank">Quest</a></li>
+                                </ul>
                             </li>
 
             </ul>
             <!-- /navbar-primary -->
             <ul class="nav navbar-nav navbar-right navbar-iconic navbar-utility">
                 <li>
-                    <form class="navbar-form" method="post" action="{{ config[" APPLICATION_ROOT "] }}/cases/" role="form">
+                    <form class="navbar-form" method="post" action="{{ config['APPLICATION_ROOT'] }}/cases/" role="form">
                         <div class="input-group">
                             <input type="text" class="form-control" placeholder="Case number" name="casenum" id="casenum">
                             <div class="input-group-btn">

@@ -36,7 +36,7 @@ def search():
                     fullname = root + "/" + f
                     sardir = root + "/var/log/sa"
                     if os.path.isdir(sardir):
-                        sarfiles = get_file_date(sardir)
+                        sarfiles = sysstat.sysstat.get_file_date(sardir)
                     else:
                         sarfiles = []
                     report_id, results, source, report_changed = add_report(fullname, form.casenum.data)
