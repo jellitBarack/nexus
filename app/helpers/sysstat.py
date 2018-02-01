@@ -36,7 +36,6 @@ class sysstat:
                 args.append("-A")
             else:
                 args.extend(sysstat_activies[data_type]["switch"].split())
-        logging.debug("SADF Command: %s", args)
         out = Popen(args, stdout=PIPE, stderr=PIPE)
         return out
 
@@ -59,13 +58,13 @@ class sysstat:
         return headers
 
     @staticmethod
-    def get_stats(file=None, get_metadata=None, data_type=None, start_date=None, end_date=datetime.now(), filter_list=None, filter_condition=None):
+    def get_stats(file=None, get_metadata=None, activity=None, data_type=None, start_date=None, end_date=datetime.now(), filter_list=None, filter_condition=None):
         global default_start_date
         if start_date is None:
             start_date = default_start_date
         stats = "".join(sysstat.sadf(file=file, data_type=data_type).stdout)
         jstats = json.loads(stats)
-        matching_events = sysstat.transform_stats(stats=jstats, get_metadata=get_metadata, start_date=start_date, end_date=end_date, filter_list=filter_list, filter_condition=filter_condition)
+        matching_events = sysstat.transform_stats(stats=jstats, activity=activity, get_metadata=get_metadata, start_date=start_date, end_date=end_date, filter_list=filter_list, filter_condition=filter_condition)
         return matching_events
 
     @staticmethod
@@ -85,6 +84,8 @@ class sysstat:
                 del s["timestamp"]
                 if get_metadata == "activities":
                     return s.keys()
+                if get_metadata == "keys":
+                    return s[activity].keys()
                 for k in s[activity]:
                     for r in s[activity][k]:
                         if filter_list is not None:

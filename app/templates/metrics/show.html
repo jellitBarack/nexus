@@ -10,7 +10,7 @@
                     <button type="button" name="activity" id="activity" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Activity <span class="caret"></span></button>
                     <ul class="dropdown-menu">
                         {% for a in activities %}
-                        <li><a href="#">{{ a }}</a></li>
+                        <li><a href="#" class="metrics-activity">{{ a }}</a></li>
                         {% endfor %}
                     </ul>
                 </div>
@@ -22,7 +22,7 @@
                 <div class="input-group">
                     <div class="input-group-btn">
                         <button type="button" name="filter_key" id="filter_key" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Keys <span class="caret"></span></button>
-                        <ul class="dropdown-menu">
+                        <ul id="ul_filter_key" class="dropdown-menu">
                         </ul>
                     </div>
                     <!-- /input-group-btn -->
@@ -77,7 +77,29 @@
 <script src="{{ url_for('static', filename='js/daterangepicker.js') }}"></script>
 <script type="text/javascript">
     $(document).ready(function() {
+        $("body").on("click", ".metrics-activity", function(e) {
+            var field = $(this);
+            var key = field.html();
+            var button = $("#activity")
+            field.parent().parent().find("li").removeClass("selected");
+            field.parent().addClass("selected");
+            button.html(key + ' <span class="caret"></span>');
+            button.data("activity", key)
+            console.log($("activity"))
+            $.ajax({
+                url: '{{ url_for("metrics.get_keys", report_id=report.id) }}?activity=' + key,
+                dataType: "json",
+                async: true,
+                success: function(data) {
+                    $("#ul_filter_key").html('')
+                    $.each(data, function(i, item) {
+                        $("#ul_filter_key").append('<li><a href="#" class="metric-keys">' + item + '</a></li>')
+                    })
 
+                }
+            });
+
+        });
         $('#daterange').daterangepicker({
             "timePicker": true,
             "timePicker24Hour": true,
@@ -123,7 +145,7 @@
             "opens": "right",
             "orientation": "left"
         }, function(start, end, label) {
-            console.log("New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')");
+            console.log("New date range selected: " + start.format('YYYY-MM-DD') + " to " + end.format('YYYY-MM-DD') + " (predefined range: " + label + ")");
         });
     });
 </script>

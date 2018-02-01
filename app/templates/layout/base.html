@@ -136,6 +136,28 @@
         $(document).ready(function() {
             $().setupVerticalNavigation(true);
         });
+
+        function warnMessage(level, m) {
+            var html = '<div class="alert alert-' + level + ' alert-dismissible fade show" role="alert"><strong>' + level + '</strong> ' + m + ' <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span></button></div>';
+            $("#alert_list").append(html);
+        }
+        $(document).ajaxError(function myErrorHandler(event, jqXHR, ajaxOptions, thrownError) {
+            if (jqXHR.status === 0) {
+                warnMessage("danger", "Unable to get JSON file. [0]");
+            } else if (jqXHR.status == 404) {
+                warnMessage("danger", "File not found. [404]");
+            } else if (jqXHR.status == 500) {
+                warnMessage("danger", "Internal Server Error [500].");
+            } else if (thrownError === "parsererror") {
+                warnMessage("danger", "Requested JSON parse failed.");
+            } else if (thrownError === "timeout") {
+                warnMessage("danger", "Time out error.");
+            } else if (thrownError === "abort") {
+                warnMessage("danger", "Ajax request aborted.");
+            } else {
+                warnMessage("danger", "Uncaught Error.\n" + jqXHR.responseText);
+            }
+        });
     </script>
     {% block javascript %}{% endblock %}
     <footer>Powered by <a href="https://github.com/zerodayz/citellus">Citellus</a><br>Rendered in {{ g.request_time() }}</footer>
