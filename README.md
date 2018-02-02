@@ -34,6 +34,10 @@ This web application is a frontend for the [Citellus](https://github.com/zeroday
 * Upload a sosreport
 * Keep an history of the searches for future reference
 * Dynamic priorities on checks
+* Toxify the code
+* Describe each function
+* Clean debug/repetitive code
+* Fix helpers/sysstat.py
 
 # Installation
 ## User accounts
