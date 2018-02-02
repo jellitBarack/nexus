@@ -49,6 +49,7 @@ class Config(object):
         "process-and-context-switch": {"name": "Task Creation and switching", "switch": "-w"},
         "queue": { "name": "Queue Length", "switch": "-q"},
         "network": {
+            "is-parent": "true",
             "net-dev": { "name": "Network Devices", "switch": "-n DEV"},
             "net-edev": { "name": "Network Devices Errors", "switch": "-n EDEV"},
             "net-nfs": { "name": "NFS Client", "switch": "-n NFS"},
@@ -69,7 +70,9 @@ class Config(object):
             "net-udp6": { "name": "UDP IPv6 network traffic", "switch": "-n UDP6"},
             "softnet": { "name": "NFV?", "switch": "-n SOFT", "label": "cpu" }
         },
+        "serial": {"name": "Serial"},
         "power-management": {
+            "is-parent": "true",
             "cpu-frequency": { "name": "CPU Clock frequency", "switch": "-m FREQ", "label": "number" },
             "fan-speed": { "name": "FAN RPM", "switch": "-m FAN", "label": "number" },
             "usb-devices": { "name": "CPU Clock frequency", "switch": "-m USB" },

@@ -1,105 +1,188 @@
-{% extends "layout/base.html" %} {% set active_page = "metrics" %}{% block title %}Metrics{% endblock %} {% block head %} {{ super() }}
+{% extends"layout/base.html" %} {% set active_page ="metrics" %}{% block title %}Metrics{% endblock %} {% block head %} {{ super() }}
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/daterangepicker.css') }}"> {% endblock %} {% block body %}
 <h1>Metrics</h1>
 <div class="row toolbar-pf">
     <div class="col-sm-12">
         <form class="toolbar-pf-actions" method="post" action="{{ config[" APPLICATION_ROOT "] }}/metrics/" role="form">
-            <div class="form-group">
-                <button class="btn btn-primary" type="button">Refresh</button>
-                <div class="dropdown btn-group">
-                    <button type="button" name="activity" id="activity" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Activity <span class="caret"></span></button>
-                    <ul class="dropdown-menu">
-                        {% for a in activities %}
-                        <li><a href="#" class="metrics-activity">{{ a }}</a></li>
-                        {% endfor %}
-                    </ul>
-                </div>
-                <!-- /dropdown btn-group -->
-            </div>
-            <!-- /form-group -->
             <div class="form-group toolbar-pf-filter">
-                <label class="sr-only" for="filter">Keys</label>
                 <div class="input-group">
                     <div class="input-group-btn">
-                        <button type="button" name="filter_key" id="filter_key" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Keys <span class="caret"></span></button>
-                        <ul id="ul_filter_key" class="dropdown-menu">
-                        </ul>
-                    </div>
-                    <!-- /input-group-btn -->
-                    <div class="input-group-btn">
-                        <button type="button" name="filter_operator" id="filter_operator" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Operator <span class="caret"></span></button>
+                        <button type="button" name="activity" id="activity" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Activity <span class="caret"></span></button>
                         <ul class="dropdown-menu">
-                            <li><a href="#">==</a></li>
-                            <li><a href="#">!=</a></li>
-                            <li><a href="#">is</a></li>
-                            <li><a href="#">is not</a></li>
-                            <li><a href="#">&gt;=</a></li>
-                            <li><a href="#">&gt;</a></li>
-                            <li><a href="#">&lt;=</a></li>
-                            <li><a href="#">&lt;</a></li>
+                            {% for a in activities|sort() %}
+                            <li><a href="#" class="metric-activity">{{ a }}</a></li>
+                            {% endfor %}
                         </ul>
                     </div>
-                    <!-- /btn-group -->
-                    <input type="text" name="filter_value" id="filter_value" class="form-control" id="filter" placeholder="Key Value">
-                </div>
-                <!-- /input-group -->
-            </div>
+                    <!-- /dropdown btn-group -->
+                    <div class="input-group-btn">
+                        <button type="button" name="metric_name" id="metric_name" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Metric <span class="caret"></span></button>
+                        <ul id="ul_metric_name" class="dropdown-menu">
+                        </ul>
+                    </div>
+                    <button class="btn btn-primary" id="refresh_data" type="button"><span class="fa fa-refresh"></span> Refresh</button>
 
-            <!-- /form-group toolbar-pf-filter -->
-            <div class="form-group">
-                <button class="btn btn-primary" type="button">Add Filter</button>
+                </div>
             </div>
-            <div class="form-group"> <input type="text" name="daterange" id="daterange"></div>
+            <!-- /form-group -->
+            <div class="form-group">
+                <label class="sr-only" for="filter">Keys</label>
+                <div class="input-group-btn">
+                    <button type="button" name="filter_key" id="filter_key" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Keys <span class="caret"></span></button>
+                    <ul id="ul_filter_key" class="dropdown-menu">
+                    </ul>
+                </div>
+                <!-- /input-group-btn -->
+                <div class="input-group-btn">
+                    <button type="button" name="filter_operator" id="filter_operator" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Operator <span class="caret"></span></button>
+                    <ul class="dropdown-menu">
+                        <li><a href="#" class="metric-operator">==</a></li>
+                        <li><a href="#" class="metric-operator">!=</a></li>
+                        <li><a href="#" class="metric-operator">is</a></li>
+                        <li><a href="#" class="metric-operator">is not</a></li>
+                        <li><a href="#" class="metric-operator">&gt;=</a></li>
+                        <li><a href="#" class="metric-operator">&gt;</a></li>
+                        <li><a href="#" class="metric-operator">&lt;=</a></li>
+                        <li><a href="#" class="metric-operator">&lt;</a></li>
+                    </ul>
+                </div>
+                <div class="input-group-btn">
+                    <button id="add_filter" class="btn btn-primary" type="button">Add Filter</button>
+                </div>
+                <!-- /btn-group -->
+                <input type="text" name="filter_value" id="filter_value" class="form-control" id="filter" placeholder="Filter by...">
+
+            </div>
+            <!-- /input-group -->
+
+            <div class="form-group">
+                <input type="hidden" name="end_date" id="end_date" value="{{ sarfiles[-1]['filedate'].strftime('%Y-%m-%d %H:%M:%S') }}">
+                <input type="hidden" name="start_date" id="start_date" value="{{ sarfiles[0]['filedate'].strftime('%Y-%m-%d %H:%M:%S') }}">
+                <input type="text" name="daterange" id="daterange">
+            </div>
     </div>
-    <!-- /col-sm-12 -->
 </div>
+<!-- /col-sm-12 -->
 </form>
-</div>
 <!-- /row toolbar-pf -->
 <div class="row toolbar-pf-results">
     <div class="col-sm-12">
         <p>Active filters:</p>
-        <ul class="list-inline">
-            <!--<li>
-                <span class="label label-info">
-                  Name: nameofthething
-                  <a href="#"><span class="pficon pficon-close"></span></a>
-                </span>
-            </li>-->
+        <ul id="filter_list" class="list-inline">
         </ul>
-        <p><a href="#">Clear All Filters</a></p>
+        <p><a href="#" id="filters_clear">Clear All Filters</a></p>
     </div>
     <!-- /col -->
 </div>
-<!-- /row -->
+<div id="line-chart" class="line-chart-pf"></div>
+
 {% endblock %} {% block javascript %}
-<script src="{{ url_for('static', filename='js/moment.min.js') }}"></script>
-<script src="{{ url_for('static', filename='js/daterangepicker.js') }}"></script>
+<script src="{{ url_for( 'static', filename='js/moment.min.js' ) }}"></script>
+<script src="{{ url_for( 'static', filename='js/daterangepicker.js' ) }}"></script>
+<script src="{{ url_for( 'static', filename='js/c3.min.js' ) }}"></script>
+<script src="{{ url_for( 'static', filename='js/d3.min.js' ) }}"></script>
 <script type="text/javascript">
     $(document).ready(function() {
-        $("body").on("click", ".metrics-activity", function(e) {
-            var field = $(this);
+
+        var btn_activity = $("#activity")
+        var btn_metric_name = $("#metric_name")
+        var btn_filter_key = $("#filter_key")
+        var btn_filter_operator = $("#filter_operator")
+        var input_filter_value = $("#filter_value")
+        var input_date_range = $('#daterange')
+        var start_date = $("#start_date")
+        var end_date = $("#end_date")
+
+        function reset_list(item) {
+            var field = item;
             var key = field.html();
-            var button = $("#activity")
             field.parent().parent().find("li").removeClass("selected");
             field.parent().addClass("selected");
-            button.html(key + ' <span class="caret"></span>');
-            button.data("activity", key)
-            console.log($("activity"))
+            return key;
+        }
+
+        $("body").on("click", "#refresh_data", function(e) {
+            filters = []
+            $("#filter_list").find(".raw-filter").each(function() {
+                filter = {
+                    operator: $(this).data("filter-operator"),
+                    key: $(this).data("filter-key"),
+                    value: $(this).data("filter-value"),
+                }
+                filters.push(filter)
+            })
+            var data_out = {
+                activity: btn_activity.data("value"),
+                metric: btn_metric_name.data("value"),
+                startDate: start_date.val(),
+                endDate: end_date.val(),
+                filters: filters
+            };
+            $.ajax({
+                url: '{{ url_for("metrics.get_points", report_id=report.id) }}',
+                method: "POST",
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify(data_out),
+                async: true,
+                success: function(data) {
+                    console.log(data)
+                }
+            });
+            /* var lineChartConfig = c3ChartDefaults.getDefaultLineConfig();
+             lineChartConfig.bindto = '#line-chart';
+             lineChartConfig.data = {
+                 columns: lineChartDataColumns,
+                 type: 'line'
+             };
+             var lineChart = c3.generate(lineChartConfig);*/
+        })
+        $("body").on("click", ".metric-activity", function(e) {
+            var key = reset_list($(this))
+            btn_activity.html(key + ' <span class="caret"></span>');
+            btn_filter_key.html('Keys <span class="caret"></span>')
+            btn_filter_key.data("value", "")
+            btn_activity.data("value", key)
             $.ajax({
                 url: '{{ url_for("metrics.get_keys", report_id=report.id) }}?activity=' + key,
                 dataType: "json",
                 async: true,
                 success: function(data) {
                     $("#ul_filter_key").html('')
+                    $("#ul_metric_name").html('')
                     $.each(data, function(i, item) {
                         $("#ul_filter_key").append('<li><a href="#" class="metric-keys">' + item + '</a></li>')
+                        $("#ul_metric_name").append('<li><a href="#" class="metric-names">' + item + '</a></li>')
                     })
 
                 }
             });
-
         });
+        $("body").on("click", ".metric-names", function(e) {
+            var key = reset_list($(this))
+            btn_metric_name.html(key + ' <span class="caret"></span>');
+            btn_metric_name.data("value", key)
+        });
+        $("body").on("click", ".metric-operator", function(e) {
+            var key = reset_list($(this))
+            btn_filter_operator.html(key + ' <span class="caret"></span>');
+            btn_filter_operator.data("value", key)
+        });
+        $("body").on("click", ".metric-keys", function(e) {
+            var key = reset_list($(this))
+            btn_filter_key.html(key + ' <span class="caret"></span>');
+            btn_filter_key.data("value", key)
+        });
+
+        $("body").on("click", "#add_filter", function(e) {
+            $("#filter_list").append('<li><span class="label label-info raw-filter" data-activity=" ' + btn_activity.data("value") + '" data-filter-key=" ' + btn_filter_key.data("value") + '" data-filter-operator="' + btn_filter_operator.data("value") + '" data-filter-value="' + input_filter_value.val() + '">' + btn_activity.data("value") + '.' + btn_filter_key.data("value") + ' ' + btn_filter_operator.data("value") + '"' + input_filter_value.val() + '"<a href="#"><span class="pficon pficon-close filter-remove"></span></a></span></li>')
+        })
+        $("body").on("click", ".filter-remove", function(e) {
+            $(this).parent().parent().remove()
+        })
+        $("body").on("click", "#filters_clear", function(e) {
+            $("#filter_list").html("")
+        })
         $('#daterange').daterangepicker({
             "timePicker": true,
             "timePicker24Hour": true,
@@ -113,29 +196,8 @@
                 "toLabel": "To",
                 "customRangeLabel": "Custom",
                 "weekLabel": "W",
-                "daysOfWeek": [
-                    "Su",
-                    "Mo",
-                    "Tu",
-                    "We",
-                    "Th",
-                    "Fr",
-                    "Sa"
-                ],
-                "monthNames": [
-                    "January",
-                    "February",
-                    "March",
-                    "April",
-                    "May",
-                    "June",
-                    "July",
-                    "August",
-                    "September",
-                    "October",
-                    "November",
-                    "December"
-                ],
+                "daysOfWeek": ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"],
+                "monthNames": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
                 "firstDay": 1
             },
             "startDate": '{{ sarfiles[0]["filedate"].strftime("%Y-%m-%d") }}',
@@ -145,7 +207,9 @@
             "opens": "right",
             "orientation": "left"
         }, function(start, end, label) {
-            console.log("New date range selected: " + start.format('YYYY-MM-DD') + " to " + end.format('YYYY-MM-DD') + " (predefined range: " + label + ")");
+            $("#start_date").val(start.format('YYYY-MM-DD HH:mm:ss'))
+            $("#end_date").val(end.format('YYYY-MM-DD HH:mm:ss'))
+            console.log("New date range selected:" + start.format('YYYY-MM-DD') + " to" + end.format('YYYY-MM-DD') + " (predefined range:" + label + ")");
         });
     });
 </script>

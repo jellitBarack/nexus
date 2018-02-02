@@ -35,7 +35,12 @@ class sysstat:
             if data_type is None:
                 args.append("-A")
             else:
-                args.extend(sysstat_activies[data_type]["switch"].split())
+                if "." in data_type:
+                    a, subact = data_type.split(".")
+                    thing = sysstat_activies[a][subact]
+                else:
+                    thing = sysstat_activies[data_type]
+                args.extend(thing["switch"].split())
         out = Popen(args, stdout=PIPE, stderr=PIPE)
         return out
 
@@ -83,9 +88,25 @@ class sysstat:
             if start_date <= event_date <= end_date:
                 del s["timestamp"]
                 if get_metadata == "activities":
-                    return s.keys()
+                    keylist = []
+                    for k in s:
+                        if "is-parent" in sysstat_activies[k] and sysstat_activies[k]["is-parent"] == "true":
+                            for sk in s[k]:
+                                keylist.append(k + "." + sk)
+                        else:
+                            keylist.append(k)
+                    return sorted(keylist)
                 if get_metadata == "keys":
-                    return s[activity].keys()
+                    if "." in activity:
+                        a, subact = activity.split(".")
+                        thing = s[a][subact]
+                    else:
+                        thing = s[activity]
+                    if isinstance(thing, dict):
+                        return thing.keys()
+                    else:
+                        return thing[0].keys()
+
                 for k in s[activity]:
                     for r in s[activity][k]:
                         if filter_list is not None:

@@ -2,10 +2,12 @@ from flask import flash, redirect, render_template, url_for, current_app, reques
 from flask_login import login_required
 from sqlalchemy.orm import subqueryload
 from collections import defaultdict
+from datetime import datetime
 
 
 import os
 import re
+import json
 
 import logging
 
@@ -27,10 +29,36 @@ def display_metrics(report_id):
 @metrics.route('/<report_id>/keys', methods=['GET'])
 @login_required
 def get_keys(report_id):
+    """
+    This function is called by ajax calls. 
+    :returns keys for a specific activity
+    """
     activity = request.args.get('activity')
     report = get_report(report_id)
     sarfiles, keys = get_metadata(report, "keys", activity)
     return jsonify(keys)
+
+@metrics.route('/<report_id>/points', methods=['POST'])
+@login_required
+def get_points(report_id):
+    """
+    This function is called by ajax calls. 
+    :returns sets of points matching criteria
+    """
+    data = json.loads(request.data)
+    logging.debug(data)
+    report = get_report(report_id)
+    sardir = report.fullpath + "/var/log/sa"
+    fullstats = []
+    if os.path.isdir(sardir):
+        sarfiles = sysstat.sysstat.get_file_date(sardir, datetime.strptime(data["startDate"], '%Y-%m-%d %H:%M:%S'), datetime.strptime(data["endDate"], '%Y-%m-%d %H:%M:%S'))
+        for file in sarfiles:
+            stats = sysstat.sysstat.get_stats(file=file["filename"], get_metadata=None, activity=data["activity"], 
+            data_type=data["activity"], start_date=datetime.strptime(data["startDate"], '%Y-%m-%d %H:%M:%S'), end_date=datetime.strptime(data["endDate"], '%Y-%m-%d %H:%M:%S'), 
+            filter_list=data["filters"], filter_condition="and")
+            logging.debug(stats)
+            fullstats.append(stats)
+    return fullstats
 
 def get_metadata(report, get_metadata, activity=None):
     sarfiles = []
