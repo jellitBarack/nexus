@@ -25,7 +25,7 @@ This web application is a frontend for the [Citellus](https://github.com/zeroday
 # Known issues
 * The first time we load a case, it takes ~30 seconds to parse and insert all the data in the DB. This might be because that we're using db.merge.
 * It's my first python webapp, and I think some of the things could be better implement, like the helpers modules.
-* The first time we load the webapp (and when the browser cache is expired), it can take a good 30 seconds to download the assets. This can be solved by using a CDN for the assets.
+* ~~The first time we load the webapp (and when the browser cache is expired), it can take a good 30 seconds to download the assets.~~ This was solved by using a CDN for the assets.
 
 # TODO
 * Generate a graphic with the points returned
