@@ -3,7 +3,7 @@
 <h1>Metrics</h1>
 <div class="row toolbar-pf">
     <div class="col-sm-12">
-        <form class="toolbar-pf-actions" method="post" action="{{ config[" APPLICATION_ROOT "] }}/metrics/" role="form">
+        <form class="toolbar-pf-actions" method="post" action="{{ config['APPLICATION_ROOT'] }}/metrics/" role="form">
             <div class="form-group toolbar-pf-filter">
                 <div class="input-group">
                     <div class="input-group-btn">
@@ -74,7 +74,7 @@
     </div>
     <!-- /col -->
 </div>
-<div id="line-chart" class="line-chart-pf"></div>
+<div id="line_chart" class="line-chart-pf"></div>
 
 {% endblock %} {% block javascript %}
 <script src="{{ url_for( 'static', filename='js/moment.min.js' ) }}"></script>
@@ -102,6 +102,7 @@
         }
 
         $("body").on("click", "#refresh_data", function(e) {
+            e.preventDefault()
             filters = []
             $("#filter_list").find(".raw-filter").each(function() {
                 filter = {
@@ -111,6 +112,16 @@
                 }
                 filters.push(filter)
             })
+            if (!btn_activity.data("value")) {
+                btn_activity.parent().addClass("alert alert-danger");
+                warnMessage("warning", "You must select an activity")
+                return
+            }
+            if (!btn_metric_name.data("value")) {
+                btn_metric_name.parent().addClass("alert alert-danger");
+                warnMessage("warning", "You must select a metric")
+                return
+            }
             var data_out = {
                 activity: btn_activity.data("value"),
                 metric: btn_metric_name.data("value"),
@@ -126,7 +137,35 @@
                 data: JSON.stringify(data_out),
                 async: true,
                 success: function(data) {
-                    console.log(data)
+                    var line_chart = c3.generate({
+                        data: {
+                            x: 'x',
+                            //        xFormat: '%Y%m%d', // 'xFormat' can be used as custom format of 'x'
+                            columns: [
+                                ['x', '2013-01-01', '2013-01-02', '2013-01-03', '2013-01-04', '2013-01-05', '2013-01-06'],
+                                //            ['x', '20130101', '20130102', '20130103', '20130104', '20130105', '20130106'],
+                                ['data1', 30, 200, 100, 400, 150, 250],
+                                ['data2', 130, 340, 200, 500, 250, 350]
+                            ]
+                        },
+                        axis: {
+                            x: {
+                                type: 'timeseries',
+                                tick: {
+                                    format: '%Y-%m-%d'
+                                }
+                            }
+                        },
+                        bindto: '#line_chart'
+                    });
+
+                    setTimeout(function() {
+                        line_chart.load({
+                            columns: [
+                                ['data3', 400, 500, 450, 700, 600, 500]
+                            ]
+                        });
+                    }, 1000);
                 }
             });
             /* var lineChartConfig = c3ChartDefaults.getDefaultLineConfig();
@@ -138,6 +177,9 @@
              var lineChart = c3.generate(lineChartConfig);*/
         })
         $("body").on("click", ".metric-activity", function(e) {
+            e.preventDefault()
+            $("#alert_list").html('')
+            btn_activity.parent().removeClass("alert alert-danger");
             var key = reset_list($(this))
             btn_activity.html(key + ' <span class="caret"></span>');
             btn_filter_key.html('Keys <span class="caret"></span>')
@@ -148,39 +190,47 @@
                 dataType: "json",
                 async: true,
                 success: function(data) {
+                    $("#ul_metric_name").html('<li><a href="#" class="metric-names">all</a></li>')
                     $("#ul_filter_key").html('')
-                    $("#ul_metric_name").html('')
                     $.each(data, function(i, item) {
-                        $("#ul_filter_key").append('<li><a href="#" class="metric-keys">' + item + '</a></li>')
                         $("#ul_metric_name").append('<li><a href="#" class="metric-names">' + item + '</a></li>')
+                        $("#ul_filter_key").append('<li><a href="#" class="metric-keys">' + item + '</a></li>')
                     })
 
                 }
             });
         });
         $("body").on("click", ".metric-names", function(e) {
+            e.preventDefault()
             var key = reset_list($(this))
+            $("#alert_list").html('')
+            btn_metric_name.parent().removeClass("alert alert-danger");
             btn_metric_name.html(key + ' <span class="caret"></span>');
             btn_metric_name.data("value", key)
         });
         $("body").on("click", ".metric-operator", function(e) {
+            e.preventDefault()
             var key = reset_list($(this))
             btn_filter_operator.html(key + ' <span class="caret"></span>');
             btn_filter_operator.data("value", key)
         });
         $("body").on("click", ".metric-keys", function(e) {
+            e.preventDefault()
             var key = reset_list($(this))
             btn_filter_key.html(key + ' <span class="caret"></span>');
             btn_filter_key.data("value", key)
         });
 
         $("body").on("click", "#add_filter", function(e) {
-            $("#filter_list").append('<li><span class="label label-info raw-filter" data-activity=" ' + btn_activity.data("value") + '" data-filter-key=" ' + btn_filter_key.data("value") + '" data-filter-operator="' + btn_filter_operator.data("value") + '" data-filter-value="' + input_filter_value.val() + '">' + btn_activity.data("value") + '.' + btn_filter_key.data("value") + ' ' + btn_filter_operator.data("value") + '"' + input_filter_value.val() + '"<a href="#"><span class="pficon pficon-close filter-remove"></span></a></span></li>')
+            e.preventDefault()
+            $("#filter_list").append('<li><span class="label label-info raw-filter" data-activity="' + btn_activity.data("value") + '" data-filter-key="' + btn_filter_key.data("value") + '" data-filter-operator="' + btn_filter_operator.data("value") + '" data-filter-value="' + input_filter_value.val() + '">' + btn_activity.data("value") + '.' + btn_filter_key.data("value") + ' ' + btn_filter_operator.data("value") + '"' + input_filter_value.val() + '"<a href="#"><span class="pficon pficon-close filter-remove"></span></a></span></li>')
         })
         $("body").on("click", ".filter-remove", function(e) {
+            e.preventDefault()
             $(this).parent().parent().remove()
         })
         $("body").on("click", "#filters_clear", function(e) {
+            e.preventDefault()
             $("#filter_list").html("")
         })
         $('#daterange').daterangepicker({

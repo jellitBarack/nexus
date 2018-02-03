@@ -86,6 +86,12 @@ class sysstat:
         for s in stats["sysstat"]["hosts"][0]["statistics"]:
             event_date = sysstat.get_event_time(s)
             if start_date <= event_date <= end_date:
+                if activity is not None:
+                    if "." in activity:
+                        a, subact = activity.split(".")
+                        thing = s[a][subact]
+                    else:
+                        thing = s[activity]
                 del s["timestamp"]
                 if get_metadata == "activities":
                     keylist = []
@@ -97,28 +103,21 @@ class sysstat:
                             keylist.append(k)
                     return sorted(keylist)
                 if get_metadata == "keys":
-                    if "." in activity:
-                        a, subact = activity.split(".")
-                        thing = s[a][subact]
-                    else:
-                        thing = s[activity]
                     if isinstance(thing, dict):
                         return thing.keys()
                     else:
                         return thing[0].keys()
-
-                for k in s[activity]:
-                    for r in s[activity][k]:
-                        if filter_list is not None:
-                            fr = sysstat.filter_event(r, filter_list, filter_condition)
-                        else:
-                            fr = True
-                        if fr is True:
-                            matching_events.append({
-                                "timestamp": event_date,
-                                "stats": r
-                            })
-        return matching_events
+                for k in thing:
+                    if filter_list:
+                        fr = sysstat.filter_event(k, filter_list, filter_condition)
+                    else:
+                        fr = True
+                    if fr is True:
+                        matching_events.append({
+                            "timestamp": event_date,
+                            "stats": k
+                        })
+        return sorted(matching_events, key=lambda k: k["timestamp"])
 
     @staticmethod
     def filter_event(event, filter_list, filter_condition="and"):
@@ -134,16 +133,20 @@ class sysstat:
             evalstr = ""
             for f in filter_list:
                 if f["key"] not in event:
-                    raise Exception("Filter key " + f["key"] + " is not in event " + event)
-                if f["op"] not in ["==", "!=", ">", ">=", "<", "<=", "is", "is not"]:
-                    raise Exception("Filter operator invalid " + f["op"])
-                evalstr += ' ' + filter_condition + ' "' + str(event[f["key"]]) + '" ' + f["op"] + ' '
+                    logging.debug("event: %s", event)
+                    logging.debug("Key: %s", f["key"])
+                    raise Exception("Filter key %s is not in event %s", f["key"], event)
+                if f["operator"] not in ["==", "!=", ">", ">=", "<", "<=", "is", "is not"]:
+                    raise Exception("Filter operator invalid " + f["operator"])
+                evalstr += ' ' + filter_condition + ' "' + str(event[f["key"]]) + '" ' + f["operator"] + ' '
                 if isinstance(f["value"], int) or isinstance(f["value"], float):
                     evalstr += str(f["value"])
                 else:
                     evalstr += '"' + f["value"] + '"'
             evalstr = re.sub("^ " + filter_condition + " ", "", evalstr)
             outeval = eval(evalstr)
+        #else:
+        #    outeval = True
         return outeval
 
     @staticmethod

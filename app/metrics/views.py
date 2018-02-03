@@ -36,6 +36,7 @@ def get_keys(report_id):
     activity = request.args.get('activity')
     report = get_report(report_id)
     sarfiles, keys = get_metadata(report, "keys", activity)
+      
     return jsonify(keys)
 
 @metrics.route('/<report_id>/points', methods=['POST'])
@@ -56,9 +57,8 @@ def get_points(report_id):
             stats = sysstat.sysstat.get_stats(file=file["filename"], get_metadata=None, activity=data["activity"], 
             data_type=data["activity"], start_date=datetime.strptime(data["startDate"], '%Y-%m-%d %H:%M:%S'), end_date=datetime.strptime(data["endDate"], '%Y-%m-%d %H:%M:%S'), 
             filter_list=data["filters"], filter_condition="and")
-            logging.debug(stats)
             fullstats.append(stats)
-    return fullstats
+    return jsonify(fullstats)
 
 def get_metadata(report, get_metadata, activity=None):
     sarfiles = []

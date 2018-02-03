@@ -38,6 +38,7 @@ This web application is a frontend for the [Citellus](https://github.com/zeroday
 * Describe each function
 * Clean debug/repetitive code
 * Fix helpers/sysstat.py
+* Sanitize and validate inputs
 
 # Installation
 ## User accounts
