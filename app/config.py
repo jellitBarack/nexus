@@ -36,6 +36,7 @@ class Config(object):
     # List of activities with a description and the switch to pass to sadf to get the data
     SYSSTAT_ACTIVITIES = {
         "interrupts": { "name": "interupts", "switch": "-I", "label": "intr"},
+        "cpu-load": { "name": "CPU Utilization", "switch": "-u", "label": "cpu"},
         "cpu-load-all": { "name": "CPU Utilization", "switch": "-u", "label": "cpu"},
         "io": { "name": "I/O and transfert rates", "switch": "-b"},
         "disk": { "name": "Block devices", "switch": "-d", "label": "disk-device"},
@@ -52,8 +53,8 @@ class Config(object):
             "is-parent": "true",
             "net-dev": { "name": "Network Devices", "switch": "-n DEV", "label": "iface"},
             "net-edev": { "name": "Network Devices Errors", "switch": "-n EDEV", "label": "iface"},
-            "net-nfs": { "name": "NFS Client", "switch": "-n NFS", "label": "iface"},
-            "net-nfsd":{ "name": "NFS Server", "switch": "-n NFSD", "label": "iface"},
+            "net-nfs": { "name": "NFS Client", "switch": "-n NFS"},
+            "net-nfsd":{ "name": "NFS Server", "switch": "-n NFSD"},
             "net-sock": { "name": "SOCK IPv4", "switch": "-n SOCK", "label": "iface"},
             "net-ip": { "name": "IPv4 network traffic", "switch": "-n IP", "label": "iface"},
             "net-eip": { "name": "IPv4 network errors", "switch": "-n EIP", "label": "iface"},

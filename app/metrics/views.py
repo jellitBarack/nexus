@@ -16,6 +16,8 @@ from ..helpers import sysstat
 from app import db
 from app.models import Report
 
+metricslist = {}
+
 @metrics.route('/<report_id>', methods=['GET'])
 @login_required
 def display_metrics(report_id):
@@ -51,14 +53,65 @@ def get_points(report_id):
     report = get_report(report_id)
     sardir = report.fullpath + "/var/log/sa"
     fullstats = []
+    global metricslist
+    timestamps = ["Date"]
     if os.path.isdir(sardir):
         sarfiles = sysstat.sysstat.get_file_date(sardir, datetime.strptime(data["startDate"], '%Y-%m-%d %H:%M:%S'), datetime.strptime(data["endDate"], '%Y-%m-%d %H:%M:%S'))
         for file in sarfiles:
-            stats = sysstat.sysstat.get_stats(file=file["filename"], get_metadata=None, activity=data["activity"], 
-            data_type=data["activity"], start_date=datetime.strptime(data["startDate"], '%Y-%m-%d %H:%M:%S'), end_date=datetime.strptime(data["endDate"], '%Y-%m-%d %H:%M:%S'), 
-            filter_list=data["filters"], filter_condition="and")
-            fullstats.append(stats)
-    return jsonify(fullstats)
+            logging.debug("file %s", file)
+            stats = sysstat.sysstat.get_stats(
+                file=file["filename"], 
+                get_metadata=None, 
+                activity=data["activity"], 
+                data_type=data["activity"], 
+                start_date=datetime.strptime(data["startDate"], '%Y-%m-%d %H:%M:%S'), 
+                end_date=datetime.strptime(data["endDate"], '%Y-%m-%d %H:%M:%S'), 
+                filter_list=data["filters"], 
+                filter_condition="and"
+            )
+            fullstats.extend(stats)
+    if "." in data["activity"]:
+        a, subact = data["activity"].split(".")
+        conf = current_app.config["SYSSTAT_ACTIVITIES"][a][subact]
+    else:
+        conf = current_app.config["SYSSTAT_ACTIVITIES"][data["activity"]]
+    if "label" not in conf:
+        conf["label"] = None
+
+    for s in fullstats:
+        #logging.debug("StatS: %s", s)
+        d = s["stats"]
+        if isinstance(d, list):
+            for n in d:
+                add_point(n, data, conf["label"])
+        else:
+            #logging.debug("Conf: %s", conf)
+            add_point(d, data, conf["label"])
+
+        timestamps.append(s["timestamp"]["date"] + " " + s["timestamp"]["time"])
+    
+    output = [timestamps]
+    for l in metricslist:
+        metricslist[l].insert(0,l)
+        output.append(metricslist[l])
+
+    metricslist = {}
+    return jsonify(output)
+
+def add_point(items, data, label=None):
+    global metricslist
+    for i in items:
+        if label is not None:
+            keyname = items[label] + "/" + i
+        else:
+            keyname = i
+        
+            
+        if data["metric"] == "all" or data["metric"] == i:
+            if keyname not in metricslist:
+                metricslist[keyname] = []
+            metricslist[keyname].append(items[i])
+        
 
 def get_metadata(report, get_metadata, activity=None):
     sarfiles = []

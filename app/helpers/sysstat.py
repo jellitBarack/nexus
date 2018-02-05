@@ -69,54 +69,96 @@ class sysstat:
             start_date = default_start_date
         stats = "".join(sysstat.sadf(file=file, data_type=data_type).stdout)
         jstats = json.loads(stats)
-        matching_events = sysstat.transform_stats(stats=jstats, activity=activity, get_metadata=get_metadata, start_date=start_date, end_date=end_date, filter_list=filter_list, filter_condition=filter_condition)
+        dated_events = sysstat.get_event_by_date(stats=jstats, start_date=start_date, end_date=end_date)
+        if get_metadata == "keys":
+            matching_events = sysstat.get_event_keys(dated_events, activity)
+        elif get_metadata == "activities":
+            matching_events = sysstat.get_event_activities(dated_events)
+        else:
+            matching_events = sysstat.transform_stats(stats=dated_events, activity=activity, data_type=data_type, filter_list=filter_list, filter_condition=filter_condition)
         return matching_events
 
     @staticmethod
     def get_event_time(s):
         timestamp = s["timestamp"]["date"] + " " + s["timestamp"]["time"]
         return datetime.strptime(s["timestamp"]["date"] + " " + s["timestamp"]["time"], '%Y-%m-%d %H:%M:%S')
-
+    
     @staticmethod
-    def transform_stats(stats=None, activity=None, get_metadata=None, start_date=None, end_date=datetime.now(), filter_list=None, filter_condition=None):
+    def get_event_by_date(stats, start_date=None, end_date=datetime.now()):
+        """
+        Find the events that match a start_date and an end_date
+        :param stats: a stats dict built from the json of sadf
+        :param start_date: Timestamp must be greater than this date
+        :param end_date: Timestamp must be smaller than this date
+        """
         global default_start_date
         if start_date is None:
             start_date = default_start_date
         matching_events = []
         for s in stats["sysstat"]["hosts"][0]["statistics"]:
             event_date = sysstat.get_event_time(s)
+            #logging.debug("Start: %s Event %s End: %s Stat: %s", start_date, event_date, end_date, s)
             if start_date <= event_date <= end_date:
-                if activity is not None:
-                    if "." in activity:
-                        a, subact = activity.split(".")
-                        thing = s[a][subact]
-                    else:
-                        thing = s[activity]
-                del s["timestamp"]
-                if get_metadata == "activities":
-                    keylist = []
-                    for k in s:
-                        if "is-parent" in sysstat_activies[k] and sysstat_activies[k]["is-parent"] == "true":
-                            for sk in s[k]:
-                                keylist.append(k + "." + sk)
-                        else:
-                            keylist.append(k)
-                    return sorted(keylist)
-                if get_metadata == "keys":
-                    if isinstance(thing, dict):
-                        return thing.keys()
-                    else:
-                        return thing[0].keys()
-                for k in thing:
-                    if filter_list:
-                        fr = sysstat.filter_event(k, filter_list, filter_condition)
-                    else:
-                        fr = True
-                    if fr is True:
-                        matching_events.append({
-                            "timestamp": event_date,
-                            "stats": k
-                        })
+                matching_events.append(s)
+        #logging.debug("Matching Events: %s", matching_events)
+        return matching_events
+
+    @staticmethod
+    def get_event_activities(stats):
+        """
+        Gets a list of activities in a range of stats
+        We just need to sample the first event
+        :return: list of activities
+        """
+        keylist = []
+        del stats[-1]["timestamp"]
+        for k in stats[-1]:
+            logging.debug("Key: %s", k)
+            if "is-parent" in sysstat_activies[k] and sysstat_activies[k]["is-parent"] == "true":
+                for sk in stats[-1][k]:
+                    keylist.append(k + "." + sk)
+            else:
+                keylist.append(k)
+        return sorted(keylist)
+    
+    @staticmethod
+    def get_event_keys(stats, activity):
+        keylist = []
+        if "." in activity:
+            a, subact = activity.split(".")
+            thing = stats[-1][a][subact]
+        else:
+            thing = stats[-1][activity]
+        if not isinstance(thing, list):
+            thing = [thing]
+        return sorted(thing[-1].keys())
+
+    @staticmethod
+    def transform_stats(stats=None, activity=None, data_type="all", filter_list=None, filter_condition=None):
+        matching_events = []
+        logging.debug("Stats: %s", stats)
+
+        for s in stats:
+            if "." in activity:
+                a, subact = activity.split(".")
+                thing = s[a][subact]
+            else:
+                thing = s[activity]
+
+            if not isinstance(thing, list):
+                thing = [thing]
+            for t in thing:
+                if filter_list:
+                    fr = sysstat.filter_event(t, filter_list, filter_condition)
+                else:
+                    fr = True
+                if fr is True:
+                    logging.debug("Thing: %s FR: %s", t, fr)
+                    matching_events.append({
+                        "timestamp": s["timestamp"],
+                        "stats": t
+                    })
+
         return sorted(matching_events, key=lambda k: k["timestamp"])
 
     @staticmethod
@@ -129,24 +171,24 @@ class sysstat:
         :param condition: "and" or "or"
         :return: true of false
         """
+        if isinstance(event, list):
+            thing = event[0]
+        else:
+            thing = event
         if len(filter_list) > 0:
             evalstr = ""
             for f in filter_list:
-                if f["key"] not in event:
-                    logging.debug("event: %s", event)
-                    logging.debug("Key: %s", f["key"])
-                    raise Exception("Filter key %s is not in event %s", f["key"], event)
+                if f["key"] not in thing:
+                    raise Exception("Filter key %s is not in event %s", f["key"], thing)
                 if f["operator"] not in ["==", "!=", ">", ">=", "<", "<=", "is", "is not"]:
                     raise Exception("Filter operator invalid " + f["operator"])
-                evalstr += ' ' + filter_condition + ' "' + str(event[f["key"]]) + '" ' + f["operator"] + ' '
+                evalstr += ' ' + filter_condition + ' "' + str(thing[f["key"]]) + '" ' + f["operator"] + ' '
                 if isinstance(f["value"], int) or isinstance(f["value"], float):
                     evalstr += str(f["value"])
                 else:
                     evalstr += '"' + f["value"] + '"'
             evalstr = re.sub("^ " + filter_condition + " ", "", evalstr)
             outeval = eval(evalstr)
-        #else:
-        #    outeval = True
         return outeval
 
     @staticmethod
@@ -162,7 +204,7 @@ class sysstat:
                 for f in files:
                     if re.match(r'^sa[0-9]+$', f):
                         h = sysstat.headers(root+f)
-                        if start_date <= h["date"]  <= end_date:
+                        if start_date <= h["date"] + timedelta(days=1) <= end_date:
                             matching_files.append({
                                 'filename': root+f,
                                 'filedate': h["date"]
@@ -175,26 +217,27 @@ class sysstat:
         return sorted(matching_files, key=lambda k: k["filedate"])
 
 
-    """
-    Execution example
-    def main():
-       # out = get_stats(file=testfile, data_type="NET_DEV")
-       testdate = datetime.now() - timedelta(days=30)
-       files = get_file_date(folder="/cases/02005200/sosreport-20180105-164506/controller0/var/log/sa", start_date = testdate)
-       filter_list = [{
-           "key": "iface",
-           "op": "==",
-           "value": "em1"
-        },
-        {
-            "key": "txdrop",
-            "op": ">=",
-            "value": 0
-        }
-       ]
-       filter_condition = "and"
-       for f in files:
-           print f["filename"] + "\n"
-           matching_events = get_stats(file=f["filename"], data_type="NET_EDEV", start_date=testdate, filter_list=filter_list, filter_condition=filter_condition)
-           print matching_events
-    """
+class Point(object):
+    def __init__(self, timestamp, activity, key, value, label):
+        self.timetamp = timestamp
+        self.activity = activity
+        self.keys = keys
+        self.label = label
+
+    def match_filter(self, filter_list, filter_condition):
+        if len(filter_list) > 0:
+            evalstr = ""
+            for f in filter_list:
+                if f["key"] not in self.things:
+                    raise Exception("Filter key %s is not in event %s", f["key"], self)
+                if f["operator"] not in ["==", "!=", ">", ">=", "<", "<=", "is", "is not"]:
+                    raise Exception("Filter operator invalid " + f["operator"])
+                evalstr += ' ' + filter_condition + ' "' + str(thing[f["key"]]) + '" ' + f["operator"] + ' '
+                if isinstance(f["value"], int) or isinstance(f["value"], float):
+                    evalstr += str(f["value"])
+                else:
+                    evalstr += '"' + f["value"] + '"'
+            logging.debug(evalstr)
+            evalstr = re.sub("^ " + filter_condition + " ", "", evalstr)
+            outeval = eval(evalstr)
+        return outeval
