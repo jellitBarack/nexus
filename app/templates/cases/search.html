@@ -1,4 +1,4 @@
-{% extends "layout/base.html" %} {% set active_page = "cases" %} {% block title %}Cases{% endblock %} {% block body %} {% include 'cases/search_form.html' %}
+{% extends "layout/base.html" %} {% include "cases/modal.html" %} {% set active_page = "cases" %} {% block title %}Cases{% endblock %} {% block body %} {% include 'cases/search_form.html' %}
 <div class="list-group list-view-pf list-view-pf-view">
     {% for r in reportList %}
     <div class="list-group-item">
@@ -7,15 +7,14 @@
         </div>
         <!-- /list-view-pf-checkbox -->
         <div class="list-view-pf-actions">
-            <button class="btn btn-default">Action</button>
             <div class="dropdown pull-right dropdown-kebab-pf">
                 <button class="btn btn-link dropdown-toggle" type="button" id="dropdownKebabRight9" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-      <span class="fa fa-ellipsis-v"></span>
-     </button>
+                    <span class="fa fa-ellipsis-v"></span>
+                </button>
                 <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownKebabRight9">
-                    <li><a href="#">View</a></li>
+                    <li><a href="{{ url_for('reports.display_checks', report_id = r['report_id']) }}">Checks</a></li>
                     <li role="separator" class="divider"></li>
-                    <li><a href="#">Refresh</a></li>
+                    <li><a href="{{ url_for('metrics.display_metrics', report_id = r['report_id']) }}">Metrics</a></li>
                 </ul>
             </div>
             <!-- /dropdown -->
@@ -26,7 +25,7 @@
                 <span class="fa fa-{{ r['icon'] }} list-view-pf-icon-sm"></span>
             </div>
             <!-- /list-view-pf-left -->
-            <div class="list-view-pf-body">
+            <div class="list-view-pf-body" data-report-id="{{ r['report_id'] }}">
                 <div class="list-view-pf-description">
                     <div class="list-group-item-heading">
                         <a href="{{ url_for('reports.display_checks', report_id = r['report_id']) }}">{{ r['name'] }}</a>
@@ -41,23 +40,36 @@
                     </div>
                     <!-- /list-view-pf-additional-info-item -->
                     <div class="list-view-pf-additional-info-item">
-                        <span class="fa fa-cubes"></span>
-                        <strong>{{ r['checks_total'] }}</strong> Checks
+                        <div class="list-view-pf-expand view-all-checks">
+                            <span class="fa fa-angle-right"></span>
+                            <span class="fa fa-cubes"></span>
+                            <strong>{{ r['checks_total'] }}</strong> Checks
+                        </div>
                     </div>
                     <!-- /list-view-pf-additional-info-item -->
                     <div class="list-view-pf-additional-info-item">
-                        <span class="pficon pficon-error-circle-o"></span>
-                        <strong>{{ r['checks_fail'] }}</strong> Failed
+                        <div class="list-view-pf-expand show-check-list" data-type="RC_FAILED">
+                            <span class="fa fa-angle-right"></span>
+                            <span class="pficon pficon-error-circle-o"></span>
+                            <strong>{{ r['checks_fail'] }}</strong> Failed
+                        </div>
+
                     </div>
                     <!-- /list-view-pf-additional-info-item -->
                     <div class="list-view-pf-additional-info-item">
-                        <span class="pficon pficon-help"></span>
-                        <strong>{{ r['checks_skip'] }}</strong> Skipped
+                        <div class="list-view-pf-expand show-check-list" data-type="RC_SKIPPED">
+                            <span class="fa fa-angle-right"></span>
+                            <span class="pficon pficon-help"></span>
+                            <strong>{{ r['checks_skip'] }}</strong> Skipped
+                        </div>
                     </div>
                     <!-- /list-view-pf-additional-info-item -->
                     <div class="list-view-pf-additional-info-item">
-                        <span class="fa fa-check-circle-o"></span>
-                        <strong>{{ r['checks_okay'] }}</strong> Okay
+                        <div class="list-view-pf-expand show-check-list" data-type="RC_OKAY">
+                            <span class="fa fa-angle-right"></span>
+                            <span class="fa fa-check-circle-o"></span>
+                            <strong>{{ r['checks_okay'] }}</strong> Okay
+                        </div>
                     </div>
                     <!-- /list-view-pf-additional-info-item -->
                     <div class="list-view-pf-additional-info-item">
@@ -68,7 +80,7 @@
                     <div class="list-view-pf-additional-info-item">
                         <div class="list-view-pf-expand">
                             <span class="fa fa-line-chart"></span>
-                            <strong>{{ r['sarfiles']|length }}</strong>
+                            <strong>{{ r['sarfiles']|length }} days</strong>
                         </div>
                     </div>
                     <!-- /list-view-pf-additional-info-item -->
@@ -80,4 +92,32 @@
         <!-- /list-view-pf-main-info -->
     </div>
     <!-- /list-group-item -->
-    {% endfor %} {% endblock %}
+
+    {% endfor %} {% endblock %} {% block javascript %}
+    <script>
+        $(document).ready(function() {
+
+            $("body").on("click", ".show-check-list", function(e) {
+                var report_id = $(this).parents('div[class^="list-view-pf-body"]').eq(0).data("report-id");
+                e.preventDefault()
+                rc = $(this).data("type")
+                var url = "{{ url_for('reports.index') }}" + report_id + "/checks?rc=" + citellus_rc[rc];
+                $("#modal_body").load(url, function(response, status, xhr) {
+                    if (status == "error") {
+                        var msg = "Sorry but there was an error: ";
+                        $("#modal_body").html(msg + xhr.status + " " + xhr.statusText);
+                    }
+                });
+                $("#modal_check_list_title").html(rc.substring(3) + " checks")
+                $('#modal_check_list').appendTo('body').modal('show');
+                console.log(url)
+
+            })
+            $("body").on("click", ".view-all-checks", function(e) {
+                var report_id = $(this).parents('div[class^="list-view-pf-body"]').eq(0).data("report-id");
+                e.preventDefault()
+                window.location.href = "{{ url_for('reports.index') }}" + report_id + "/checks";
+            })
+        });
+    </script>
+    {% endblock %}

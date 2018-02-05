@@ -222,3 +222,7 @@ footer {
 #alert_list {
     margin-top: 30px;
 }
+
+.modal-backdrop {
+    z-index: -1;
+}

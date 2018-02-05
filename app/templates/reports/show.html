@@ -83,16 +83,7 @@
 </div>
 <!-- /row -->
 
-<div class="clearfix row-cards-pf">
-    <div id="list-group" class="list-group list-view-pf list-view-pf-view">
-        {% for check in report.checks %} {% with check=check %} {% include "checks/show.html" %} {% endwith %} {% endfor %}
-    </div>
-    <!-- /list-group -->
-</div>
-<!-- /row-cards-pf -->
-
-
-{% with categories=categories %} {% include "reports/modal-categories.html" %} {% endwith %}
+{% include "reports/list.html" %} {% with categories=categories %} {% include "reports/modal-categories.html" %} {% endwith %}
 
 <a href="#" id="debug_report_in">Debug</a>
 <div id="debug_report_out" style="display:none"><pre>{{ report|pprint}}</pre></div>

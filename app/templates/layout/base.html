@@ -5,8 +5,9 @@
     {% block head %} {% include 'layout/head.html' %} {% endblock %}
     <title>{% block title %}{% endblock %} - Citellus Web</title>
 </head>
+<!-- Stupid workaround because my Visual Studio Code plugin is not good with curlies in JS -->
 
-<body class="has-sidebar">
+<body class="has-sidebar" data-okay="{{ config['RC_OKAY'] }}" data-skipped="{{ config['RC_SKIPPED'] }}" data-failed="{{ config['RC_FAILED'] }}">
     <nav class="navbar navbar-default navbar-pf-vertical" role="navigation">
         <div class="navbar-header">
             {% if report is defined %}
@@ -133,6 +134,11 @@
     <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/patternfly.min.js') }}"></script>
     <script>
+        var citellus_rc = []
+        citellus_rc["RC_OKAY"] = $("body").data("okay")
+        citellus_rc["RC_SKIPPED"] = $("body").data("skipped")
+        citellus_rc["RC_FAILED"] = $("body").data("failed")
+
         $(document).ready(function() {
             $().setupVerticalNavigation(true);
         });

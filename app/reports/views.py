@@ -1,6 +1,6 @@
 from flask import flash, redirect, render_template, url_for, current_app, request, abort
 from flask_login import login_required
-from sqlalchemy.orm import subqueryload
+from sqlalchemy.orm import subqueryload, contains_eager
 from collections import defaultdict
 
 
@@ -8,9 +8,9 @@ import os
 import re
 """
 http://docs.sqlalchemy.org/en/latest/orm/loading_relationships.html#what-kind-of-loading-to-use
-When using subquery loading, the load of 100 objects will emit two SQL statements. 
-The second statement will fetch a total number of rows equal to the sum of the size of all collections. 
-An INNER JOIN is used, and a minimum of parent columns are requested, only the primary keys. 
+When using subquery loading, the load of 100 objects will emit two SQL statements.
+The second statement will fetch a total number of rows equal to the sum of the size of all collections.
+An INNER JOIN is used, and a minimum of parent columns are requested, only the primary keys.
 So a subquery load makes sense when the collections are larger.
 """
 
@@ -29,6 +29,10 @@ def upload():
 @login_required
 def history():
     return render_template('layout/not-ready.html')
+@reports.route('/', methods=['GET'])
+@login_required
+def index():
+    return  render_template('layout/not-ready.html')
 
 @reports.route('/<report_id>/metrics', methods=['GET', 'POST'])
 @login_required
@@ -42,15 +46,24 @@ def compare(report_id):
 
 @reports.route('/<report_id>/checks', methods=['GET', 'POST'])
 @login_required
-def display_checks(report_id):
+def display_checks(report_id, rc=None):
+    rc = request.args.get('rc')
     # Getting the checks from the DB
-    report = db.session.query(Report).filter_by(id=report_id).options(subqueryload('checks','check_results')).first()
-    #logging.debug(report)
+    q = db.session.query(Report).join(Check, Report.checks).options(contains_eager(Report.checks))
+    if rc is not None:
+        q = q.filter(Check.global_rc == rc)
+        report_name = "list"
+    else:
+        report_name = "show"
+
+    q = q.filter(Report.id == report_id).order_by(Check.priority.desc())
+    report = q.options(subqueryload('checks','check_results')).all()
     if report is None:
         abort(404)
     # Getting a list of categories
     categories = defaultdict(int)
-    for c in report.checks:
+    logging.debug("Length: %s", len(report))
+    for c in report[0].checks:
         # Building the categories dict
         categories[c.category] += 1
         if c.subcategory != "":
@@ -63,7 +76,7 @@ def display_checks(report_id):
         c.all_categories = subcategories
         for s in subcategories:
             categories[s] += 1
-        
+
         # Building the visual for the plugin state
         c.plugin_html = current_app.config["PLUGIN_STATES"][c.global_rc]
         c.plugin_name = os.path.splitext(os.path.basename(c.plugin_path))[0]
@@ -82,7 +95,7 @@ def display_checks(report_id):
             c.priority_text = "informative"
             c.priority_class = "info"
 
-        # Extracting the bugzilla informations            
+        # Extracting the bugzilla informations
         if re.match('^\d{7}$', c.plugin_name):
             c.bug_id = c.plugin_name
             c.bugzilla = "https://bugzilla.redhat.com/show_bug.cgi?id=" + str(c.bug_id)
@@ -92,4 +105,4 @@ def display_checks(report_id):
                 c.bug_id = m.group(0)
             except:
                 pass
-    return render_template('reports/show.html', report=report, categories=categories, title='sosreport')
+    return render_template('reports/'+report_name+'.html', report=report, categories=categories, title='sosreport')

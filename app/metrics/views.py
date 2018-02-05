@@ -22,10 +22,12 @@ metricslist = {}
 @login_required
 def display_metrics(report_id):
     report = get_report(report_id)
+    logging.debug(report)
     sarfiles, activities = get_metadata(report,"activities")
-
+    
     if len(sarfiles) == 0:
         abort(404)
+
     return render_template('metrics/show.html', report=report, sarfiles=sarfiles, activities=set(activities))
 
 @metrics.route('/<report_id>/keys', methods=['GET'])
@@ -49,7 +51,6 @@ def get_points(report_id):
     :returns sets of points matching criteria
     """
     data = json.loads(request.data)
-    logging.debug(data)
     report = get_report(report_id)
     sardir = report.fullpath + "/var/log/sa"
     fullstats = []
@@ -58,7 +59,6 @@ def get_points(report_id):
     if os.path.isdir(sardir):
         sarfiles = sysstat.sysstat.get_file_date(sardir, datetime.strptime(data["startDate"], '%Y-%m-%d %H:%M:%S'), datetime.strptime(data["endDate"], '%Y-%m-%d %H:%M:%S'))
         for file in sarfiles:
-            logging.debug("file %s", file)
             stats = sysstat.sysstat.get_stats(
                 file=file["filename"], 
                 get_metadata=None, 
@@ -79,13 +79,11 @@ def get_points(report_id):
         conf["label"] = None
 
     for s in fullstats:
-        #logging.debug("StatS: %s", s)
         d = s["stats"]
         if isinstance(d, list):
             for n in d:
                 add_point(n, data, conf["label"])
         else:
-            #logging.debug("Conf: %s", conf)
             add_point(d, data, conf["label"])
 
         timestamps.append(s["timestamp"]["date"] + " " + s["timestamp"]["time"])
@@ -121,6 +119,8 @@ def get_metadata(report, get_metadata, activity=None):
         sarfiles = sysstat.sysstat.get_file_date(sardir)
         metadata.extend(sysstat.sysstat.get_stats(file=sarfiles[-1]["filename"], get_metadata=get_metadata, activity=activity))
         return sarfiles, metadata
+    else:
+        abort(404)
     return None
 
 

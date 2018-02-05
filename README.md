@@ -28,7 +28,7 @@ This web application is a frontend for the [Citellus](https://github.com/zeroday
 * ~~The first time we load the webapp (and when the browser cache is expired), it can take a good 30 seconds to download the assets.~~ This was solved by using a CDN for the assets.
 
 # TODO
-* Generate a graphic with the points returned
+* ~~Generate a graphic with the points returned~~
 * Possibility to yank the files when they are not there
 * Possibility to compare (magui) two sosreports
 * Upload a sosreport
@@ -37,9 +37,12 @@ This web application is a frontend for the [Citellus](https://github.com/zeroday
 * Toxify the code
 * Describe each function
 * Clean debug/repetitive code
-* Fix helpers/sysstat.py
+* Fix helpers/sysstat.py - Need to make objects for stats and statset
 * Sanitize and validate inputs
 * Have a way to save the charts to share with others
+* More advanced filters on metrics
+* Add current resource graphs on the side of the report page
+* Breadcrumbs
 
 # Installation
 ## User accounts
