@@ -46,6 +46,11 @@ class sysstat:
 
     @staticmethod
     def headers(file):
+        """
+        Parse a sa file and grabs available activities and date
+        :param file: path to var/log/sa/saXX
+        :return : dict {"date": "datetime.obj", "A_HEADER": "# of instance(s)" }
+        """
         headers = {}
         headers_out = sysstat.sadf(file=file, data_type="header")
 
@@ -61,9 +66,51 @@ class sysstat:
             if rh:
                 headers[rh.group(1)] = rh.group(2)
         return headers
+    @staticmethod
+    def get_file_date(folder=None, start_date=None, end_date=datetime.now()):
+        """
+        To go faster, this preloads the header of each sa file. If it doesn't
+        match the date range, it's not going to be parsed
+        :param folder: var/log/sa/
+        :param (start|end)_date: Date range to look for
+        :return : array of dict {filenname: "filename", filedate: "date"}
+        """
+        global default_start_date
+        if start_date is None:
+            start_date = default_start_date
+        matching_files = []
+        folder = re.sub("/$", "", folder)
+        folder += "/"
+        if os.path.isdir(folder):
+            for root, dirs, files in os.walk(folder, topdown=True):
+                for f in files:
+                    if re.match(r'^sa[0-9]+$', f):
+                        h = sysstat.headers(root+f)
+                        if start_date <= h["date"] + timedelta(days=1) <= end_date:
+                            matching_files.append({
+                                'filename': root+f,
+                                'filedate': h["date"]
+                            })
+        else:
+            raise Exception("Invalid folder: " + folder)
+        if len(matching_files) == 0:
+            raise Exception("No matching files found")
+
+        return sorted(matching_files, key=lambda k: k["filedate"])
 
     @staticmethod
     def get_stats(file=None, get_metadata=None, activity=None, data_type=None, start_date=None, end_date=datetime.now(), filter_list=None, filter_condition=None):
+        """
+        This is a dispatcher function to get points/activities/keys
+        :param single file: path to a var/log/sa/sa[0-9]+
+        :param get_metadata: accepts "keys" or "activities"
+        :param activity: activity (cpu, mem, network.net-dev, etc)
+        :param data_type: to match config["SYSSTAT_ACTIVITIES"], passed too sadf
+        :param (start|end)_date: range of date to look for
+        :param filter_list: array of filters ([{"key": "ifrace", "operator": "==", "value": "em1"},...]) 
+        :param filter_contition: "and" or "or"
+        :return : either keys, activities or filtered items
+        """
         global default_start_date
         if start_date is None:
             start_date = default_start_date
@@ -79,9 +126,14 @@ class sysstat:
         return matching_events
 
     @staticmethod
-    def get_event_time(s):
-        timestamp = s["timestamp"]["date"] + " " + s["timestamp"]["time"]
-        return datetime.strptime(s["timestamp"]["date"] + " " + s["timestamp"]["time"], '%Y-%m-%d %H:%M:%S')
+    def get_event_time(stats):
+        """
+        Extracts the timestamp of said event
+        :param stats: stat under ["sysstat"]["hosts"][0]["statistics"]
+        :return : datetime Object
+        """
+        timestamp = stats["timestamp"]["date"] + " " + stats["timestamp"]["time"]
+        return datetime.strptime(stats["timestamp"]["date"] + " " + stats["timestamp"]["time"], '%Y-%m-%d %H:%M:%S')
     
     @staticmethod
     def get_event_by_date(stats, start_date=None, end_date=datetime.now()):
@@ -97,7 +149,6 @@ class sysstat:
         matching_events = []
         for s in stats["sysstat"]["hosts"][0]["statistics"]:
             event_date = sysstat.get_event_time(s)
-            #logging.debug("Start: %s Event %s End: %s Stat: %s", start_date, event_date, end_date, s)
             if start_date <= event_date <= end_date:
                 matching_events.append(s)
         #logging.debug("Matching Events: %s", matching_events)
@@ -108,7 +159,8 @@ class sysstat:
         """
         Gets a list of activities in a range of stats
         We just need to sample the first event
-        :return: list of activities
+        :param stats
+        :return : list of activities
         """
         keylist = []
         del stats[-1]["timestamp"]
@@ -135,9 +187,16 @@ class sysstat:
 
     @staticmethod
     def transform_stats(stats=None, activity=None, data_type="all", filter_list=None, filter_condition=None):
+        """
+        Transform filtered stats into something that C3 can ingest
+        :param stats: Stats
+        :param activity: activity (cpu, mem, network.net-dev, etc)
+        :param data_type: to match config["SYSSTAT_ACTIVITIES"], passed too sadf
+        :param filter_list: array of filters ([{"key": "ifrace", "operator": "==", "value": "em1"},...]) 
+        :param filter_contition: "and" or "or"
+        :return : C3 timeseries: [{"timestamp": "2018-01-04 00:00:01", }]
+         """
         matching_events = []
-        logging.debug("Stats: %s", stats)
-
         for s in stats:
             if "." in activity:
                 a, subact = activity.split(".")
@@ -153,7 +212,6 @@ class sysstat:
                 else:
                     fr = True
                 if fr is True:
-                    logging.debug("Thing: %s FR: %s", t, fr)
                     matching_events.append({
                         "timestamp": s["timestamp"],
                         "stats": t
@@ -191,31 +249,9 @@ class sysstat:
             outeval = eval(evalstr)
         return outeval
 
-    @staticmethod
-    def get_file_date(folder=None, start_date=None, end_date=datetime.now()):
-        global default_start_date
-        if start_date is None:
-            start_date = default_start_date
-        matching_files = []
-        folder = re.sub("/$", "", folder)
-        folder += "/"
-        if os.path.isdir(folder):
-            for root, dirs, files in os.walk(folder, topdown=True):
-                for f in files:
-                    if re.match(r'^sa[0-9]+$', f):
-                        h = sysstat.headers(root+f)
-                        if start_date <= h["date"] + timedelta(days=1) <= end_date:
-                            matching_files.append({
-                                'filename': root+f,
-                                'filedate': h["date"]
-                            })
-        else:
-            raise Exception("Invalid folder: " + folder)
-        if len(matching_files) == 0:
-            raise Exception("No matching files found")
-
-        return sorted(matching_files, key=lambda k: k["filedate"])
-
+"""
+Test zone, please ignore
+"""
 
 class Point(object):
     def __init__(self, timestamp, activity, key, value, label):

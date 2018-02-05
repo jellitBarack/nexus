@@ -138,11 +138,14 @@
                 async: true,
                 success: function(data) {
                     console.log(data)
+                    if (data.search_rc > 0) {
+                        warnMessage("warning", data.search_msg)
+                    }
                     var line_chart = c3.generate({
                         data: {
                             x: 'Date',
                             xFormat: '%Y-%m-%d %H:%M:%S', // 'xFormat' can be used as custom format of 'x'
-                            columns: data
+                            columns: data.output
                         },
                         axis: {
                             x: {
@@ -201,6 +204,14 @@
             btn_filter_key.html(key + ' <span class="caret"></span>');
             btn_filter_key.data("value", key)
         });
+
+        $("body").on("click", ".metric-aggregate", function(e) {
+            e.preventDefault()
+            var key = reset_list($(this))
+            btn_filter_key.html(key + ' <span class="caret"></span>');
+            btn_filter_key.data("value", key)
+        });
+
 
         $("body").on("click", "#add_filter", function(e) {
             e.preventDefault()

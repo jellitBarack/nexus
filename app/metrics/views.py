@@ -22,7 +22,6 @@ metricslist = {}
 @login_required
 def display_metrics(report_id):
     report = get_report(report_id)
-    logging.debug(report)
     sarfiles, activities = get_metadata(report,"activities")
     
     if len(sarfiles) == 0:
@@ -50,6 +49,7 @@ def get_points(report_id):
     This function is called by ajax calls. 
     :returns sets of points matching criteria
     """
+    function_start_time = datetime.now()
     data = json.loads(request.data)
     report = get_report(report_id)
     sardir = report.fullpath + "/var/log/sa"
@@ -57,11 +57,13 @@ def get_points(report_id):
     global metricslist
     timestamps = ["Date"]
     if os.path.isdir(sardir):
-        sarfiles = sysstat.sysstat.get_file_date(sardir, datetime.strptime(data["startDate"], '%Y-%m-%d %H:%M:%S'), datetime.strptime(data["endDate"], '%Y-%m-%d %H:%M:%S'))
+        sarfiles = sysstat.sysstat.get_file_date(sardir, 
+            datetime.strptime(data["startDate"], '%Y-%m-%d %H:%M:%S'), 
+            datetime.strptime(data["endDate"], '%Y-%m-%d %H:%M:%S')
+        )
         for file in sarfiles:
             stats = sysstat.sysstat.get_stats(
                 file=file["filename"], 
-                get_metadata=None, 
                 activity=data["activity"], 
                 data_type=data["activity"], 
                 start_date=datetime.strptime(data["startDate"], '%Y-%m-%d %H:%M:%S'), 
@@ -89,12 +91,17 @@ def get_points(report_id):
         timestamps.append(s["timestamp"]["date"] + " " + s["timestamp"]["time"])
     
     output = [timestamps]
+    busted = 0
     for l in metricslist:
-        metricslist[l].insert(0,l)
-        output.append(metricslist[l])
+        if len(output) < 10:
+            metricslist[l].insert(0,l)
+            output.append(metricslist[l])
+        else:
+            busted = 1
 
+    exectime = datetime.now() - function_start_time 
     metricslist = {}
-    return jsonify(output)
+    return jsonify({ "search_rc": busted, "search_msg": "Too many results, try using some filters", "output": output })
 
 def add_point(items, data, label=None):
     global metricslist
