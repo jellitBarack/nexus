@@ -14,11 +14,11 @@ if __name__ == '__main__' and __package__ is None:
     sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 
 # Local import
-from config import app_config
+from app import config
 from app import create_app
 config_name = getenv('FLASK_CONFIG')
 app = create_app(config_name,True)
-from app.models import User
+#from app.models import User
 
 
 manager = Manager(app)

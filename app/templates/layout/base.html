@@ -70,16 +70,12 @@
                 </li>
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle nav-item-iconic" data-toggle="dropdown">
-                        <span class="pficon pficon-user"></span> {{ current_user.first_name }} {{ current_user.last_name }} <b class="caret"></b>
+                        <span class="pficon pficon-user"></span> {% if current_user.first_name %}{{ current_user.first_name }} {{ current_user.last_name }} {% else %} {{ current_user.username }}{% endif %}<b class="caret"></b>
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a href="{{ url_for('auth.password') }}"><span class="fa fa-key"></span> Password</a>
-                            <li class="divider"></li>
-                            <li>
-                                <a href="{{ url_for('auth.logout') }}"><span class="fa fa-sign-out"></span> Logout</a>
-                            </li>
+                        <li><a href="#"><span class="fa fa-key"></span> Nothing</a></li>
                     </ul>
-                    </li>
+                </li>
             </ul>
             <!-- /navbar-nav -->
         </nav>

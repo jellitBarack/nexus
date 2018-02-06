@@ -100,6 +100,7 @@ class ProductionConfig(Config):
     """
 
     DEBUG = False
+    SQLALCHEMY_ECHO = False
 
 app_config = {
     'development': DevelopmentConfig,

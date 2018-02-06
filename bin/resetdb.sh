@@ -11,7 +11,7 @@ python ${CITELLUS_DIR}/manage.py db migrate
 echo "upgrade"
 python ${CITELLUS_DIR}/manage.py db upgrade
 echo "seed"
-python ${CITELLUS_DIR}/manage.py seed
+#python ${CITELLUS_DIR}/manage.py seed
 echo "fs manipulations"
 sudo restorecon -R -F -v ${CITELLUS_DIR}/db
 sudo chown -R apache:apache ${CITELLUS_DIR}/db

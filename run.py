@@ -14,6 +14,7 @@ try:
 except:
     pass
 application = create_app(config_name)
+
 try:
     toolbar.init_app(application)
 except:

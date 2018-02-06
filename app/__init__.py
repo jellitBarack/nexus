@@ -1,5 +1,5 @@
 # third-party imports
-from flask import Flask, render_template, flash, g, request
+from flask import Flask, render_template, flash, g, request, session, flash, abort
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_migrate import Migrate
@@ -10,6 +10,8 @@ import logging, sys
 import logging.config
 import pprint
 import time
+
+from flask_oauthlib.client import OAuth
 
 
 LOGGING = {
@@ -41,21 +43,37 @@ db = SQLAlchemy()
 login_manager = LoginManager()
 
 def create_app(config_name,cli = False):
+    global google
     logging.config.dictConfig(LOGGING)
 
     app = Flask(__name__, instance_relative_config=True, static_url_path='/static')
-
     app.config.from_object(app_config[config_name])
     app.config.from_pyfile('config.py')
-    #g.application_root = app.config['APPLICATION_ROOT']
+    logging.debug("Config %s", app.config)
+
     from app import models
     db.init_app(app)
     migrate = Migrate(app, db)
+    oauth = OAuth(app)
+    google = oauth.remote_app(
+        'google',
+        consumer_key=app.config.get('GOOGLE_ID'),
+        consumer_secret=app.config.get('GOOGLE_SECRET'),
+        request_token_params={
+            'scope': 'email'
+        },
+        base_url='https://www.googleapis.com/oauth2/v1/',
+        request_token_url=None,
+        access_token_method='POST',
+        access_token_url='https://accounts.google.com/o/oauth2/token',
+        authorize_url='https://accounts.google.com/o/oauth2/auth',
+    )
 
     if (cli is False):
         login_manager.init_app(app)
         login_manager.login_message = "You must be logged in to access this page."
         login_manager.login_view = "auth.login"
+
         from .helpers import sysstat
         from .admin import admin as admin_blueprint
         app.register_blueprint(admin_blueprint, url_prefix='/admin')
@@ -85,6 +103,7 @@ def create_app(config_name,cli = False):
         @app.errorhandler(405)
         def page_not_found(error):
             return render_template("errors/reportnotfound.html"), 404
+        
         @app.before_request
         def before_request():
             g.request_start_time = time.time()
