@@ -1,10 +1,33 @@
-{% extends "layout/base.html" %} {% include "cases/modal.html" %} {% set active_page = "cases" %} {% block title %}Cases{% endblock %} {% block body %} {% include 'cases/search_form.html' %}
+{% extends "layout/base.html" %} {% include "cases/modal.html" %} {% set active_page = "cases" %} {% block title %}Cases{% endblock %} {% block body %} {% include 'cases/search_form.html' %} {% if reportList is defined %}
+<div class="row toolbar-pf">
+    <div class="col-sm-6">
+        <div class="form-group toolbar-pf-filter">
+            <div class="input-group">
+                <div class="input-group-btn">
+                    <button type="button" name="mass-actions" id="mass-actions" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Actions <span class="caret"></span></button>
+                    <ul class="dropdown-menu">
+                        <li><a href="#" class="mass-actions">Compare</a></li>
+                        <li><a href="#" class="mass-actions">Yank</a></li>
+                        <li><a href="#" class="mass-actions">Force Yank</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <h5>{{ reportList|length}} reports</h5>
+    </div>
+</div>
+<!-- /row -->
+{% endif %}
 <div class="list-group list-view-pf list-view-pf-view">
     {% for r in reportList %}
     <div class="list-group-item">
+
         <div class="list-view-pf-checkbox">
-            <input type="checkbox">
+            <input type="checkbox" {% if r[ 'source']=='magui' %} disabled{% endif %} data-report-id="{{ r['report_id'] }}">
         </div>
+
         <!-- /list-view-pf-checkbox -->
         <div class="list-view-pf-actions">
             <div class="dropdown pull-right dropdown-kebab-pf">
@@ -78,7 +101,7 @@
                     </div>
                     <!-- /list-view-pf-additional-info-item -->
                     <div class="list-view-pf-additional-info-item">
-                        <div class="list-view-pf-expand">
+                        <div class="list-view-pf-expand show-metrics">
                             <span class="fa fa-line-chart"></span>
                             <strong>{{ r['sarfiles']|length }} days</strong>
                         </div>
@@ -117,6 +140,31 @@
                 var report_id = $(this).parents('div[class^="list-view-pf-body"]').eq(0).data("report-id");
                 e.preventDefault()
                 window.location.href = "{{ url_for('reports.index') }}" + report_id + "/checks";
+            })
+            $("body").on("click", ".show-metrics", function(e) {
+                var report_id = $(this).parents('div[class^="list-view-pf-body"]').eq(0).data("report-id");
+                e.preventDefault()
+                window.location.href = "{{ url_for('metrics.index') }}" + report_id;
+            })
+            $("body").on("click", ".mass-actions", function(e) {
+                var reports = []
+                $('.list-view-pf-checkbox input:checked').each(function() {
+                    reports.push($(this).data("report-id"));
+                })
+                if (reports.length < 2) {
+                    warnMessage("warning", "You must choose at least 2 reports to compare")
+                    return;
+                }
+                $.ajax({
+                    type: "POST",
+                    data: {
+                        report: reports
+                    },
+                    url: "{{ url_for('cases.compare') }}",
+                    success: function(msg) {
+                        console.log(msg)
+                    }
+                });
             })
         });
     </script>

@@ -46,6 +46,9 @@ This web application is a frontend for the [Citellus](https://github.com/zeroday
 * More advanced filters on metrics
 * Add current resource graphs on the side of the report page
 * Breadcrumbs
+* Sort reports by date desc
+* Size of reports 
+* Generate a text report of the failure that could be pasted in a case
 
 # Installation
 ## Python libraries
@@ -137,12 +140,13 @@ I've included a copy of sadf binary in the bin/ folder. We now need to set the a
 * Give execute access to the binary directory
 ```
 # semanage fcontext -a -t httpd_sys_script_exec_t '/var/www/citellus/bin(/.*)?'
+# semanage fcontext -a -t httpd_sys_script_exec_t '/git/citellus(/.*)?'
 # chown -R apache:apache /var/www/citellus/bin/
 ```
 
 * Restorecon
 ```
-# restorecon -R -F -v /var/www/citellus/ /cases/
+# restorecon -R -F -v /var/www/citellus/ /cases/ /git/citellus/
 ```
 
 # Citellus Team

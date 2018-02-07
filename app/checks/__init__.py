@@ -34,13 +34,26 @@ def result_string(c):
         result_string = "result"
     elif "sosreport" in c:
         result_string = "sosreport"
+    else:
+        logging.debug(c)
     return result_string
 
 def loop_checks(report_id, results, source, report_changed):
     # looping through the plugin results
     counts = defaultdict(int)
-    
-    for c in results:
+    logging.debug("ReportID: %s", report_id)
+    logging.debug("Results: %s", results)
+    logging.debug("Source: %s", source)
+    # magui is returning a list, while citellus returns a dict
+    # converting magui to a dict
+    if source == "magui":
+        md = {}
+        for i in results:
+            md[i["id"]] = i
+        results = md
+
+    for k, c in results.iteritems():
+
         # Sometimes the results are stored in result, results or sosreport. Let's guess this
         rs = result_string(c)
         # We need to keep a copy of these results

@@ -1,6 +1,6 @@
 <div class="clearfix row-cards-pf">
     <div id="list-group" class="list-group list-view-pf list-view-pf-view">
-        {% for check in report[0].checks %} {% with check=check %} {% include "checks/show.html" %} {% endwith %} {% endfor %}
+        {% for check in report.checks %} {% with check=check %} {% include "checks/show.html" %} {% endwith %} {% endfor %}
     </div>
     <!-- /list-group -->
 </div>

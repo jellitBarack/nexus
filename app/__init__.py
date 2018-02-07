@@ -97,7 +97,8 @@ def create_app(config_name,cli = False):
         app.register_blueprint(auth_blueprint)
         from .home import home as home_blueprint
         app.register_blueprint(home_blueprint)
-
+        from .pyinfo import pyinfo as pyinfo_blueprint
+        app.register_blueprint(pyinfo_blueprint, url_prefix='/pyinfo')
 
         @app.errorhandler(404)
         @app.errorhandler(405)

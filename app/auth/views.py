@@ -1,4 +1,4 @@
-from flask import flash, redirect, render_template, url_for, current_app, request, g, session, jsonify
+from flask import flash, redirect, render_template, url_for, current_app, request, g, session, jsonify, Response
 from flask_login import login_required, login_user, logout_user
 from forms import LoginForm, RegistrationForm
 
@@ -17,7 +17,7 @@ from . import auth
 from app import db, google
 from app import flash_errors
 from app.models import User
-
+import pprint
 
 @auth.route('/login')
 def login():
@@ -52,9 +52,12 @@ def authorized():
         )
         db.session.merge(user)
         db.session.commit()
-
-        login_user(user)
-    return jsonify({"me": me.data, "greq": greq.data})
+    login_user(user)
+    #str = pprint.pformat(dir(google), depth=5)
+    #str = pprint.pformat(vars(greq), depth=5)
+    #return Response(str, mimetype="text/text")
+    #return jsonify(oauth_response)
+    return redirect(url_for('home.index'))
 
 @google.tokengetter
 def get_google_oauth_token():

@@ -60,12 +60,46 @@
                 <input type="hidden" name="start_date" id="start_date" value="{{ sarfiles[0]['filedate'].strftime('%Y-%m-%d %H:%M:%S') }}">
                 <input type="text" name="daterange" id="daterange">
             </div>
+            <div class="form-group">
+
+                <div class="input-group">
+                    <div class="input-group-btn">
+                        <button type="button" name="time_span" id="time_span" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Time Span <span class="caret"></span></button>
+                        <ul class="dropdown-menu">
+                            <li><a href="#" class="metric-time-span">10m</a></li>
+                            <li><a href="#" class="metric-time-span">30m</a></li>
+                            <li><a href="#" class="metric-time-span">1h</a></li>
+                            <li><a href="#" class="metric-time-span">6h</a></li>
+                            <li><a href="#" class="metric-time-span">12h</a></li>
+                            <li><a href="#" class="metric-time-span">24h</a></li>
+                        </ul>
+                    </div>
+                    <div class="input-group-btn">
+                        <button type="button" name="aggregator" id="aggregator" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Aggregator <span class="caret"></span></button>
+                        <ul class="dropdown-menu">
+                            <li><a href="#" class="metric-aggregator">AVG</a></li>
+                            <li><a href="#" class="metric-aggregator">MIN</a></li>
+                            <li><a href="#" class="metric-aggregator">MAX</a></li>
+                            <li><a href="#" class="metric-aggregator">COUNT</a></li>
+                        </ul>
+                    </div>
+                    <div class="input-group-btn">
+                        <button type="button" name="graph_type" id="graph_type" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Chart <span class="caret"></span></button>
+                        <ul class="dropdown-menu">
+                            <li><a href="#" class="metric-graph-type">Line</a></li>
+                            <li><a href="#" class="metric-graph-type">Bar</a></li>
+                            <li><a href="#" class="metric-graph-type">Pie</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
     </div>
 </div>
 <!-- /col-sm-12 -->
 </form>
 <!-- /row toolbar-pf -->
-<div class="row toolbar-pf-results">
+<div id="filter-bar" class="row toolbar-pf-results hide">
     <div class="col-sm-12">
         <p>Active filters:</p>
         <ul id="filter_list" class="list-inline">
@@ -215,6 +249,7 @@
 
         $("body").on("click", "#add_filter", function(e) {
             e.preventDefault()
+            $("#filter-bar").show()
             $("#filter_list").append('<li><span class="label label-info raw-filter" data-activity="' + btn_activity.data("value") + '" data-filter-key="' + btn_filter_key.data("value") + '" data-filter-operator="' + btn_filter_operator.data("value") + '" data-filter-value="' + input_filter_value.val() + '">' + btn_activity.data("value") + '.' + btn_filter_key.data("value") + ' ' + btn_filter_operator.data("value") + '"' + input_filter_value.val() + '"<a href="#"><span class="pficon pficon-close filter-remove"></span></a></span></li>')
         })
         $("body").on("click", ".filter-remove", function(e) {
@@ -223,6 +258,7 @@
         })
         $("body").on("click", "#filters_clear", function(e) {
             e.preventDefault()
+            $("#filter-bar").hide()
             $("#filter_list").html("")
         })
         $('#daterange').daterangepicker({

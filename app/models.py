@@ -219,31 +219,6 @@ class User(UserMixin, db.Model):
 def load_user(user_id):
     return User.query.get(str(user_id))
 
-user_store = {}
-class SAMLUser(UserMixin):
-    """
-    Class for SAML User model
-    """
-    def __init__(self, user_id):
-        user = {}
-        self.id = None
-        self.first_name = None
-        self.last_name = None
-        try:
-            user = user_store[user_id]
-            self.id = unicode(user_id)
-            self.first_name = user['first_name']
-            self.last_name = user['last_name']
-        except:
-            pass
-
-"""
-user_loader for SAML
-@login_manager.user_loader
-def load_user(user_id):
-    return User(user_id)
-"""
-
 class Report(db.Model):
     """
     Reports metadata

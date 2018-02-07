@@ -4,7 +4,7 @@ class Config(object):
     """
     APPLICATION_ROOT = "/citellus"
     # Put any configurations here that are common across all environments
-    REPORT_FILE_NAMES = ("citellus.json", "magui.json")
+    REPORT_FILE_NAMES = ("citellus[0-9]*.json", "magui[0-9]*.json")
     CITELLUS_PATH = "/git/citellus"
     RC_OKAY = 10
     RC_FAILED = 20

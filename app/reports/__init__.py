@@ -26,7 +26,7 @@ def add_report(jsonfile, case_id):
     md5 = hashlib.md5(open(jsonfile, 'rb').read()).hexdigest()
     report = db.session.query(Report).filter_by(md5sum=md5).first()
     report_changed = False
-    report_path = re.sub("^cases\/", "", "/".join(jsonfile.split("/")[-3:]))
+    #report_path = re.sub("^cases\/", "", "/".join(jsonfile.split("/")[-3:]))
     if report is None:
         # Can't use the path from the metadata because
         # the path is used to generate the unique ID
@@ -35,7 +35,7 @@ def add_report(jsonfile, case_id):
                 fullpath=directory,
                 source=j["metadata"]["source"],
                 live=j["metadata"]["live"],
-                path=report_path,
+                path=jsonfile,
                 when=datetime.strptime(j["metadata"]["when"], '%Y-%m-%dT%H:%M:%S.%f'),
                 case_id=case_id,
                 md5sum=md5,

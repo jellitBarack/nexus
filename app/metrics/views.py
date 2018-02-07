@@ -29,6 +29,14 @@ def display_metrics(report_id):
 
     return render_template('metrics/show.html', report=report, sarfiles=sarfiles, activities=set(activities))
 
+
+# placeholder route to allow the creation of /metrics/ url
+@metrics.route('/', methods=['GET'])
+@login_required
+def index():
+    return  render_template('layout/not-ready.html')
+
+
 @metrics.route('/<report_id>/keys', methods=['GET'])
 @login_required
 def get_keys(report_id):
