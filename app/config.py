@@ -2,7 +2,7 @@ class Config(object):
     """
     Common configurations
     """
-    APPLICATION_ROOT = "/citellus"
+    APPLICATION_ROOT = "/nexus"
     # Put any configurations here that are common across all environments
     REPORT_FILE_NAMES = ("citellus[0-9]*.json", "magui[0-9]*.json")
     CITELLUS_PATH = "/git/citellus"
@@ -30,7 +30,7 @@ class Config(object):
         }
     }
     # SADF binary: On RHEL7, you need to have a sysstat-10 parse
-    SYSSTAT_SADF = "/var/www/citellus/bin/sadf"
+    SYSSTAT_SADF = "/var/www/nexus/bin/sadf"
     # Number of days we look in the past by default when graphing
     SYSSTAT_DEFAULT_DAYS = 365
     # List of activities with a description and the switch to pass to sadf to get the data

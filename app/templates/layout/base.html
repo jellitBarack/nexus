@@ -3,7 +3,7 @@
 
 <head>
     {% block head %} {% include 'layout/head.html' %} {% endblock %}
-    <title>{% block title %}{% endblock %} - Citellus Web</title>
+    <title>{% block title %}{% endblock %} - Nexus</title>
 </head>
 <!-- Stupid workaround because my Visual Studio Code plugin is not good with curlies in JS -->
 
@@ -18,7 +18,7 @@
                     <span class="icon-bar"></span>
                 </button> {% endif %}
             <a href="{{ url_for('home.index') }}" class="navbar-brand">
-                <img class="navbar-brand-icon" src="https://github.com/zerodayz/citellus/raw/master/doc/citellus.png" width="30px" alt="" /> Citellus Web
+                <img class="navbar-brand-icon" src="https://github.com/zerodayz/citellus/raw/master/doc/citellus.png" width="30px" alt="" /> Nexus
             </a>
         </div>
         <!-- /navbar-header -->
@@ -32,6 +32,9 @@
                 </li>
                 <li {% if 'history'==active_page %} class="active" {% endif %}>
                     <a class="nav-item-iconic" href="{{ url_for('reports.history') }}">History</a>
+                </li>
+                <li {% if 'trend'==active_page %} class="active" {% endif %}>
+                    <a class="nav-item-iconic" href="#">Trends</a>
                 </li>
                 <li class="dropdown">
                     <a href="#0" class="dropdown-toggle nav-item-iconic" id="dropdownMenuTools" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
@@ -101,6 +104,12 @@
                 <a href="{{ url_for('metrics.display_metrics', report_id = report.id) }}">
                     <span class="fa fa-line-chart" data-toggle="tooltip" title="Metrics"></span>
                     <span class="list-group-item-value">Metrics</span>
+                </a>
+            </li>
+            <li class="list-group-item{% if 'health' == active_page %} active{% endif %}">
+                <a href="{{ url_for('health.display_health', report_id = report.id) }}">
+                    <span class="fa fa-medkit" data-toggle="tooltip" title="Metrics"></span>
+                    <span class="list-group-item-value">Health</span>
                 </a>
             </li>
         </ul>

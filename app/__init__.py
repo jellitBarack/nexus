@@ -99,6 +99,8 @@ def create_app(config_name,cli = False):
         app.register_blueprint(home_blueprint)
         from .pyinfo import pyinfo as pyinfo_blueprint
         app.register_blueprint(pyinfo_blueprint, url_prefix='/pyinfo')
+        from .health import health as health_blueprint
+        app.register_blueprint(health_blueprint, url_prefix='/health')
 
         @app.errorhandler(404)
         @app.errorhandler(405)

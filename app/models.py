@@ -239,8 +239,7 @@ class Report(db.Model):
     def __init__(self, **kwargs):
          super(Report, self).__init__(**kwargs)
          self.id = str(hashlib.md5(kwargs.pop('path').encode('UTF-8')).hexdigest())
-   
-
+       
     def generate_id(self, path):
         return hashlib.md5(path.encode('UTF-8')).hexdigest()
 

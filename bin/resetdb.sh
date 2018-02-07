@@ -1,17 +1,17 @@
 #!/bin/bash
-CITELLUS_DIR=/var/www/citellus
-. ${CITELLUS_DIR}/.venv/bin/activate
+NEXUS_DIR=/var/www/nexus
+. ${NEXUS_DIR}/.venv/bin/activate
 export FLASK_CONFIG=development
-sudo rm -rf ${CITELLUS_DIR}/migrations/ ${CITELLUS_DIR}/db/citellus.db
+sudo rm -rf ${NEXUS_DIR}/migrations/ ${NEXUS_DIR}/db/nexus.db
 echo "init"
-python ${CITELLUS_DIR}/manage.py db init
+python ${NEXUS_DIR}/manage.py db init
 sleep 2
 echo "migrate"
-python ${CITELLUS_DIR}/manage.py db migrate
+python ${NEXUS_DIR}/manage.py db migrate
 echo "upgrade"
-python ${CITELLUS_DIR}/manage.py db upgrade
+python ${NEXUS_DIR}/manage.py db upgrade
 echo "seed"
-#python ${CITELLUS_DIR}/manage.py seed
+#python ${NEXUS_DIR}/manage.py seed
 echo "fs manipulations"
-sudo restorecon -R -F -v ${CITELLUS_DIR}/db
-sudo chown -R apache:apache ${CITELLUS_DIR}/db
+sudo restorecon -R -F -v ${NEXUS_DIR}/db
+sudo chown -R apache:apache ${NEXUS_DIR}/db

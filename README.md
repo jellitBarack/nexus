@@ -56,7 +56,7 @@ This web application is a frontend for the [Citellus](https://github.com/zeroday
 We first create python's virtual environment and we souce the activate file. WSGI will be able to use this environment using the python-home variable.
 
 ```
-$ cd /var/www/citellus
+$ cd /var/www/nexus
 $ virtualenv-2.7 .venv
 $ . .venv/bin/activate
 $ pip install -r requirements.txt
@@ -69,17 +69,17 @@ You can login using OAuth with Google as provider.
 ## Apache config
 
 ```
-WSGIDaemonProcess citellus-web python-home=/var/www/citellus/.venv
+WSGIDaemonProcess nexus python-home=/var/www/nexus/.venv
 
-WSGIProcessGroup citellus-web
+WSGIProcessGroup nexus
 WSGIApplicationGroup %{GLOBAL}
-WSGIPythonHome /var/www/citellus/.venv
+WSGIPythonHome /var/www/nexus/.venv
 
-WSGIScriptAlias /citellus /var/www/citellus/run.py
+WSGIScriptAlias /nexus /var/www/nexus/run.py
 LogLevel debug
 
 
-<Directory /var/www/citellus>
+<Directory /var/www/nexus>
     Require all granted
 </Directory>
 ```
@@ -95,10 +95,10 @@ $ sudo -u apache bash
 $ id
 uid=48(apache) gid=48(apache) groups=48(apache) context=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
 $ pwd
-/var/www/citellus
+/var/www/nexus
 $ . .venv/bin/activate
 $ export FLASK_CONFIG=development
-$ rm -rf migrations/ db/citellus.db
+$ rm -rf migrations/ db/nexus.db
 $ python manage.py db init
 $ python manage.py db migrate
 $ python manage.py db upgrade
@@ -133,20 +133,20 @@ I've included a copy of sadf binary in the bin/ folder. We now need to set the a
 
 * Give write access to the sqlite database
 ```
-# semanage fcontext -a -t httpd_sys_rw_content_t '/var/www/citellus/app/citellus.db'
-# chown -R apache:apache /var/www/citellus/db/
+# semanage fcontext -a -t httpd_sys_rw_content_t '/var/www/nexus/app/nexus.db'
+# chown -R apache:apache /var/www/nexus/db/
 ```
 
 * Give execute access to the binary directory
 ```
-# semanage fcontext -a -t httpd_sys_script_exec_t '/var/www/citellus/bin(/.*)?'
-# semanage fcontext -a -t httpd_sys_script_exec_t '/git/citellus(/.*)?'
-# chown -R apache:apache /var/www/citellus/bin/
+# semanage fcontext -a -t httpd_sys_script_exec_t '/var/www/nexus/bin(/.*)?'
+# semanage fcontext -a -t httpd_sys_script_exec_t '/git/nexus(/.*)?'
+# chown -R apache:apache /var/www/nexus/bin/
 ```
 
 * Restorecon
 ```
-# restorecon -R -F -v /var/www/citellus/ /cases/ /git/citellus/
+# restorecon -R -F -v /var/www/nexus/ /cases/ /git/nexus/
 ```
 
 # Citellus Team
