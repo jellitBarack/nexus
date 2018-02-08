@@ -99,7 +99,7 @@
 <!-- /col-sm-12 -->
 </form>
 <!-- /row toolbar-pf -->
-<div id="filter-bar" class="row toolbar-pf-results hide">
+<div id="filter-bar" class="row toolbar-pf-results hidden">
     <div class="col-sm-12">
         <p>Active filters:</p>
         <ul id="filter_list" class="list-inline">
@@ -249,7 +249,7 @@
 
         $("body").on("click", "#add_filter", function(e) {
             e.preventDefault()
-            $("#filter-bar").show()
+            $("#filter-bar").removeClass("hidden")
             $("#filter_list").append('<li><span class="label label-info raw-filter" data-activity="' + btn_activity.data("value") + '" data-filter-key="' + btn_filter_key.data("value") + '" data-filter-operator="' + btn_filter_operator.data("value") + '" data-filter-value="' + input_filter_value.val() + '">' + btn_activity.data("value") + '.' + btn_filter_key.data("value") + ' ' + btn_filter_operator.data("value") + '"' + input_filter_value.val() + '"<a href="#"><span class="pficon pficon-close filter-remove"></span></a></span></li>')
         })
         $("body").on("click", ".filter-remove", function(e) {

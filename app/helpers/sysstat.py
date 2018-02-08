@@ -97,7 +97,9 @@ class sysstat:
             raise Exception("No matching files found")
 
         return sorted(matching_files, key=lambda k: k["filedate"])
-
+    @staticmethod
+    def pd_get_stats(stat):
+        logging.debug(stat)
     @staticmethod
     def get_stats(file=None, get_metadata=None, activity=None, data_type=None, start_date=None, end_date=datetime.now(), filter_list=None, filter_condition=None):
         """
@@ -111,12 +113,18 @@ class sysstat:
         :param filter_contition: "and" or "or"
         :return : either keys, activities or filtered items
         """
+        import numpy
+        import pandas as pd
+        
         global default_start_date
         if start_date is None:
             start_date = default_start_date
         stats = "".join(sysstat.sadf(file=file, data_type=data_type).stdout)
         jstats = json.loads(stats)
         dated_events = sysstat.get_event_by_date(stats=jstats, start_date=start_date, end_date=end_date)
+        df = pd.DataFrame(dated_events)
+        logging.debug(df)
+        s = df.set_index('date')['a']
         if get_metadata == "keys":
             matching_events = sysstat.get_event_keys(dated_events, activity)
         elif get_metadata == "activities":
@@ -253,7 +261,7 @@ class sysstat:
 Test zone, please ignore
 """
 
-class Point(object):
+class Statset(object):
     def __init__(self, timestamp, activity, key, value, label):
         self.timetamp = timestamp
         self.activity = activity

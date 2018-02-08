@@ -140,13 +140,13 @@ I've included a copy of sadf binary in the bin/ folder. We now need to set the a
 * Give execute access to the binary directory
 ```
 # semanage fcontext -a -t httpd_sys_script_exec_t '/var/www/nexus/bin(/.*)?'
-# semanage fcontext -a -t httpd_sys_script_exec_t '/git/nexus(/.*)?'
+# semanage fcontext -a -t httpd_sys_script_exec_t '/git/citellus(/.*)?'
 # chown -R apache:apache /var/www/nexus/bin/
 ```
 
 * Restorecon
 ```
-# restorecon -R -F -v /var/www/nexus/ /cases/ /git/nexus/
+# restorecon -R -F -v /var/www/nexus/ /cases/ /git/citellus/
 ```
 
 # Citellus Team

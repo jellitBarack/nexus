@@ -17,15 +17,15 @@ from flask_oauthlib.client import OAuth
 LOGGING = {
     'version': 1,
     "disable_existing_loggers": True,
-    'formatters': { 
-        'debug_format': { 
-            'format': "%(asctime)s %(levelname)s %(filename)s:%(lineno)s %(funcName)s %(message)s" 
+    'formatters': {
+        'debug_format': {
+            'format': "%(asctime)s %(levelname)s %(filename)s:%(lineno)s %(funcName)s %(message)s"
         }
     },
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
-            'formatter': 'debug_format', 
+            'formatter': 'debug_format',
             'stream': 'ext://sys.stderr'
         }
     },
@@ -49,7 +49,7 @@ def create_app(config_name,cli = False):
     app = Flask(__name__, instance_relative_config=True, static_url_path='/static')
     app.config.from_object(app_config[config_name])
     app.config.from_pyfile('config.py')
-    logging.debug("Config %s", app.config)
+    #logging.debug("Config %s", app.config)
 
     from app import models
     db.init_app(app)
@@ -106,7 +106,7 @@ def create_app(config_name,cli = False):
         @app.errorhandler(405)
         def page_not_found(error):
             return render_template("errors/reportnotfound.html"), 404
-        
+
         @app.before_request
         def before_request():
             g.request_start_time = time.time()
