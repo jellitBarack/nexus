@@ -113,8 +113,8 @@ class sysstat:
         :param filter_contition: "and" or "or"
         :return : either keys, activities or filtered items
         """
-        import numpy
-        import pandas as pd
+        #import numpy
+        #import pandas as pd
         
         global default_start_date
         if start_date is None:
@@ -122,9 +122,9 @@ class sysstat:
         stats = "".join(sysstat.sadf(file=file, data_type=data_type).stdout)
         jstats = json.loads(stats)
         dated_events = sysstat.get_event_by_date(stats=jstats, start_date=start_date, end_date=end_date)
-        df = pd.DataFrame(dated_events)
-        logging.debug(df)
-        s = df.set_index('date')['a']
+        #df = pd.DataFrame(dated_events)
+        #logging.debug(df)
+        #s = df.set_index('date')['a']
         if get_metadata == "keys":
             matching_events = sysstat.get_event_keys(dated_events, activity)
         elif get_metadata == "activities":
