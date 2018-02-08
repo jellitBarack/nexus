@@ -3,4 +3,5 @@
 migrations/
 *.pyc
 db/
+instance/
 app/static/fonts/

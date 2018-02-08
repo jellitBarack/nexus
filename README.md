@@ -128,12 +128,11 @@ I've included a copy of sadf binary in the bin/ folder. We now need to set the a
 * Give read access to the /cases folder to apache
 ```
 # semanage fcontext -a -t httpd_sys_content_t '/cases(/.*)?'
-# chown -R apache:apache /cases/
 ```
 
 * Give write access to the sqlite database
 ```
-# semanage fcontext -a -t httpd_sys_rw_content_t '/var/www/nexus/app/nexus.db'
+# semanage fcontext -a -t httpd_sys_rw_content_t '/var/www/nexus/app(/.*)?'
 # chown -R apache:apache /var/www/nexus/db/
 ```
 
