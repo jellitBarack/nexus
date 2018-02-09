@@ -30,8 +30,6 @@ class Config(object):
             "text_color": "text-black"
         }
     }
-    # SADF binary: On RHEL7, you need to have a sysstat-10 parse
-    SYSSTAT_SADF = FS_ROOT + "/bin/sadf"
     # Number of days we look in the past by default when graphing
     SYSSTAT_DEFAULT_DAYS = 365
     # List of activities with a description and the switch to pass to sadf to get the data

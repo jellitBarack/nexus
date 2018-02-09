@@ -2,10 +2,9 @@
 NEXUS_DIR=/var/www/nexus
 . ${NEXUS_DIR}/.venv/bin/activate
 export FLASK_CONFIG=development
-sudo rm -rf ${NEXUS_DIR}/migrations/
+#sudo rm -rf ${NEXUS_DIR}/migrations/
 echo "init"
 python ${NEXUS_DIR}/manage.py db init
-sleep 2
 echo "migrate"
 python ${NEXUS_DIR}/manage.py db migrate
 echo "upgrade"

@@ -20,7 +20,7 @@ from saml2.config import Config as Saml2Config
 
 class Client(db.Model):
     """
-    A client is the app which wants to use the resource of a user. It is suggested that the client is registered 
+    A client is the app which wants to use the resource of a user. It is suggested that the client is registered
     by a user on your site, but it is not required.
 
     The client should contain at least these properties:
@@ -82,7 +82,7 @@ class Client(db.Model):
 
 class Grant(db.Model):
     """
-    A grant token is created in the authorization flow, and will be destroyed when the authorization is finished. 
+    A grant token is created in the authorization flow, and will be destroyed when the authorization is finished.
     In this case, it would be better to store the data in a cache, which leads to better performance.
     A grant token should contain at least this information:
 
@@ -178,7 +178,7 @@ class User(UserMixin, db.Model):
     # as is the name of the model
     __tablename__ = 'users'
 
-    id = db.Column(db.String(30), primary_key=True)
+    id = db.Column(db.String(32), primary_key=True)
     email = db.Column(db.String(60), index=True, unique=True)
     username = db.Column(db.String(60), index=True, unique=True)
     first_name = db.Column(db.String(60), index=True)
@@ -224,7 +224,7 @@ class Report(db.Model):
     """
     __tablename__ = 'reports_metadata'
 
-    id = db.Column(db.String(30), primary_key=True)
+    id = db.Column(db.String(32), primary_key=True)
     fullpath = db.Column(db.String(200))
     source = db.Column(db.String(10))
     live = db.Column(db.Boolean, default=True)
@@ -238,14 +238,14 @@ class Report(db.Model):
     def __init__(self, **kwargs):
          super(Report, self).__init__(**kwargs)
          self.id = str(hashlib.md5(kwargs.pop('path').encode('UTF-8')).hexdigest())
-       
+
     def generate_id(self, path):
         return hashlib.md5(path.encode('UTF-8')).hexdigest()
 
     def __repr__(self):
         return pformat(vars(self))
 
- 
+
 
 class Check(db.Model):
     """
@@ -253,15 +253,15 @@ class Check(db.Model):
     """
     __tablename__ = 'reports_checks'
 
-    id = db.Column(db.String(30), primary_key=True)
-    report_id = db.Column(db.String(30), db.ForeignKey('reports_metadata.id'))
+    id = db.Column(db.String(32), primary_key=True)
+    report_id = db.Column(db.String(32), db.ForeignKey('reports_metadata.id'))
     report = db.relationship("Report", back_populates="checks")
     check_results = db.relationship("CheckResults", back_populates="check")
     category = db.Column(db.String(50))
     subcategory = db.Column(db.String(50))
     description = db.Column(db.String(250))
     plugin_path = db.Column(db.String(250))
-    plugin_id = db.Column(db.String(50))
+    plugin_id = db.Column(db.String(32))
     backend = db.Column(db.String(50))
     long_name = db.Column(db.String(250))
     bugzilla = db.Column(db.String(250))
@@ -275,7 +275,7 @@ class Check(db.Model):
          self.id = str(hashlib.md5(newid.encode('UTF-8')).hexdigest())
 
     def __repr__(self):
-        return pformat(vars(self))  
+        return pformat(vars(self))
 
 class CheckResults(db.Model):
     """
@@ -283,8 +283,8 @@ class CheckResults(db.Model):
     """
     __tablename__ = 'check_results'
 
-    id = db.Column(db.String(30), primary_key=True)
-    check_id = db.Column(db.String(30), db.ForeignKey('reports_checks.id'))
+    id = db.Column(db.String(32), primary_key=True)
+    check_id = db.Column(db.String(32), db.ForeignKey('reports_checks.id'))
     check = db.relationship("Check", back_populates="check_results")
     hostname = db.Column(db.String(100))
     result_rc = db.Column(db.SmallInteger)
@@ -304,8 +304,8 @@ class History(db.Model):
     """
     History for each user
     """
-    id = db.Column(db.String(30), primary_key=True)
-    user_id = db.Column(db.String(30), db.ForeignKey('users.id'))
+    id = db.Column(db.String(32), primary_key=True)
+    user_id = db.Column(db.String(32), db.ForeignKey('users.id'))
     user = db.relationship("User", back_populates="history")
     item_type = db.Column(db.Integer)
     item_id = db.Column(db.Integer)

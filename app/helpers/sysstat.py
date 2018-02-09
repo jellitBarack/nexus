@@ -10,7 +10,9 @@ global sysstat_default_days
 from ..config import Config as conf
 import logging
 
-sadfbin = conf.SYSSTAT_SADF
+# SADF binary: On RHEL7, you need to have a sysstat-10 parse
+sadfbin = conf.FS_ROOT + "/bin/sadf"
+
 sysstat_activies = conf.SYSSTAT_ACTIVITIES
 sysstat_default_days = conf.SYSSTAT_DEFAULT_DAYS
 default_start_date = datetime.now() - timedelta(days=sysstat_default_days)
@@ -41,7 +43,11 @@ class sysstat:
                 else:
                     thing = sysstat_activies[data_type]
                 args.extend(thing["switch"].split())
-        out = Popen(args, stdout=PIPE, stderr=PIPE)
+        try:
+            out = Popen(args, stdout=PIPE, stderr=PIPE).stdout
+        except:
+            out = ""
+            pass
         return out
 
     @staticmethod
@@ -54,7 +60,7 @@ class sysstat:
         headers = {}
         headers_out = sysstat.sadf(file=file, data_type="header")
 
-        for line in headers_out.stdout:
+        for line in headers_out:
             rd = re.match(r'.*[\s]+([0-9]{1,2})\/([0-9]{1,2})\/([0-9]{2,4})[\s]+.*', line)
             if rd:
                 year = rd.group(3)
@@ -86,11 +92,12 @@ class sysstat:
                 for f in files:
                     if re.match(r'^sa[0-9]+$', f):
                         h = sysstat.headers(root+f)
-                        if start_date <= h["date"] + timedelta(days=1) <= end_date:
-                            matching_files.append({
-                                'filename': root+f,
-                                'filedate': h["date"]
-                            })
+                        if "date" in h:
+                            if start_date <= h["date"] + timedelta(days=1) <= end_date:
+                                matching_files.append({
+                                    'filename': root+f,
+                                    'filedate': h["date"]
+                                })
         else:
             raise Exception("Invalid folder: " + folder)
         if len(matching_files) == 0:
@@ -109,17 +116,17 @@ class sysstat:
         :param activity: activity (cpu, mem, network.net-dev, etc)
         :param data_type: to match config["SYSSTAT_ACTIVITIES"], passed too sadf
         :param (start|end)_date: range of date to look for
-        :param filter_list: array of filters ([{"key": "ifrace", "operator": "==", "value": "em1"},...]) 
+        :param filter_list: array of filters ([{"key": "ifrace", "operator": "==", "value": "em1"},...])
         :param filter_contition: "and" or "or"
         :return : either keys, activities or filtered items
         """
         #import numpy
         #import pandas as pd
-        
+
         global default_start_date
         if start_date is None:
             start_date = default_start_date
-        stats = "".join(sysstat.sadf(file=file, data_type=data_type).stdout)
+        stats = "".join(sysstat.sadf(file=file, data_type=data_type))
         jstats = json.loads(stats)
         dated_events = sysstat.get_event_by_date(stats=jstats, start_date=start_date, end_date=end_date)
         #df = pd.DataFrame(dated_events)
@@ -142,7 +149,7 @@ class sysstat:
         """
         timestamp = stats["timestamp"]["date"] + " " + stats["timestamp"]["time"]
         return datetime.strptime(stats["timestamp"]["date"] + " " + stats["timestamp"]["time"], '%Y-%m-%d %H:%M:%S')
-    
+
     @staticmethod
     def get_event_by_date(stats, start_date=None, end_date=datetime.now()):
         """
@@ -180,7 +187,7 @@ class sysstat:
             else:
                 keylist.append(k)
         return sorted(keylist)
-    
+
     @staticmethod
     def get_event_keys(stats, activity):
         keylist = []
@@ -200,7 +207,7 @@ class sysstat:
         :param stats: Stats
         :param activity: activity (cpu, mem, network.net-dev, etc)
         :param data_type: to match config["SYSSTAT_ACTIVITIES"], passed too sadf
-        :param filter_list: array of filters ([{"key": "ifrace", "operator": "==", "value": "em1"},...]) 
+        :param filter_list: array of filters ([{"key": "ifrace", "operator": "==", "value": "em1"},...])
         :param filter_contition: "and" or "or"
         :return : C3 timeseries: [{"timestamp": "2018-01-04 00:00:01", }]
          """
@@ -230,7 +237,7 @@ class sysstat:
     @staticmethod
     def filter_event(event, filter_list, filter_condition="and"):
         """
-        Determine if an event matches a filter with eval 
+        Determine if an event matches a filter with eval
         (yes, this is ugly, let me know if we can do this otherwize)
         :param event: event object from transform_stats
         :param filter_list: list of filter dict. ie: [{"key": "iface","op": "==","value": "em1"}]

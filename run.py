@@ -8,7 +8,11 @@ except:
 sys.path.append(os.path.dirname(__file__))
 from app import *
 
-config_name = "production"
+if 'ENVIRONMENT_NAME' in os.environ:
+    config_name = os.environ['ENVIRONMENT_NAME']
+else:
+    config_name = "production"
+
 try:
     toolbar = DebugToolbarExtension()
 except:
