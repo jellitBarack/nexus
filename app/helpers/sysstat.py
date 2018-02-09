@@ -94,7 +94,7 @@ class sysstat:
         else:
             raise Exception("Invalid folder: " + folder)
         if len(matching_files) == 0:
-            raise Exception("No matching files found")
+            return []
 
         return sorted(matching_files, key=lambda k: k["filedate"])
     @staticmethod

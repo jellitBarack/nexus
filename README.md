@@ -49,6 +49,7 @@ This web application is a frontend for the [Citellus](https://github.com/zeroday
 * Sort reports by date desc
 * Size of reports 
 * Generate a text report of the failure that could be pasted in a case
+* Add metadata at the top of the reports
 
 # Installation
 ## Python libraries
@@ -76,8 +77,6 @@ WSGIApplicationGroup %{GLOBAL}
 WSGIPythonHome /var/www/nexus/.venv
 
 WSGIScriptAlias /nexus /var/www/nexus/run.py
-LogLevel debug
-
 
 <Directory /var/www/nexus>
     Require all granted
@@ -88,17 +87,12 @@ LogLevel debug
 
 The database is initialized based on the models.py file.
 
-Because sqlite doesn't support ALTER TABLE, if we change the schema in the models.py file, we need to flush the DB and recreate it:
-
 ```
-$ sudo -u apache bash
-$ id
-uid=48(apache) gid=48(apache) groups=48(apache) context=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
 $ pwd
 /var/www/nexus
 $ . .venv/bin/activate
 $ export FLASK_CONFIG=development
-$ rm -rf migrations/ db/nexus.db
+$ rm -rf migrations/
 $ python manage.py db init
 $ python manage.py db migrate
 $ python manage.py db upgrade

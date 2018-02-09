@@ -48,7 +48,7 @@ class Client(db.Model):
     # required if you need to support client credential
     user = db.relationship('User')
 
-    client_id = db.Column(db.String(40), primary_key=True)
+    client_id = db.Column(db.String(50), primary_key=True)
     client_secret = db.Column(db.String(55), unique=True, index=True,
                               nullable=False)
 
@@ -98,12 +98,12 @@ class Grant(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     user_id = db.Column(
-        db.Integer, db.ForeignKey('users.id', ondelete='CASCADE')
+        db.String(30), db.ForeignKey('users.id', ondelete='CASCADE')
     )
     user = db.relationship('User')
 
     client_id = db.Column(
-        db.String(40), db.ForeignKey('client.client_id'),
+        db.String(50), db.ForeignKey('client.client_id'),
         nullable=False,
     )
     client = db.relationship('Client')
@@ -142,13 +142,13 @@ class Token(db.Model):
     """
     id = db.Column(db.Integer, primary_key=True)
     client_id = db.Column(
-        db.String(40), db.ForeignKey('client.client_id'),
+        db.String(50), db.ForeignKey('client.client_id'),
         nullable=False,
     )
     client = db.relationship('Client')
 
     user_id = db.Column(
-        db.Integer, db.ForeignKey('users.id')
+        db.String(30), db.ForeignKey('users.id')
     )
     user = db.relationship('User')
 
@@ -183,9 +183,8 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(60), index=True, unique=True)
     first_name = db.Column(db.String(60), index=True)
     last_name = db.Column(db.String(60), index=True)
-    #password_hash = db.Column(db.String(128))
     is_admin = db.Column(db.Boolean, default=False)
-    history = db.relationship("History", backref="parent")
+    history = db.relationship("History", back_populates="user")
 
     @property
     def password(self):
@@ -225,7 +224,7 @@ class Report(db.Model):
     """
     __tablename__ = 'reports_metadata'
 
-    id = db.Column(db.String, primary_key=True)
+    id = db.Column(db.String(30), primary_key=True)
     fullpath = db.Column(db.String(200))
     source = db.Column(db.String(10))
     live = db.Column(db.Boolean, default=True)
@@ -254,8 +253,8 @@ class Check(db.Model):
     """
     __tablename__ = 'reports_checks'
 
-    id = db.Column(db.String, primary_key=True)
-    report_id = db.Column(db.String(50), db.ForeignKey('reports_metadata.id'))
+    id = db.Column(db.String(30), primary_key=True)
+    report_id = db.Column(db.String(30), db.ForeignKey('reports_metadata.id'))
     report = db.relationship("Report", back_populates="checks")
     check_results = db.relationship("CheckResults", back_populates="check")
     category = db.Column(db.String(50))
@@ -276,7 +275,7 @@ class Check(db.Model):
          self.id = str(hashlib.md5(newid.encode('UTF-8')).hexdigest())
 
     def __repr__(self):
-        return pformat(vars(self))
+        return pformat(vars(self))  
 
 class CheckResults(db.Model):
     """
@@ -284,8 +283,8 @@ class CheckResults(db.Model):
     """
     __tablename__ = 'check_results'
 
-    id = db.Column(db.String, primary_key=True)
-    check_id = db.Column(db.String(50), db.ForeignKey('reports_checks.id'))
+    id = db.Column(db.String(30), primary_key=True)
+    check_id = db.Column(db.String(30), db.ForeignKey('reports_checks.id'))
     check = db.relationship("Check", back_populates="check_results")
     hostname = db.Column(db.String(100))
     result_rc = db.Column(db.SmallInteger)
@@ -305,9 +304,9 @@ class History(db.Model):
     """
     History for each user
     """
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    user = db.relationship("User")
+    id = db.Column(db.String(30), primary_key=True)
+    user_id = db.Column(db.String(30), db.ForeignKey('users.id'))
+    user = db.relationship("User", back_populates="history")
     item_type = db.Column(db.Integer)
     item_id = db.Column(db.Integer)
     time = db.Column(db.DateTime, default=datetime.datetime.utcnow)

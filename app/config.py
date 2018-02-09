@@ -6,33 +6,32 @@ class Config(object):
     # Put any configurations here that are common across all environments
     REPORT_FILE_NAMES = ("citellus[0-9]*.json", "magui[0-9]*.json")
     CITELLUS_PATH = "/git/citellus"
+    FS_ROOT = "/git/citellus-web"
     RC_OKAY = 10
     RC_FAILED = 20
     RC_SKIPPED = 30
-    PLUGIN_STATES = { 
-        10: { 
+    PLUGIN_STATES = {
+        10: {
             "icon": "fa fa-check-circle-o",
             "state": "okay",
             "hclass": "success",
             "text_color": "text-black"
         },
-        20: { 
+        20: {
             "icon": "pficon pficon-error-circle-o",
             "state": "failed",
             "hclass": "danger",
             "text_color": "text-black"
         },
-        30: { 
+        30: {
             "icon": "pficon pficon-help",
             "state": "skipped",
             "hclass": "info",
             "text_color": "text-black"
         }
     }
-    FS_ROOT = "/var/www/nexus"
     # SADF binary: On RHEL7, you need to have a sysstat-10 parse
     SYSSTAT_SADF = FS_ROOT + "/bin/sadf"
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///'+ FS_ROOT + '/db/nexus.db'
     # Number of days we look in the past by default when graphing
     SYSSTAT_DEFAULT_DAYS = 365
     # List of activities with a description and the switch to pass to sadf to get the data
