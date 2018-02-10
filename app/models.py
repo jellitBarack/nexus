@@ -174,8 +174,6 @@ class User(UserMixin, db.Model):
     """
        Create an User table
     """
-    # Ensures table will be named in plural and not in singular
-    # as is the name of the model
     __tablename__ = 'users'
 
     id = db.Column(db.String(32), primary_key=True)
@@ -185,29 +183,6 @@ class User(UserMixin, db.Model):
     last_name = db.Column(db.String(60), index=True)
     is_admin = db.Column(db.Boolean, default=False)
     history = db.relationship("History", back_populates="user")
-
-    @property
-    def password(self):
-        """
-        Prevent pasword from being accessed
-        """
-
-        raise AttributeError('password is not a readable attribute.')
-
-    @password.setter
-    def password(self, password):
-        """
-        Set password to a hashed password
-        """
-
-        self.password_hash = generate_password_hash(password)
-
-    def verify_password(self, password):
-        """
-        Check if hashed password matches actual password
-        """
-
-        return check_password_hash(self.password_hash, password)
 
     def __repr__(self):
         return pformat(vars(self))
@@ -254,8 +229,8 @@ class Check(db.Model):
     __tablename__ = 'reports_checks'
 
     id = db.Column(db.String(32), primary_key=True)
-    report_id = db.Column(db.String(32), db.ForeignKey('reports_metadata.id'))
-    report = db.relationship("Report", back_populates="checks")
+    report_id = db.Column(db.String(32), db.ForeignKey('reports_metadata.id', ondelete='CASCADE'))
+    report = db.relationship("Report", back_populates="checks" )
     check_results = db.relationship("CheckResults", back_populates="check")
     category = db.Column(db.String(50))
     subcategory = db.Column(db.String(50))
@@ -284,7 +259,7 @@ class CheckResults(db.Model):
     __tablename__ = 'check_results'
 
     id = db.Column(db.String(32), primary_key=True)
-    check_id = db.Column(db.String(32), db.ForeignKey('reports_checks.id'))
+    check_id = db.Column(db.String(32), db.ForeignKey('reports_checks.id', ondelete='CASCADE'))
     check = db.relationship("Check", back_populates="check_results")
     hostname = db.Column(db.String(100))
     result_rc = db.Column(db.SmallInteger)
@@ -305,7 +280,7 @@ class History(db.Model):
     History for each user
     """
     id = db.Column(db.String(32), primary_key=True)
-    user_id = db.Column(db.String(32), db.ForeignKey('users.id'))
+    user_id = db.Column(db.String(32), db.ForeignKey('users.id', ondelete='CASCADE'))
     user = db.relationship("User", back_populates="history")
     item_type = db.Column(db.Integer)
     item_id = db.Column(db.Integer)

@@ -49,7 +49,11 @@ def loop_checks(report_id, results, source, report_changed):
         for i in results:
             md[i["id"]] = i
         results = md
-
+    logging.debug("Number of items to loop: %s - Report Changed: %s" % (len(results), report_changed))
+    checks_to_db = []
+    results_to_db = []
+    if report_changed is True:
+        Check.query.filter(Check.report_id == report_id).delete()
     for k, c in results.iteritems():
 
         # Sometimes the results are stored in result, results or sosreport. Let's guess this
@@ -91,7 +95,9 @@ def loop_checks(report_id, results, source, report_changed):
                 counts["total"] += 1
                 counts[global_rc] += 1
                 if report_changed is True:
-                    add_check(report_id, element, source)
+                   check, results = add_check(report_id, element, source)
+                   checks_to_db.append(check)
+                   results_to_db.extend(results)
         
         else:
             # It's easier to support magui if we convert regular citellus reports with the same
@@ -107,7 +113,14 @@ def loop_checks(report_id, results, source, report_changed):
             counts[c["global_rc"]] += 1
             counts["total"] += 1
             if report_changed is True:
-                add_check(report_id, c, source)
+                check, results = add_check(report_id, c, source)
+                checks_to_db.append(check)
+                results_to_db.extend(results)
+    
+    if report_changed is True:
+        db.session.bulk_save_objects(checks_to_db)
+        db.session.bulk_save_objects(results_to_db)
+        db.session.commit()
 
     return counts
 
@@ -124,7 +137,7 @@ def add_check(report_id, c, source):
         c["time"] = 0
     if "priority" not in c:
         c["priority"] = 0
-    
+    results = []
     check = Check(
                 report_id=report_id,
                 category=c["category"],
@@ -139,16 +152,13 @@ def add_check(report_id, c, source):
                 global_rc=c["global_rc"],
                 execution_time=round(c["time"],6)
                 )
-    db.session.merge(check)
-    db.session.commit()
+        
     for hostname in c[rs]["rc"]:
-        check_result = CheckResults(
+        results.append(CheckResults(
                 check_id = check.id,
                 hostname=hostname,
                 result_rc=c[rs]["rc"][hostname],
                 result_err=c[rs]["err"][hostname],
                 result_out=c[rs]["err"][hostname]
-        )
-        db.session.merge(check_result)
-    db.session.commit()
-    return check.id
+        ))
+    return check, results

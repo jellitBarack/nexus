@@ -35,33 +35,12 @@
             </div>
             <!-- /form-group -->
             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-categories">Categories</button>
-            <button type="button" class="btn btn-secondary" id="expandAll">Expand All</button>
+            <button type="button" class="btn btn-secondary" id="expandAll">Expand All</button> {#
             <div class="toolbar-pf-action-right">
                 <div class="form-group toolbar-pf-find">
-                    <button class="btn btn-link btn-find" type="button">
-                        <span class="fa fa-search"></span>
-                    </button>
-                    <div class="find-pf-dropdown-container">
-                        <input type="text" class="form-control" id="find" placeholder="Find By Keyword...">
-                        <div class="find-pf-buttons">
-                            <span class="find-pf-nums">1 of 3</span>
-                            <button class="btn btn-link" type="button">
-                                <span class="fa fa-angle-up"></span>
-                            </button>
-                            <button class="btn btn-link" type="button">
-                                <span class="fa fa-angle-down"></span>
-                            </button>
-                            <button class="btn btn-link btn-find-close" type="button">
-                                <span class="pficon pficon-close"></span>
-                            </button>
-                        </div>
-                        <!-- /find-pf-buttons -->
-                    </div>
-                    <!-- /find-pf-dropdown-container -->
+                    <!-- /toolbar-pf-find -->
                 </div>
-                <!-- /toolbar-pf-find -->
-            </div>
-            <!-- /toolbar-pf-action-right -->
+                <!-- /toolbar-pf-action-right -->#}
         </form>
         <div class="clearfix toolbar-pf-results">
             <div class="col-sm-12">
@@ -70,13 +49,13 @@
             <!-- /col -->
         </div>
         <!-- /row -->
+        </div>
+        <!-- /col -->
     </div>
-    <!-- /col -->
-</div>
-<!-- /row -->
+    <!-- /row -->
 
-{% include "reports/list.html" %} {% with categories=categories %} {% include "reports/modal-categories.html" %} {% endwith %}
+    {% include "reports/list.html" %} {% with categories=categories %} {% include "reports/modal-categories.html" %} {% endwith %}
 
-<a href="#" id="debug_report_in">Debug</a>
-<div id="debug_report_out" style="display:none"><pre>{{ report|pprint}}</pre></div>
-{% endblock %} {% block javascript %} {% include "layout/report.js.html" %} {% endblock %}
+    <a href="#" id="debug_report_in">Debug</a>
+    <div id="debug_report_out" style="display:none"><pre>{{ report|pprint}}</pre></div>
+    {% endblock %} {% block javascript %} {% include "layout/report.js.html" %} {% endblock %}

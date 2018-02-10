@@ -9,5 +9,3 @@ echo "migrate"
 python ${NEXUS_DIR}/manage.py db migrate
 echo "upgrade"
 python ${NEXUS_DIR}/manage.py db upgrade
-echo "seed"
-#python ${NEXUS_DIR}/manage.py seed

@@ -7,6 +7,7 @@ import hashlib
 import re
 
 from datetime import datetime
+from sqlalchemy import or_
 
 
 reports = Blueprint('reports', __name__)
@@ -24,10 +25,20 @@ def add_report(jsonfile, case_id):
     if j["metadata"].has_key("time") is False:
         j["metadata"]["time"] = 0
     md5 = hashlib.md5(open(jsonfile, 'rb').read()).hexdigest()
-    report = db.session.query(Report).filter_by(md5sum=md5).first()
-    report_changed = False
+    report_id = str(hashlib.md5(
+        jsonfile.encode('UTF-8')).hexdigest())
+
+    report = db.session.query(Report).filter(
+        or_(Report.md5sum == md5, Report.id == report_id)).first()
+    if report is not None and report.id == report_id and md5 == report.md5sum:
+        report_changed = False
+    elif report is not None:
+        report_changed = True
+    else:
+        report_changed = False
+
     #report_path = re.sub("^cases\/", "", "/".join(jsonfile.split("/")[-3:]))
-    if report is None:
+    if report is None or report_changed is True:
         # Can't use the path from the metadata because
         # the path is used to generate the unique ID
         # And sometimes, the path is simply . 
@@ -40,8 +51,13 @@ def add_report(jsonfile, case_id):
                 case_id=case_id,
                 md5sum=md5,
                 execution_time=j["metadata"]["time"])
+
         # add report to the database
-        db.session.merge(report)
+        if report_changed is True:
+            db.session.merge(report)
+        else:
+            db.session.add(report)
+
         db.session.commit()
         report_changed = True
         
