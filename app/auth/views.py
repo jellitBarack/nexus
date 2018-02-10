@@ -1,23 +1,13 @@
 from flask import flash, redirect, render_template, url_for, current_app, request, g, session, jsonify, Response
 from flask_login import login_required, login_user, logout_user
-from forms import LoginForm, RegistrationForm
 
 import logging
 import requests
-"""
-from saml2 import BINDING_HTTP_POST
-from saml2 import BINDING_HTTP_REDIRECT
-from saml2 import entity
-from saml2.client import Saml2Client
-from saml2.config import Config as Saml2Config
-"""
-
 
 from . import auth
 from app import db, google
 from app import flash_errors
 from app.models import User
-import pprint
 
 @auth.route('/login')
 def login():
@@ -29,6 +19,7 @@ def logout():
 
 @auth.route('/login/authorized')
 def authorized():
+    next_url = request.args.get('next') or url_for('home.index')
     resp = google.authorized_response()
     if resp is None:
         return 'Access denied: reason=%s error=%s' % (
@@ -50,11 +41,8 @@ def authorized():
         db.session.merge(user)
         db.session.commit()
     login_user(user)
-    #str = pprint.pformat(dir(google), depth=5)
-    #str = pprint.pformat(vars(greq), depth=5)
-    #return Response(str, mimetype="text/text")
-    #return jsonify(oauth_response)
-    return redirect(url_for('home.index'))
+    return jsonify(request.args)
+    #return redirect(next_url)
 
 @google.tokengetter
 def get_google_oauth_token():

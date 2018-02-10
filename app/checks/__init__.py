@@ -7,7 +7,7 @@ import sys
 from collections import defaultdict
 from . import views
 from app.models import Check
-from app.models import CheckResults
+from app.models import CheckResult
 
 
 checks = Blueprint('checks', __name__)
@@ -154,7 +154,7 @@ def add_check(report_id, c, source):
                 )
         
     for hostname in c[rs]["rc"]:
-        results.append(CheckResults(
+        results.append(CheckResult(
                 check_id = check.id,
                 hostname=hostname,
                 result_rc=c[rs]["rc"][hostname],

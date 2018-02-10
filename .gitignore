@@ -5,3 +5,4 @@ migrations/
 db/
 instance/
 app/static/fonts/
+__pycache__
