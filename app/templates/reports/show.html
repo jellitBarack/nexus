@@ -1,5 +1,42 @@
 {% extends "layout/base.html" %} {% set active_page = "checks" %} {% block title %}{{ report.case_id }} - Report{% endblock %} {% block body %}
-
+<div class="clearfix">
+    <div class="col-sm">
+        <table id="metadata_table_citellus" class="table table-hover table-bordered">
+            <thead>
+                <tr id="metadata_table_citellus_header">
+                    <th colspan=2 class="text-center">Report Metadata <span class="fa fa-flag-checkered"></span></th>
+                </tr>
+            </thead>
+            <tbody id="metadata_table_citellus_body" style="display: none">
+                <tr>
+                    <th>Case</th>
+                    <td>{{ report.case_id }}</td>
+                </tr>
+                <tr>
+                    <th>Path</th>
+                    <td>{{ report.path }}</td>
+                </tr>
+                <tr>
+                    <th>Source</th>
+                    <td>{{ report.source }}</td>
+                </tr>
+                <tr>
+                    <th>Live</th>
+                    <td>{{ report.live }}</td>
+                </tr>
+                <tr>
+                    <th>Timestamp</th>
+                    <td>{{ report.when }}</td>
+                </tr>
+                <tr>
+                    <th>Runtime</th>
+                    <td>{{ report.execution_time }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <!-- /col -->
+</div>
 <div class="clearfix toolbar-pf">
     <div class="col-sm-12">
         <form class="toolbar-pf-actions">
@@ -54,8 +91,8 @@
     </div>
     <!-- /row -->
 
-    {% include "reports/list.html" %} {% with categories=categories %} {% include "reports/modal-categories.html" %} {% endwith %}
+    {% include "reports/list.html" %} {% with categories=categories %} {% include "reports/modal-categories.html" %} {% endwith %} {% endblock %} {% block javascript %} {% include "layout/report.js.html" %}
 
     <a href="#" id="debug_report_in">Debug</a>
-    <div id="debug_report_out" style="display:none"><pre>{{ report|pprint}}</pre></div>
-    {% endblock %} {% block javascript %} {% include "layout/report.js.html" %} {% endblock %}
+    <div id="debug_report_out" style="display:block"><pre>{{ report|pprint }}</pre></div>
+    {% endblock %}
