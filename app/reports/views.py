@@ -63,7 +63,6 @@ def display_checks(report_id, rc=None):
         abort(404)
     # Getting a list of categories
     categories = defaultdict(int)
-    logging.debug("Length: %s", len(report))
     for c in report[0].checks:
         # Building the categories dict
         categories[c.category] += 1

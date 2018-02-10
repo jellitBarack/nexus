@@ -34,16 +34,14 @@ def result_string(c):
         result_string = "result"
     elif "sosreport" in c:
         result_string = "sosreport"
-    else:
-        logging.debug(c)
     return result_string
 
 def loop_checks(report_id, results, source, report_changed):
     # looping through the plugin results
     counts = defaultdict(int)
-    logging.debug("ReportID: %s", report_id)
-    logging.debug("Results: %s", results)
-    logging.debug("Source: %s", source)
+#    logging.debug("ReportID: %s", report_id)
+#    logging.debug("Results: %s", results)
+#    logging.debug("Source: %s", source)
     # magui is returning a list, while citellus returns a dict
     # converting magui to a dict
     if source == "magui":

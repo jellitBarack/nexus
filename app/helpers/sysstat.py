@@ -180,7 +180,6 @@ class sysstat:
         keylist = []
         del stats[-1]["timestamp"]
         for k in stats[-1]:
-            logging.debug("Key: %s", k)
             if "is-parent" in sysstat_activies[k] and sysstat_activies[k]["is-parent"] == "true":
                 for sk in stats[-1][k]:
                     keylist.append(k + "." + sk)
