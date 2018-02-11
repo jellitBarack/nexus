@@ -72,7 +72,6 @@ def create_app(config_name,cli = False):
 
     if (cli is False):
         login_manager.init_app(app)
-        login_manager.login_message = "You must be logged in to access this page."
         login_manager.login_view = "auth.login"
 
         from .helpers import sysstat

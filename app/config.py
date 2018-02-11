@@ -7,6 +7,7 @@ class Config(object):
     REPORT_FILE_NAMES = ("citellus[0-9]*.json", "magui[0-9]*.json")
     CITELLUS_PATH = "/git/citellus"
     FS_ROOT = "/git/citellus-web"
+    GITHUB_ROOT = "https://github.com/zerodayz/citellus/blob/master/"
     RC_OKAY = 10
     RC_FAILED = 20
     RC_SKIPPED = 30

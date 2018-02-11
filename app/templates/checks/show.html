@@ -80,7 +80,8 @@
             </div>
             <!-- /col-md-9 -->
             <div class="col-md-3">
-                <a href="#plugin-{{ check.id }}"><span class="fa fa-link"></span> Link</a>
+                <a href="#plugin-{{ check.id }}"><span class="fa fa-link"></span> Direct Link</a><br>
+                <a href="{{ check.plugin_path|replace('/git/citellus/', config['GITHUB_ROOT']) }}" class="code-link" target="_blank"><span class="fa fa-code-fork"></span> Under the hood</a>
             </div>
             <!-- /col-md-3 -->
         </div>
