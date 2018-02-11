@@ -10,6 +10,7 @@ import logging, sys
 import logging.config
 import pprint
 import time
+import traceback
 
 from flask_oauthlib.client import OAuth
 
@@ -106,6 +107,12 @@ def create_app(config_name,cli = False):
         @app.errorhandler(405)
         def page_not_found(error):
             return render_template("errors/reportnotfound.html"), 404
+
+        @app.errorhandler(500)
+        def internal_error(exception):
+            print "500 error caught"
+            etype, value, tb = sys.exc_info()
+            print traceback.print_exception(etype, value, tb)
 
         @app.before_request
         def before_request():
