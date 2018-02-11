@@ -29,6 +29,7 @@ class Check(db.Model):
          super(Check, self).__init__(**kwargs)
          newid = kwargs.pop('plugin_id') + kwargs.pop('report_id')
          self.id = str(hashlib.md5(newid.encode('UTF-8')).hexdigest())
+         self.plugin_id = str(hashlib.md5(kwargs.pop('plugin_id').encode('UTF-8')).hexdigest())
 
     def __repr__(self):
         return pformat(vars(self))
