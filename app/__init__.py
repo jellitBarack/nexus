@@ -111,7 +111,7 @@ def create_app(config_name,cli = False):
         def internal_error(exception):
             print "500 error caught"
             etype, value, tb = sys.exc_info()
-            print traceback.print_exception(etype, value, tb)
+            return render_template("errors/traceback.html", traceback=traceback.print_exception(etype, value, tb)), 500
 
         @app.before_request
         def before_request():
