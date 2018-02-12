@@ -2,6 +2,7 @@ from pprint import pformat
 import hashlib
 
 from app import db
+import logging
 
 class Check(db.Model):
     """
@@ -27,6 +28,7 @@ class Check(db.Model):
 
     def __init__(self, **kwargs):
          super(Check, self).__init__(**kwargs)
+         logging.debug(kwargs)
          newid = kwargs.pop('plugin_id') + kwargs.pop('report_id')
          self.id = str(hashlib.md5(newid.encode('UTF-8')).hexdigest())
          self.plugin_id = str(hashlib.md5(kwargs.pop('plugin_id').encode('UTF-8')).hexdigest())
