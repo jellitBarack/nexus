@@ -28,10 +28,10 @@ class Check(db.Model):
 
     def __init__(self, **kwargs):
          super(Check, self).__init__(**kwargs)
-         logging.debug(kwargs)
-         newid = kwargs.pop('plugin_id') + kwargs.pop('report_id')
+         plugin_id = kwargs.pop('plugin_id')
+         newid = plugin_id + kwargs.pop('report_id')
          self.id = str(hashlib.md5(newid.encode('UTF-8')).hexdigest())
-         self.plugin_id = str(hashlib.md5(kwargs.pop('plugin_id').encode('UTF-8')).hexdigest())
+         self.plugin_id = str(hashlib.md5(plugin_id.encode('UTF-8')).hexdigest())
 
     def __repr__(self):
         return pformat(vars(self))
