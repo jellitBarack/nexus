@@ -1,7 +1,5 @@
 from flask_login import UserMixin
 
-from pprint import pformat
-
 from app import db, login_manager
 
 class User(UserMixin, db.Model):
@@ -19,7 +17,8 @@ class User(UserMixin, db.Model):
     history = db.relationship("History", back_populates="user")
 
     def __repr__(self):
-        return pformat(vars(self))
+        args = ['\n    {} => {}'.format(k, repr(v)) for (k,v) in vars(self).items()]
+        return self.__class__.__name__ + '({}\n)'.format(', '.join(args))
 
 
 # Set up user_loader

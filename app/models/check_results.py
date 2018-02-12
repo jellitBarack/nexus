@@ -1,4 +1,3 @@
-from pprint import pformat
 import hashlib
 
 from app import db
@@ -22,6 +21,7 @@ class CheckResult(db.Model):
          super(CheckResult, self).__init__(**kwargs)
          newid = kwargs.pop('check_id') + kwargs.pop('hostname')
          self.id = str(hashlib.md5(newid.encode('UTF-8')).hexdigest())
-
+    
     def __repr__(self):
-        return pformat(vars(self))
+        args = ['\n    {} => {}'.format(k, repr(v)) for (k,v) in vars(self).items()]
+        return 'Struct({}\n)'.format(', '.join(args))

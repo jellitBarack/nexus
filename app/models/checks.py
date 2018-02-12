@@ -1,4 +1,3 @@
-from pprint import pformat
 import hashlib
 
 from app import db
@@ -34,4 +33,5 @@ class Check(db.Model):
          self.plugin_id = str(hashlib.md5(plugin_id.encode('UTF-8')).hexdigest())
 
     def __repr__(self):
-        return pformat(vars(self))
+        args = ['\n    {} => {}'.format(k, repr(v)) for (k,v) in vars(self).items()]
+        return 'Struct({}\n)'.format(', '.join(args))

@@ -1,4 +1,3 @@
-from pprint import pformat
 import datetime
 import hashlib
 
@@ -29,4 +28,5 @@ class Report(db.Model):
         return hashlib.md5(path.encode('UTF-8')).hexdigest()
 
     def __repr__(self):
-        return pformat(vars(self))
+        args = ['\n    {} => {}'.format(k, repr(v)) for (k,v) in vars(self).items()]
+        return self.__class__.__name__ + '({}\n)'.format(', '.join(args))

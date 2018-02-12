@@ -15,4 +15,5 @@ class History(db.Model):
     time = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 
     def __repr__(self):
-        return pformat(vars(self))
+        args = ['\n    {} => {}'.format(k, repr(v)) for (k,v) in vars(self).items()]
+        return self.__class__.__name__ + '({}\n)'.format(', '.join(args))

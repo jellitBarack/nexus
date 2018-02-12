@@ -1,5 +1,3 @@
-from pprint import pformat
-
 from app import db
 
 # https://github.com/mitsuhiko/flask-openid/blob/master/example/example.py
@@ -64,6 +62,9 @@ class Client(db.Model):
         if self._default_scopes:
             return self._default_scopes.split()
         return []
+    def __repr__(self):
+        args = ['\n    {} => {}'.format(k, repr(v)) for (k,v) in vars(self).items()]
+        return self.__class__.__name__ + '({}\n)'.format(', '.join(args))
 
 class Grant(db.Model):
     """
@@ -110,6 +111,9 @@ class Grant(db.Model):
         if self._scopes:
             return self._scopes.split()
         return []
+    def __repr__(self):
+        args = ['\n    {} => {}'.format(k, repr(v)) for (k,v) in vars(self).items()]
+        return self.__class__.__name__ + '({}\n)'.format(', '.join(args))
 
 class Token(db.Model):
     """
@@ -155,3 +159,7 @@ class Token(db.Model):
         if self._scopes:
             return self._scopes.split()
         return []
+
+    def __repr__(self):
+        args = ['\n    {} => {}'.format(k, repr(v)) for (k,v) in vars(self).items()]
+        return self.__class__.__name__ + '({}\n)'.format(', '.join(args))
