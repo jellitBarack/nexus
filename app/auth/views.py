@@ -12,7 +12,10 @@ from app.models import User
 
 @auth.route('/login')
 def login():
-    ref64 = base64.b64encode(request.referrer)
+    if request.referrer is None:
+        ref64 = base64.b64encode(url_for('home.index'))
+    else:
+        ref64 = base64.b64encode(request.referrer)
     return google.authorize(state=ref64, callback=url_for('auth.authorized', _external=True))
 @auth.route('/logout')
 def logout():
