@@ -154,17 +154,19 @@
                 if (reports.length < 2) {
                     warnMessage("warning", "You must choose at least 2 reports to compare")
                     return;
+                } else {
+                    reports_json = JSON.stringify(reports)
+                    $.ajax({
+                        type: "POST",
+                        data: reports_json,
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        url: "{{ url_for('cases.compare') }}",
+                        success: function(msg) {
+                            console.log(msg)
+                        }
+                    });
                 }
-                $.ajax({
-                    type: "POST",
-                    data: {
-                        report: reports
-                    },
-                    url: "{{ url_for('cases.compare') }}",
-                    success: function(msg) {
-                        console.log(msg)
-                    }
-                });
             })
         });
     </script>

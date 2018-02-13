@@ -75,10 +75,10 @@ def search():
 @cases.route('/compare', methods=['POST','GET'])
 @login_required
 def compare():
-    reports = request.args.getlist("report")
+    reports = request.get_json()
     if len(reports) < 2:
         logging.debug("We need more reports to compare. Got %s reports", len(reports))
-        abort(404)
+        abort(400)
     rlist = []
     for r in reports:
         report = db.session.query(Report).filter_by(id=r).first()
