@@ -1,5 +1,5 @@
 # Flask
-from flask import flash, redirect, render_template, url_for, current_app, request, Response
+from flask import flash, redirect, render_template, url_for, current_app, request, Response, abort
 from flask_login import login_required
 
 # Global imports
