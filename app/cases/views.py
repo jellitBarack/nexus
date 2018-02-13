@@ -77,7 +77,7 @@ def search():
 def compare():
     reports = request.args.getlist("report")
     if len(reports) < 2:
-        logging.debug("We need more reports to compare. Got %s reports", reports.length())
+        logging.debug("We need more reports to compare. Got %s reports", len(reports))
         abort(404)
     rlist = []
     for r in reports:
