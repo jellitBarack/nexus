@@ -35,6 +35,8 @@ def search():
         reportList = []
         jsonregex = []
         combinedregex = re.compile("(" + ")|(".join(current_app.config["REPORT_FILE_NAMES"]) + ")")
+        #du -s /cases/02031310/sosreport-20180209-033909/wcmsc5-l-rh-ocld-0
+        #1955016	/cases/02031310/sosreport-20180209-033909/wcmsc5-l-rh-ocld-2
         for root, dirs, files in os.walk(casepath, topdown=True):
             matched = filter(combinedregex.match, files)
             if len(matched) > 0:
@@ -91,14 +93,17 @@ def compare():
     return Response(magui(outfile, rlist).stderr, mimetype="text/text")
 
 def magui(outfile, reports):
-    magui_exec = current_app.config["CITELLUS_PATH"] + "/magui.py"
-    args = [magui_exec]
-    args.extend(["-o", outfile])
+    args = ["python", current_app.config["CITELLUS_PATH"] + "/magui.py"]
+    args.extend(["--loglevel", "DEBUG", "-o", outfile])
+    #args = ["ls", "-l"]
     args.extend(reports)
     logging.debug("Executing %s", args)
-    out = Popen(args, stdout=PIPE, stderr=PIPE)
-    logging.debug(out)
-    return out
+    #p = Popen(args, stdout=PIPE, stderr=PIPE, bufsize=1)
+    #for line in iter(p.stdout.readline, b''):
+    #    logging.debug(line)
+    #p.stdout.close()
+    #p.wait()
+    return None
 
 def has_no_empty_params(rule):
     defaults = rule.defaults if rule.defaults is not None else ()

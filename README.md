@@ -29,27 +29,10 @@ This web application is a frontend for the [Citellus](https://github.com/zeroday
 * The first time we load a case, it takes ~30 seconds to parse and insert all the data in the DB. This might be because that we're using db.merge.
 * It's my first python webapp, and I think some of the things could be better implement, like the helpers modules.
 * ~~The first time we load the webapp (and when the browser cache is expired), it can take a good 30 seconds to download the assets.~~ This was solved by using a CDN for the assets.
+* if you want to run magui or citellus from the webapp, you will need to add a couple of things in custom selinux policies. Look in /var/log/audit/.
 
 # TODO
-* ~~Generate a graphic with the points returned~~
-* Possibility to yank the files when they are not there
-* Possibility to compare (magui) two sosreports
-* Upload a sosreport
-* Keep an history of the searches for future reference
-* Dynamic priorities on checks
-* Toxify the code
-* Describe each function
-* Clean debug/repetitive code
-* Fix helpers/sysstat.py - Need to make objects for stats and statset
-* Sanitize and validate inputs
-* Have a way to save the charts to share with others
-* More advanced filters on metrics
-* Add current resource graphs on the side of the report page
-* Breadcrumbs
-* Sort reports by date desc
-* Size of reports 
-* Generate a text report of the failure that could be pasted in a case
-* Add metadata at the top of the reports
+We have a [Trello Board](https://trello.com/b/OE573xW2/citellus) to track TODOs.
 
 # Installation
 ## Python libraries
