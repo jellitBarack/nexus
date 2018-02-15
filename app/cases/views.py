@@ -8,7 +8,7 @@ import app
 import logging
 import re
 import datetime
-from subprocess import Popen, PIPE
+import subprocess
 
 # local imports
 from . import cases
@@ -24,14 +24,33 @@ from app.helpers import sysstat
 
 
 @cases.route('/', methods=['GET', 'POST'])
+@cases.route('/?case=<case>&yank=<yank>', methods=['GET', 'POST'])
+@cases.route('/?case=<case>&yank=<yank>&force=<force>', methods=['GET', 'POST'])
 @login_required
-def search():
+def search(case=None, yank=None, force=None):
     """
     Handle requests for cases
     """
+    def yank(case, force=None):
+        if force == 'True':
+            command = "/bin/bash /usr/bin/yank --force " + case
+        elif force is None:
+            command = "/bin/bash /usr/bin/yank " + case
+
+        logging.debug("searching for attachment for case %s", case)
+        logging.debug("executing command: %s", command)
+        try:
+            result = subprocess.check_output([command], shell=True)
+        except subprocess.CalledProcessError as e:
+            return "An error occurred while executing command."
+
     form = CaseSearchForm()
-    if form.validate_on_submit():
-        casepath = "/cases/" + form.casenum.data
+    if case is None and form.validate_on_submit():
+        case = form.casenum.data
+    elif yank is not None and case is not None:
+        yank(case, force)
+    if case is not None:
+        casepath = "/cases/" + case
         reportList = []
         jsonregex = []
         combinedregex = re.compile("(" + ")|(".join(current_app.config["REPORT_FILE_NAMES"]) + ")")

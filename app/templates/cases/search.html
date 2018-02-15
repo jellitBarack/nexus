@@ -7,8 +7,8 @@
                     <button type="button" name="mass-actions" id="mass-actions" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Actions <span class="caret"></span></button>
                     <ul class="dropdown-menu">
                         <li><a href="#" class="mass-actions">Compare</a></li>
-                        <li><a href="#" class="mass-actions">Yank</a></li>
-                        <li><a href="#" class="mass-actions">Force Yank</a></li>
+                        <li><a href="{{ url_for('cases.search', case = form.casenum.data, yank = "True") }}">Yank</a></li>
+                        <li><a href="{{ url_for('cases.search', case = form.casenum.data, yank = "True", force = "True") }}">Force Yank</a></li>
                     </ul>
                 </div>
                 <div class="input-group-btn">
