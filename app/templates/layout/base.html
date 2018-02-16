@@ -47,16 +47,16 @@
         <div class="collapse navbar-collapse navbar-collapse-1">
             <!-- /navbar-header -->
             <ul class="nav navbar-nav navbar-primary">
-                <li {% if 'cases'==a ctive_page %} class="active" {% endif %}>
+                <li {% if 'cases' == active_page %} class="active" {% endif %}>
                     <a class="nav-item-iconic" href="{{ url_for('cases.search') }}">Cases</a>
                 </li>
-                <li {% if 'upload'==a ctive_page %} class="active" {% endif %}>
+                <li {% if 'upload' == active_page %} class="active" {% endif %}>
                     <a class="nav-item-iconic" href="{{ url_for('reports.upload') }}">Upload</a>
                 </li>
-                <li {% if 'history'==a ctive_page %} class="active" {% endif %}>
+                <li {% if 'history' == active_page %} class="active" {% endif %}>
                     <a class="nav-item-iconic" href="{{ url_for('reports.history') }}">History</a>
                 </li>
-                <li {% if 'trend'==a ctive_page %} class="active" {% endif %}>
+                <li {% if 'trend' == active_page %} class="active" {% endif %}>
                     <a class="nav-item-iconic" href="#">Trends</a>
                 </li>
                 <li class="dropdown">
