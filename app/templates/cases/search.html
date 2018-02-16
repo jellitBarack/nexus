@@ -173,7 +173,7 @@
                         dataType: "json",
                         url: "{{ url_for('cases.compare') }}",
                         success: function(msg) {
-                            console.log(msg)
+                            warnMessage(msg.status, msg.msg)
                         }
                     });
                 }
