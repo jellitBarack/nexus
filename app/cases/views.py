@@ -1,5 +1,5 @@
 # Flask
-from flask import flash, redirect, render_template, url_for, current_app, request, Response, abort
+from flask import flash, redirect, render_template, url_for, current_app, request, Response, abort, jsonify
 from flask_login import login_required
 
 # Global imports
@@ -8,7 +8,7 @@ import app
 import logging
 import re
 import datetime
-from subprocess import Popen, PIPE
+import subprocess
 
 # local imports
 from . import cases
@@ -88,22 +88,19 @@ def compare():
             logging.debug("Report not found. ID: %s", r)
             abort(404)
         rlist.append(os.path.dirname(report.path))
-    logging.debug(rlist)
     outfile = re.match("(/cases/[0-9]+/)", rlist[0]).group(1) + "magui" + str(datetime.datetime.today().strftime('%Y%m%d%H%M%S')) + ".json"
-    return Response(magui(outfile, rlist).stderr, mimetype="text/text")
+    return magui(outfile, rlist)
 
 def magui(outfile, reports):
     args = ["python", current_app.config["CITELLUS_PATH"] + "/magui.py"]
     args.extend(["--loglevel", "DEBUG", "-o", outfile])
-    #args = ["ls", "-l"]
     args.extend(reports)
-    logging.debug("Executing %s", args)
-    #p = Popen(args, stdout=PIPE, stderr=PIPE, bufsize=1)
-    #for line in iter(p.stdout.readline, b''):
-    #    logging.debug(line)
-    #p.stdout.close()
-    #p.wait()
-    return None
+    command = " ".join(args)
+    try:
+        result = subprocess.check_output([command], shell=True)
+    except subprocess.CalledProcessError as e:
+        return jsonify({ "status": "danger", "msg": "An error occurred while executing command."})
+    return jsonify({ "status": "success", "msg": "Succesfully generated compare report"})
 
 def has_no_empty_params(rule):
     defaults = rule.defaults if rule.defaults is not None else ()
