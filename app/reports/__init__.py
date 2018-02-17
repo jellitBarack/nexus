@@ -47,10 +47,11 @@ def add_report(jsonfile, case_id):
                 source=j["metadata"]["source"],
                 live=j["metadata"]["live"],
                 path=jsonfile,
-                when=datetime.strptime(j["metadata"]["when"], '%Y-%m-%dT%H:%M:%S.%f'),
                 case_id=case_id,
                 md5sum=md5,
-                execution_time=j["metadata"]["time"])
+                analyze_time=datetime.strptime(j["metadata"]["when"], '%Y-%m-%dT%H:%M:%S.%f'),
+                analyze_duration=j["metadata"]["time"])
+        report.get_report_size()
 
         # add report to the database
         if report_changed is True:
@@ -63,4 +64,4 @@ def add_report(jsonfile, case_id):
         
 
 
-    return report.id, j["results"], report.source, report_changed
+    return report, j["results"], report_changed
