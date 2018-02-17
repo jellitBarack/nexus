@@ -54,8 +54,6 @@ def search(case=None, yank=None, force=None):
         reportList = []
         jsonregex = []
         combinedregex = re.compile("(" + ")|(".join(current_app.config["REPORT_FILE_NAMES"]) + ")")
-        #du -s /cases/02031310/sosreport-20180209-033909/wcmsc5-l-rh-ocld-0
-        #1955016	/cases/02031310/sosreport-20180209-033909/wcmsc5-l-rh-ocld-2
         for root, dirs, files in os.walk(casepath, topdown=True):
             matched = filter(combinedregex.match, files)
             if len(matched) > 0:
@@ -66,24 +64,31 @@ def search(case=None, yank=None, force=None):
                         sarfiles = sysstat.sysstat.get_file_date(sardir)
                     else:
                         sarfiles = []
-                    report_id, results, source, report_changed = add_report(fullname, form.casenum.data)
-                    counts = loop_checks(report_id, results, source, report_changed)
+                    report, results, report_changed = add_report(
+                        fullname, form.casenum.data)
+                    counts = loop_checks(report.id, results, report.source,
+                                         report_changed)
                     # add report to the web interface
-                    if source == "magui":
+                    if report.source == "magui":
                         icon = "microchip"
                     else:
                         icon = "cog"
+                    logging.debug(report)
                     reportList.append({"fullname": fullname,
                                 "name": "/".join(root.split("/")[-2:]), 
-                                "report_id": report_id,
+                                "report_id": report.id,
                                 "icon": icon, 
                                 "sarfiles": sarfiles,
                                 "checks_total": counts["total"], 
                                 "checks_fail": counts[20], 
                                 "checks_skip": counts[30], 
                                 "checks_okay": counts[10], 
-                                "execution_time": 0,
-                                "source": source})
+                                "analyze_duration": report.analyze_duration,
+                                "size": report.size,
+                                "hr_size": report.get_hr_size(2),
+                                "collect_time": report.collect_time,
+                                "machine_id": report.machine_id,
+                                "source": report.source})
 
             if root.count(os.sep) - casepath.count(os.sep) == 2:
                 del dirs[:]

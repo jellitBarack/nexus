@@ -1,7 +1,8 @@
 import re
 
 class Cpuinfo:
-    cpu_stat_names = [ "user", "nice", "system", "idle", "iowait", "irq", "softirq", "steal", "guest", "guest_nice" ]
+    cpu_stat_names = [ "user", "nice", "system", "idle", "iowait", "irq",
+                      "softirq", "steal", "guest", "guest_nice" ]
 
     def __init__(self, sosreport):
         self.sosreport = sosreport
