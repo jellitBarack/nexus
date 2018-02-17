@@ -72,7 +72,7 @@
                 <li>
                     <form class="navbar-form" method="post" action="{{ config['APPLICATION_ROOT'] }}/cases/" role="form">
                         <div class="input-group">
-                            <input type="text" class="form-control" placeholder="Case number" name="casenum" id="toolbar_casenum">
+                            <input type="text" class="form-control" value="{{ casenum }}" placeholder="Case number" name="casenum" id="toolbar_casenum">
                             <div class="input-group-btn">
                                 <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
                             </div>

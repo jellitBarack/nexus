@@ -73,7 +73,6 @@ def search(case=None, yank=None, force=None):
                         icon = "microchip"
                     else:
                         icon = "cog"
-                    logging.debug(report)
                     reportList.append({"fullname": fullname,
                                 "name": "/".join(root.split("/")[-2:]), 
                                 "report_id": report.id,
@@ -93,7 +92,7 @@ def search(case=None, yank=None, force=None):
             if root.count(os.sep) - casepath.count(os.sep) == 2:
                 del dirs[:]
 
-        return render_template('cases/search.html', form=form, reportList=reportList, title='Search sosreport in case')
+        return render_template('cases/search.html', form=form, casenum = case, reportList=reportList, title='Search sosreport in case')
     elif request.method == "POST":
         flash_errors(form)
     return render_template('cases/search.html', form=form, title='Search sosreport in case')
