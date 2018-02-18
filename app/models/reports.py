@@ -16,7 +16,7 @@ class Report(db.Model):
     """
     ALTER TABLE reports_metadata add column collect_time datetime after live;
     ALTER TABLE reports_metadata ADD COLUMN machine_id VARCHAR(50)
-    ALTER TABLE reports_metadata ADD COLUMN size int(11) AFTER path;
+    ALTER TABLE reports_metadata ADD COLUMN `size` bigint unsigned AFTER path;
     ALTER TABLE reports_metadata CHANGE COLUMN `when` `analyze_time` datetime after `collect_time`;
     ALTER TABLE reports_metadata CHANGE COLUMN `execution_time` `analyze_duration` decimal(6,3) after  analyze_time;
     """
