@@ -1,14 +1,25 @@
-{% extends "layout/base.html" %} {% set active_page = "cases" %} {% block title %}Cases{% endblock %} {% block body %} {% include 'cases/modal.html' %} {% if reportList is defined %}
+{% extends "layout/base.html" %} 
+{% set active_page = "cases" %} 
+{% block title %}Cases{% endblock %} 
+{% block body %} 
+{% include 'cases/modal.html' %} 
+{% if reportList is defined %}
 <div class="row toolbar-pf">
     <div class="col-sm-6">
         <div class="form-group toolbar-pf-filter">
             <div class="input-group">
                 <div class="input-group-btn">
-                    <button type="button" name="mass-actions" id="mass-actions" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Actions <span class="caret"></span></button>
+                    <button type="button" 
+                            name="mass-actions" id="mass-actions" 
+                            class="btn btn-default dropdown-toggle" 
+                            data-toggle="dropdown" aria-haspopup="true" 
+                            aria-expanded="false">
+                            Actions <span class="caret"></span>
+                    </button>
                     <ul class="dropdown-menu">
                         <li><a href="#" class="mass-actions">Compare</a></li>
-                        <li><a href="{{ url_for('cases.search', case = form.casenum.data, yank = "True") }}">Yank</a></li>
-                        <li><a href="{{ url_for('cases.search', case = form.casenum.data, yank = "True", force = "True") }}">Force Yank</a></li>
+                        <li><a href="{{ url_for('cases.yank', case = casenum, force = "False") }}">Yank</a></li>
+                        <li><a href="{{ url_for('cases.yank', case = casenum, force = "True") }}">Force Yank </a></li>
                     </ul>
                 </div>
                 <div class="input-group-btn">
