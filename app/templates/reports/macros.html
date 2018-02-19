@@ -1,0 +1,49 @@
+{% macro meta_table_html(report) %}
+<div class="clearfix">
+    <div class="col-sm">
+        <table id="metadata_table_citellus" class="table table-hover table-bordered">
+            <thead>
+                <tr id="metadata_table_citellus_header">
+                    <th colspan=2 class="text-center"><span class="fa fa-flag-checkered"></span> {{ report.fullpath }}</th>
+                </tr>
+            </thead>
+            <tbody id="metadata_table_citellus_body" style="display: none">
+                <tr>
+                    <th>Case</th>
+                    <td>{{ report.case_id }}</td>
+                </tr>
+                <tr>
+                    <th>Path</th>
+                    <td>{{ report.path }}</td>
+                </tr>
+                <tr>
+                    <th>Source</th>
+                    <td>{{ report.source }}</td>
+                </tr>
+                <tr>
+                    <th>Live</th>
+                    <td>{{ report.live }}</td>
+                </tr>
+                <tr>
+                    <th>Timestamp</th>
+                    <td>{{ report.when }}</td>
+                </tr>
+                <tr>
+                    <th>Runtime</th>
+                    <td>{{ report.execution_time }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <!-- /col -->
+</div> 
+{% endmacro %}
+{% macro meta_table_js() %}
+    <script type="text/javascript">
+    $(document).ready(function() {
+        $("body").on("click", '#metadata_table_citellus_header', function(e) { 
+            $("#metadata_table_citellus_body").toggle()
+        });
+    })
+    </script>
+{% endmacro %}
