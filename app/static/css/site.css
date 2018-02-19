@@ -9,10 +9,6 @@
     vertical-align: baseline;
 }
 
-.container-fluid {
-    padding-left: 225px;
-}
-
 .badge:empty {
     display: none;
 }
@@ -264,10 +260,33 @@ footer {
         border-bottom-color: transparent;
     border-bottom-color: transparent;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 1px 0 rgba(255, 255, 255, 0.1);
+
+
     margin-top: 0px;
     margin-bottom: -10px;
 }
 
 .nav-pf-vertical {
     top: 100px;
+}
+
+.navbar-pf .navbar-primary.persistent-secondary > li.active {
+    margin-bottom: 0px;
+}
+
+.container-fluid {
+    padding-left: 20px;
+    padding-top: 20px;
+}
+
+.list-view-pf-additional-info {
+    -ms-flex: 1 0 auto;
+    flex: 1 0 auto;
+    float: left;
+    width: 60%;
+}
+
+.list-view-pf-description {
+    -ms-flex: 1 0 10%;
+    flex: 1 0 10%;
 }
