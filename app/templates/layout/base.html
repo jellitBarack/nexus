@@ -72,7 +72,7 @@
                 <li>
                     <form class="navbar-form" method="post" action="{{ config['APPLICATION_ROOT'] }}/cases/" role="form">
                         <div class="input-group">
-                            <input type="text" class="form-control" value="{{ casenum }}" placeholder="Case number" name="casenum" id="toolbar_casenum">
+                            <input type="text" class="form-control" value="{% if report is defined %}{{ report.case_id }}{% endif %}" placeholder="Case number" name="casenum" id="toolbar_casenum">
                             <div class="input-group-btn">
                                 <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
                             </div>
@@ -120,18 +120,14 @@
     {% endif %}
     <div class="container-fluid">
         {% include 'layout/flash.html' %}
-        <div class="row">
-            <div class="col-sm-8 col-md-9">
-                <ol class="breadcrumb">
-                    {%- for breadcrumb in breadcrumbs -%}
-                    <li><a href="{{ breadcrumb.url }}">{{ breadcrumb.text }}</a></li>
-                    {{ '/' if not loop.last }} {%- endfor -%}
-                </ol>
-                {% block body %}{% endblock %}
-            </div>
-            <!-- /col-sm-8 -->
-        </div>
-        <!-- /row -->
+        <ol class="breadcrumb">
+        {%- for breadcrumb in breadcrumbs -%}
+            <li><a href="{{ breadcrumb.url }}">{{ breadcrumb.text }}</a></li>
+            {{ '/' if not loop.last }} {%- endfor -%}
+        </ol>
+       {% block body %}{% endblock %}
+        <footer>Powered by <a href="https://github.com/zerodayz/citellus">Citellus</a><br>Rendered in {{ g.request_time() }}</footer>
+
     </div>
     <!-- /container-fluid -->
     <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
@@ -176,4 +172,3 @@
         });
     </script>
     {% block javascript %}{% endblock %}
-    <footer>Powered by <a href="https://github.com/zerodayz/citellus">Citellus</a><br>Rendered in {{ g.request_time() }}</footer>

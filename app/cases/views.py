@@ -66,6 +66,8 @@ def search(case=None):
         combinedregex = re.compile("(" + ")|(".join(
                                        current_app.config["REPORT_FILE_NAMES"])
                                     + ")")
+        if os.path.isdir(casepath) is False:
+            abort(404)
         # Looping through the files
         for root, dirs, files in os.walk(casepath, topdown=True):
             matched = filter(combinedregex.match, files)
@@ -78,10 +80,8 @@ def search(case=None):
                     sarfiles = sysstat.sysstat.get_file_date(sardir)
                 else:
                     sarfiles = []
-                report, results, report_changed = add_report(fullname, 
-                                                             form.casenum.data)
-                counts = loop_checks(report.id, results, report.source,
-                                     report_changed)
+                report, results, report_changed = add_report(fullname, form.casenum.data)
+                counts = loop_checks(report.id, results, report.source, report_changed)
                 # add report to the web interface
                 if report.source == "magui":
                     icon = "microchip"
