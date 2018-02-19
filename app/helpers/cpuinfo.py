@@ -4,9 +4,9 @@ class Cpuinfo:
     cpu_stat_names = [ "user", "nice", "system", "idle", "iowait", "irq",
                       "softirq", "steal", "guest", "guest_nice" ]
 
-    def __init__(self, sosreport):
-        self.sosreport = sosreport
-        self.cpustat = sosreport.path.rstrip("/") + "/proc/stat"
+    def __init__(self, report):
+        self.report = report
+        self.cpustat = report.fullpath.rstrip("/") + "/proc/stat"
 
     def get(self):
         fd = open(self.cpustat, "r")
@@ -26,6 +26,9 @@ class Cpuinfo:
 
     def get_all_ratios(self):
         ratios = {}
+        if hasattr(self, self.cpu_stat_names[0]) is False:
+            self.get()
+
         for s in self.cpu_stat_names:
             ratios[s] = self.get_ratio(s)
 

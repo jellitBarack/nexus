@@ -1,5 +1,11 @@
-{% extends"layout/base.html" %} {% set active_page ="metrics" %}{% block title %}Metrics{% endblock %} {% block head %} {{ super() }}
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/daterangepicker.css') }}"> {% endblock %} {% block body %}
+{% extends"layout/base.html" %} 
+{% set active_page = "metrics" %}
+{% block title %}Metrics{% endblock %} 
+{% block head %} 
+{{ super() }}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/daterangepicker.css') }}"> 
+{% endblock %} 
+{% block body %}
 <h1>Metrics</h1>
 <div class="row toolbar-pf">
     <div class="col-sm-12">

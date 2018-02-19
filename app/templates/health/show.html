@@ -1,7 +1,221 @@
-{% extends"layout/base.html" %} {% set active_page ="health" %}{% block title %}Health{% endblock %} {% block body %}
+{% extends"layout/base.html" %} 
+{% set active_page = "health" %}
+{% block title %}Health{% endblock %} 
+{% block head %} 
+{{ super() }}
+<style>
+.highcharts-button-symbol {
+    stroke: #666;
+    stroke-width: 3px;
+    fill: #E0E0E0;
+}
+.highcharts-menu {
+    border: 1px solid #A0A0A0;
+    background: #FFFFFF;
+    padding: 5px 0;
+    box-shadow: 3px 3px 10px #888;
+}
+.highcharts-menu-item {
+    padding: 0 1em;
+    background: none;
+    color: #303030;
+    cursor: pointer;
+}
+.highcharts-menu-item:hover {
+    background: #4572A5;
+    color: #FFFFFF;
+}
+</style>
+{# <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/highcharts/6.0.7/css/highcharts.css"> #}
+{% endblock %} 
+{% block body %}
 <h1>Server Health</h1>
 <div class="row">
-    <div class="col-sm-12">
+    <div class="col-sm-3">
+        <div id="graph-memory-summary" data-graph-title="Memory Utilization" data-graph-type="bar"></div>
+    </div>
+    <div class="col-sm-6">
+        <div id="graph-memory-details" data-graph-title="Memory Utilization (Details)" data-graph-type="bar"></div>
+    </div>
+    <div class="col-sm-3">
+        <div id="graph-cpu-util-summary" data-graph-title="CPU Utilisation" data-graph-type="doughnut"></div>
     </div>
 </div>
+{% endblock %}
+{% block javascript %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/6.0.7/highcharts.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/6.0.7/js/modules/exporting.js"></script>
+<script src="{{ config["APPLICATION_ROOT"] }}/static/js/highcharts.dark.js"></script>
+<script type="text/javascript">
+
+function generateCPUChart(container) {
+    var div = $("#" + container)
+    // Highcharts options
+    var options = {
+       chart: { type: 'pie', },
+       title: { text: div.data("graph-title"), align: 'center', verticalAlign: 'top', },
+       tooltip: { pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>' },
+       plotOptions: {
+            pie: { 
+                allowPointSelect: true, cursor: 'pointer',
+                dataLabels: {
+                    enabled: true,
+                    style: { fontWeight: 'bold', color: 'white' }
+                }
+            },
+       }
+    };
+    // Let's merge our theme with the options
+    div.highcharts(Highcharts.merge(options, Highcharts.theme))
+    // We need to have the chart object to push the series
+    var chart = div.highcharts()
+    // Getting the series
+    $.ajax({
+        url: '{{ url_for('health.index') }}{{ report.id }}/get',
+        method: "POST",
+        dataType: "json",
+        contentType: "text/plain; charset=utf-8",
+        data: JSON.stringify({ graphname: "cpu-util-summary" }),
+        async: true,
+        success: function(json) {
+            var series = {
+                id: 'series', name: div.data("graph-title"), innerSize: '50%', data: []
+            }
+            for (var propertyName in json) {
+                series.data.push([propertyName, json[propertyName]]);
+            }
+            chart.addSeries(series);
+        },
+        cache: false
+    });
+}
+function generateMemoryBarChart(container) {
+    var div = $("#" + container)
+    var options = {
+        chart: { type: 'column' },
+        title: { text: div.data("graph-title"), },
+        xAxis: { categories: ['Memory', 'HugePages', 'Swap'] },
+        yAxis: { 
+            min: 0, title: { text: div.data("graph-title"), },
+            stackLabels: { enabled: true, style: { fontWeight: 'bold', color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray' } }
+        },
+        legend: {
+            align: 'right', x: -30, verticalAlign: 'top', y: 25, floating: true,
+            backgroundColor: (Highcharts.theme && Highcharts.theme.background2) || 'white',
+            borderColor: '#CCC', borderWidth: 1, shadow: false
+        },
+        tooltip: {
+            headerFormat: '<b>{point.x}</b><br/>',
+            pointFormat: '{series.name}: {point.y}<br/>Total: {point.stackTotal}'
+        },
+        plotOptions: {
+            column: {
+                stacking: 'normal',
+                dataLabels: { enabled: true, color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white' }
+            }
+        }
+    };
+    div.highcharts(Highcharts.merge(options, Highcharts.theme))
+    var chart = div.highcharts()
+    $.ajax({           
+        url: '{{ url_for('health.index') }}{{ report.id }}/get',
+        method: "POST",
+        dataType: "json",       
+        contentType: "text/plain; charset=utf-8",
+        data: JSON.stringify({ graphname: "memory-summary" }),
+        async: true,   
+        success: function(json) {
+            chart.xAxis[0].setCategories(json["labels"]);
+            var free = { id: 'free', name: "Free", data: json["free"]};
+            var used = { id: 'used', name: "Used", data: json["used"]};
+            chart.addSeries(free);
+            chart.addSeries(used);
+        },
+        cache: false   
+    });      
+}
+function generateMemoryPieChart(container) {
+    var div = $("#" + container)
+    var parentData = []
+    var childrenData = []
+    var options = []
+    $.ajax({           
+        url: '{{ url_for('health.index') }}{{ report.id }}/get',
+        method: "POST",
+        dataType: "json",       
+        contentType: "text/plain; charset=utf-8",
+        data: JSON.stringify({ graphname: "memory-details" }),
+        async: false,   
+        success: function(json) {
+            var categories = []
+            $.each(json, function(index, value) {
+                categories.push(value["name"]) 
+                parentData.push({
+                    name: value["name"],
+                    y: Math.round(value["value"] / 1024) / 100,
+                })
+                $.each(value["children"], function(cindex, cval) {
+                    childrenData.push({
+                        name: cval["name"],
+                        y: Math.round(cval["value"] / 1024) / 100,
+                    })
+                })
+            })
+            options = {
+                chart: { type: 'pie' },
+                title: { text: div.data("graph-title") },
+                subtitle: { text: 'Source: /proc/meminfo' },
+                yAxis: {
+                    title: {
+                        text: 'Memory Utilization'
+                    }
+                },
+                plotOptions: { pie: { shadow: false, center: ['50%', '50%'] } },
+                tooltip: {
+                    valueSuffix: 'MB'
+                },
+                series: [{
+                    // MemAvailable + HugePages
+                    name: 'Memory Type',
+                    data: parentData,
+                    size: '60%',
+                    dataLabels: {
+                        formatter: function () { return this.y > 5 ? this.point.name : null; },
+                        color: '#ffffff', distance: -30
+                    }
+                }, {
+                    name: 'Allocation',
+                    data: childrenData,
+                    size: '80%', innerSize: '60%',
+                    dataLabels: {
+                        formatter: function () { return this.y > 1 ? '<b>' + this.point.name + ':</b> ' + this.y + 'MB' : null; }
+                    },
+                    id: 'versions'
+                }],
+                responsive: {
+                    rules: [{
+                        condition: {
+                            maxWidth: 400
+                        },
+                        chartOptions: {
+                            series: [{
+                                id: 'versions',
+                                dataLabels: {
+                                    enabled: false
+                                }
+                            }]
+                        }
+                    }]
+                }
+            };
+            div.highcharts(Highcharts.merge(options, Highcharts.theme))
+        },
+        cache: false   
+    });
+    var chart = div.highcharts()
+}
+generateMemoryBarChart("graph-memory-summary")
+generateMemoryPieChart("graph-memory-details")
+generateCPUChart("graph-cpu-util-summary")
+</script>
 {% endblock %}
