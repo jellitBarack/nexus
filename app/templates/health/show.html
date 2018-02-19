@@ -28,21 +28,20 @@
 </style>
 {# <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/highcharts/6.0.7/css/highcharts.css"> #}
 {% endblock %} 
+{% import "health/macros.html" as graph %}
+{% import "reports/macros.html" as rdata %}
 {% block body %}
+{{ rdata.meta_table_html(report) }}
+
 <h1>Server Health</h1>
 <div class="row">
-    <div class="col-sm-3">
-        <div id="graph-memory-summary" data-graph-title="Memory Utilization" data-graph-type="bar"></div>
-    </div>
-    <div class="col-sm-6">
-        <div id="graph-memory-details" data-graph-title="Memory Utilization (Details)" data-graph-type="bar"></div>
-    </div>
-    <div class="col-sm-3">
-        <div id="graph-cpu-util-summary" data-graph-title="CPU Utilisation" data-graph-type="doughnut"></div>
-    </div>
+ {{ graph.div("memory-summary", "Memory Utilization", "bar", 3) }}
+ {{ graph.div("memory-details", "Memory Utilization (Details)", "doughnut", 6) }}
+ {{ graph.div("cpu-util-summary", "CPU Utilization", "doughnut", 3) }}
 </div>
 {% endblock %}
 {% block javascript %}
+{{ rdata.meta_table_js() }}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/6.0.7/highcharts.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/6.0.7/js/modules/exporting.js"></script>
 <script src="{{ config["APPLICATION_ROOT"] }}/static/js/highcharts.dark.js"></script>
@@ -53,8 +52,11 @@ function generateCPUChart(container) {
     // Highcharts options
     var options = {
        chart: { type: 'pie', },
-       title: { text: div.data("graph-title"), align: 'center', verticalAlign: 'top', },
+       title: { text: div.data("graph-title"),
+           //align: 'center', verticalAlign: 'top',
+       },
        tooltip: { pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>' },
+       subtitle: { text: 'Source: /proc/stats' },
        plotOptions: {
             pie: { 
                 allowPointSelect: true, cursor: 'pointer',
@@ -176,17 +178,13 @@ function generateMemoryPieChart(container) {
                 },
                 series: [{
                     // MemAvailable + HugePages
-                    name: 'Memory Type',
-                    data: parentData,
-                    size: '60%',
+                    name: 'Memory Type', data: parentData, size: '60%',
                     dataLabels: {
                         formatter: function () { return this.y > 5 ? this.point.name : null; },
                         color: '#ffffff', distance: -30
                     }
                 }, {
-                    name: 'Allocation',
-                    data: childrenData,
-                    size: '80%', innerSize: '60%',
+                    name: 'Allocation', data: childrenData, size: '80%', innerSize: '60%',
                     dataLabels: {
                         formatter: function () { return this.y > 1 ? '<b>' + this.point.name + ':</b> ' + this.y + 'MB' : null; }
                     },
