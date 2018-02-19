@@ -10,13 +10,6 @@
 <body class="has-sidebar" data-okay="{{ config['RC_OKAY'] }}" data-skipped="{{ config['RC_SKIPPED'] }}" data-failed="{{ config['RC_FAILED'] }}">
     <nav class="navbar navbar-default navbar-pf-vertical navbar-pf" role="navigation">
         <div class="navbar-header">
-            {% if report is defined %}
-            <button type="button" class="navbar-toggle">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-            </button> {% endif %}
             <a href="{{ url_for('home.index') }}" class="navbar-brand">
                 <img class="navbar-brand-name" src="{{ url_for( 'static', filename='img/logo-text.png' ) }}" alt="Citellus Nexus Application" />
             </a>
@@ -43,10 +36,35 @@
                     </ul>
                 </li>
             </ul>
-        </div>
-        <div class="collapse navbar-collapse navbar-collapse-1">
             <!-- /navbar-header -->
-            <ul class="nav navbar-nav navbar-primary">
+            <ul class="nav navbar-nav navbar-primary persistent-secondary">
+               {% if report is defined %}
+                <li class="active">
+                    <a class="nav-item-iconic" href="#">Reports</a>
+                    <ul class="nav navbar-nav navbar-persistent">
+                        <li {% if 'checks' == active_page %} class="active" {% endif %}>
+                            <a href="{{ url_for('reports.display_checks', report_id = report.id) }}">
+                                Checks
+                            </a>
+                        </li>
+                        <li {% if 'compare' == active_page %} class="active" {% endif %}>
+                            <a href="{{ url_for('reports.compare', report_id = report.id) }}">
+                                Compare
+                            </a>
+                        </li>
+                        <li {% if 'metrics' == active_page %} class="active" {% endif %}>
+                            <a href="{{ url_for('metrics.display_metrics', report_id = report.id) }}">
+                                Metrics
+                            </a>
+                        </li>
+                        <li {% if 'health' == active_page %} class="active" {% endif %}>
+                            <a href="{{ url_for('health.display_health', report_id = report.id) }}">
+                                Health
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                {% endif %}
                 <li {% if 'cases' == active_page %} class="active" {% endif %}>
                     <a class="nav-item-iconic" href="{{ url_for('cases.search') }}">Cases</a>
                 </li>
@@ -84,40 +102,6 @@
         </div>
     </nav>
     <!--/navbar-->
-    {% if report is defined %}
-    <div class="nav-pf-vertical nav-pf-vertical-with-sub-menus">
-        <ul class="list-group">
-            <li class="list-group-item{% if 'checks' == active_page %} active{% endif %}">
-                <a href="{{ url_for('reports.display_checks', report_id = report.id) }}">
-                    <span class="fa fa-dashboard" data-toggle="tooltip" title="Checks"></span>
-                    <span class="list-group-item-value">Checks</span>
-                </a>
-            </li>
-            <li class="list-group-item{% if 'compare' == active_page %} active{% endif %}">
-                <a href="{{ url_for('reports.compare', report_id = report.id) }}">
-                    <span class="fa fa-clone" data-toggle="tooltip" title="Compare"></span>
-                    <span class="list-group-item-value">Compare</span>
-                </a>
-            </li>
-            <li class="list-group-item{% if 'metrics' == active_page %} active{% endif %}">
-                <a href="{{ url_for('metrics.display_metrics', report_id = report.id) }}">
-                    <span class="fa fa-line-chart" data-toggle="tooltip" title="Metrics"></span>
-                    <span class="list-group-item-value">Metrics</span>
-                </a>
-            </li>
-            <li class="list-group-item{% if 'health' == active_page %} active{% endif %}">
-                <a href="{{ url_for('health.display_health', report_id = report.id) }}">
-                    <span class="fa fa-medkit" data-toggle="tooltip" title="Metrics"></span>
-                    <span class="list-group-item-value">Health</span>
-                </a>
-            </li>
-        </ul>
-        <!-- /list-group -->
-    </div>
-    <!-- /nav-pf-vertical -->
-    </nav>
-    <!-- /nav-pf-vertical -->
-    {% endif %}
     <div class="container-fluid">
         {% include 'layout/flash.html' %}
         <ol class="breadcrumb">
