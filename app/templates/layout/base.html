@@ -38,9 +38,9 @@
             </ul>
             <!-- /navbar-header -->
             <ul class="nav navbar-nav navbar-primary persistent-secondary">
-                <li {% if 'checks' == active_page %} class="active" {% endif %}>
-                    <a class="nav-item-iconic" href="#">Checks</a>
-                    {% if report is defined %}
+               {% if report is defined %}
+                <li class="active">
+                    <a class="nav-item-iconic" href="#">Reports</a>
                     <ul class="nav navbar-nav navbar-persistent">
                         <li {% if 'checks' == active_page %} class="active" {% endif %}>
                             <a href="{{ url_for('reports.display_checks', report_id = report.id) }}">
@@ -63,8 +63,8 @@
                             </a>
                         </li>
                     </ul>
-                    {% endif %}
                 </li>
+                {% endif %}
                 <li {% if 'cases' == active_page %} class="active" {% endif %}>
                     <a class="nav-item-iconic" href="{{ url_for('cases.search') }}">Cases</a>
                 </li>
