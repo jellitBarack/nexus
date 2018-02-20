@@ -1,5 +1,5 @@
-{% macro div(id, title, type, width) %}
+{% macro div(id, title, source, type, width) %}
 <div class="col-sm-{{ width }}">
-    <div id="graph-{{ id }}" data-graph-title="{{ title }}" data-graph-type="{{ type }}"></div>
+    <div id="graph-{{ id }}" data-graph-title="{{ title }}" data-graph-source="Source: {{ source }}" data-graph-type="{{ type }}"></div>
 </div>
 {% endmacro %}

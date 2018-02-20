@@ -1,7 +1,7 @@
-{% extends"layout/base.html" %} 
+{% extends"layout/base.html" %}
 {% set active_page = "health" %}
-{% block title %}Health{% endblock %} 
-{% block head %} 
+{% block title %}Health{% endblock %}
+{% block head %}
 {{ super() }}
 <style>
 .highcharts-button-symbol {
@@ -25,9 +25,12 @@
     background: #4572A5;
     color: #FFFFFF;
 }
+
 </style>
-{# <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/highcharts/6.0.7/css/highcharts.css"> #}
-{% endblock %} 
+{#
+<link rel="stylesheet" type="text/css"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highcharts/6.0.7/css/highcharts.css"> #}
+{% endblock %}
 {% import "health/macros.html" as graph %}
 {% import "reports/macros.html" as rdata %}
 {% block body %}
@@ -35,9 +38,14 @@
 
 <h1>Server Health</h1>
 <div class="row">
- {{ graph.div("memory-summary", "Memory Utilization", "bar", 3) }}
- {{ graph.div("memory-details", "Memory Utilization (Details)", "doughnut", 6) }}
- {{ graph.div("cpu-util-summary", "CPU Utilization", "doughnut", 3) }}
+    {{ graph.div("memory-summary", "Memory Utilization", "/proc/meminfo", "bar", 3) }}
+    {{ graph.div("memory-details", "Memory Utilization (Details)", "/proc/meminfo", "doughnut", 6) }}
+    {{ graph.div("cpu-util-summary", "CPU Utilization", "/proc/stats", "doughnut", 3) }}
+</div>
+<div class="row">
+    {{ graph.div("blocks-space", "Block Devices Space (G)", "df", "bar", 3) }}
+    {{ graph.div("blocks-io", "Block Devices IO", "/proc/diskstats", "bar", 6) }}
+    {{ graph.div("blocks-inode", "Block Devices Space (Inodes)", "df", "bar", 3) }}
 </div>
 {% endblock %}
 {% block javascript %}
@@ -46,17 +54,34 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/6.0.7/js/modules/exporting.js"></script>
 <script src="{{ config["APPLICATION_ROOT"] }}/static/js/highcharts.dark.js"></script>
 <script type="text/javascript">
-
+// Default options for stacked bar charts
+var stackedBarOptions = {
+    chart: { type: 'column' },
+    xAxis: { categories: [] },
+    yAxis: { 
+        min: 0,
+        stackLabels: { enabled: true, style: { fontWeight: 'bold', color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray' } }
+    },
+    tooltip: {
+        headerFormat: '<b>{point.x}</b><br/>',
+        pointFormat: '{series.name}: {point.y}<br/>Total: {point.stackTotal}'
+    },
+    plotOptions: {
+        column: {
+            stacking: 'normal',
+            dataLabels: { enabled: true, color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white' }
+        }
+    }
+};
+ 
 function generateCPUChart(container) {
     var div = $("#" + container)
     // Highcharts options
     var options = {
-       chart: { type: 'pie', },
-       title: { text: div.data("graph-title"),
-           //align: 'center', verticalAlign: 'top',
-       },
+       chart: { type: 'pie' },
+       title: { text: div.data("graph-title") },
+       subtitle: { text: div.data("graph-source") },
        tooltip: { pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>' },
-       subtitle: { text: 'Source: /proc/stats' },
        plotOptions: {
             pie: { 
                 allowPointSelect: true, cursor: 'pointer',
@@ -73,12 +98,9 @@ function generateCPUChart(container) {
     var chart = div.highcharts()
     // Getting the series
     $.ajax({
-        url: '{{ url_for('health.index') }}{{ report.id }}/get',
-        method: "POST",
+        url: '{{ url_for('health.index') }}{{ report.id }}/cpu_summary',
         dataType: "json",
         contentType: "text/plain; charset=utf-8",
-        data: JSON.stringify({ graphname: "cpu-util-summary" }),
-        async: true,
         success: function(json) {
             var series = {
                 id: 'series', name: div.data("graph-title"), innerSize: '50%', data: []
@@ -88,44 +110,19 @@ function generateCPUChart(container) {
             }
             chart.addSeries(series);
         },
-        cache: false
     });
 }
 function generateMemoryBarChart(container) {
     var div = $("#" + container)
-    var options = {
-        chart: { type: 'column' },
-        title: { text: div.data("graph-title"), },
-        xAxis: { categories: ['Memory', 'HugePages', 'Swap'] },
-        yAxis: { 
-            min: 0, title: { text: div.data("graph-title"), },
-            stackLabels: { enabled: true, style: { fontWeight: 'bold', color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray' } }
-        },
-        legend: {
-            align: 'right', x: -30, verticalAlign: 'top', y: 25, floating: true,
-            backgroundColor: (Highcharts.theme && Highcharts.theme.background2) || 'white',
-            borderColor: '#CCC', borderWidth: 1, shadow: false
-        },
-        tooltip: {
-            headerFormat: '<b>{point.x}</b><br/>',
-            pointFormat: '{series.name}: {point.y}<br/>Total: {point.stackTotal}'
-        },
-        plotOptions: {
-            column: {
-                stacking: 'normal',
-                dataLabels: { enabled: true, color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white' }
-            }
-        }
-    };
-    div.highcharts(Highcharts.merge(options, Highcharts.theme))
+    div.highcharts(Highcharts.merge(Highcharts.theme, stackedBarOptions))
     var chart = div.highcharts()
+    chart.setTitle({ text: div.data("graph-title") }, { text: div.data("graph-source") }, true)
+    chart.yAxis[0].setExtremes(0, 100);
+    chart.yAxis[0].setTitle({ text: div.data("graph-title") })
     $.ajax({           
-        url: '{{ url_for('health.index') }}{{ report.id }}/get',
-        method: "POST",
+        url: '{{ url_for('health.index') }}{{ report.id }}/mem_summary',
         dataType: "json",       
         contentType: "text/plain; charset=utf-8",
-        data: JSON.stringify({ graphname: "memory-summary" }),
-        async: true,   
         success: function(json) {
             chart.xAxis[0].setCategories(json["labels"]);
             var free = { id: 'free', name: "Free", data: json["free"]};
@@ -133,49 +130,39 @@ function generateMemoryBarChart(container) {
             chart.addSeries(free);
             chart.addSeries(used);
         },
-        cache: false   
     });      
 }
 function generateMemoryPieChart(container) {
+    // We have to create the chart from within the ajax query here
+    // because I didn't find a way to addSeries this kind of series
     var div = $("#" + container)
     var parentData = []
     var childrenData = []
     var options = []
     $.ajax({           
-        url: '{{ url_for('health.index') }}{{ report.id }}/get',
-        method: "POST",
+        url: '{{ url_for('health.index') }}{{ report.id }}/mem_details',
         dataType: "json",       
         contentType: "text/plain; charset=utf-8",
-        data: JSON.stringify({ graphname: "memory-details" }),
-        async: false,   
         success: function(json) {
             var categories = []
             $.each(json, function(index, value) {
                 categories.push(value["name"]) 
                 parentData.push({
-                    name: value["name"],
-                    y: Math.round(value["value"] / 1024) / 100,
+                    name: value["name"], y: Math.round(value["value"] / 1024) / 100,
                 })
                 $.each(value["children"], function(cindex, cval) {
                     childrenData.push({
-                        name: cval["name"],
-                        y: Math.round(cval["value"] / 1024) / 100,
+                        name: cval["name"], y: Math.round(cval["value"] / 1024) / 100,
                     })
                 })
             })
             options = {
                 chart: { type: 'pie' },
                 title: { text: div.data("graph-title") },
-                subtitle: { text: 'Source: /proc/meminfo' },
-                yAxis: {
-                    title: {
-                        text: 'Memory Utilization'
-                    }
-                },
+                subtitle: { text: div.data("graph-source") },
+                yAxis: { title: { text: 'Memory Utilization' }},
                 plotOptions: { pie: { shadow: false, center: ['50%', '50%'] } },
-                tooltip: {
-                    valueSuffix: 'MB'
-                },
+                tooltip: { valueSuffix: 'MB' },
                 series: [{
                     // MemAvailable + HugePages
                     name: 'Memory Type', data: parentData, size: '60%',
@@ -188,32 +175,115 @@ function generateMemoryPieChart(container) {
                     dataLabels: {
                         formatter: function () { return this.y > 1 ? '<b>' + this.point.name + ':</b> ' + this.y + 'MB' : null; }
                     },
-                    id: 'versions'
                 }],
-                responsive: {
-                    rules: [{
-                        condition: {
-                            maxWidth: 400
-                        },
-                        chartOptions: {
-                            series: [{
-                                id: 'versions',
-                                dataLabels: {
-                                    enabled: false
-                                }
-                            }]
-                        }
-                    }]
-                }
             };
             div.highcharts(Highcharts.merge(options, Highcharts.theme))
         },
-        cache: false   
     });
-    var chart = div.highcharts()
 }
+
+function generateBlockSpaceChart(container) {
+    var div = $("#" + container)
+    div.highcharts(Highcharts.merge(stackedBarOptions, Highcharts.theme, { tooltip: { pointFormat: '{series.name}: {point.y}G<br/>Total: {point.stackTotal}G' } }))
+    var chart = div.highcharts()
+    chart.setTitle({ text: div.data("graph-title") }, { text: div.data("graph-source") }, true)
+    chart.yAxis[0].setTitle({ text: div.data("graph-title") })
+    $.ajax({
+        url: '{{ url_for('health.index') }}{{ report.id }}/blocks_space',
+        dataType: "json",
+        contentType: "text/plain; charset=utf-8",
+        success: function(json) {
+            var devices = []
+            var free = []
+            var used = []
+            $.each(json, function(i,v) {
+                devices.push(v["device_name"])
+                free.push(Math.round(v["free"] / 1024 / 1024 * 100) / 100)
+                used.push(Math.round(v["used"] / 1024 / 1024 * 100) / 100)
+            })
+            chart.xAxis[0].setCategories(devices);
+            chart.addSeries({ id: 'free', name: 'Free', data: free})
+            chart.addSeries({ id: 'used', name: 'Used', data: used})
+        }
+    });
+}
+ function generateBlockInodeChart(container) {
+    var div = $("#" + container)
+    div.highcharts(Highcharts.merge(stackedBarOptions, Highcharts.theme))
+    var chart = div.highcharts()
+    chart.setTitle({ text: div.data("graph-title") }, { text: div.data("graph-source") }, true)
+    chart.yAxis[0].setTitle({ text: div.data("graph-title") })
+    $.ajax({
+        url: '{{ url_for('health.index') }}{{ report.id }}/blocks_inode',
+        dataType: "json",
+        contentType: "text/plain; charset=utf-8",
+        success: function(json) {
+            var devices = []
+            var free = []
+            var used = []
+            $.each(json, function(i,v) {
+                devices.push(v["device_name"])
+                free.push(Math.round(v["free"] / 1024 / 1024 * 100) / 100)
+                used.push(Math.round(v["used"] / 1024 / 1024 * 100) / 100)
+            })
+            chart.xAxis[0].setCategories(devices);
+            chart.addSeries({ id: 'free', name: 'Free', data: free})
+            chart.addSeries({ id: 'used', name: 'Used', data: used})
+        }
+    });
+}
+    // Let's merge our theme with the options
+// div.highcharts(Highcharts.merge(options, Highcharts.theme))
+    // We need to have the chart object to push the series
+//    var chart = div.highcharts()
+ function generateBlockIOChart(container) {
+    var div = $("#" + container)
+    div.highcharts(Highcharts.merge(stackedBarOptions, Highcharts.theme, { tooltip: { pointFormat: '{series.name}: {point.y}%<br/>Total: {point.stackTotal}%' } }))
+    var chart = div.highcharts()
+    chart.setTitle({ text: div.data("graph-title") }, { text: div.data("graph-source") }, true)
+    chart.yAxis[0].setTitle({ text: div.data("graph-title") })
+    var devices = []
+    var read_completed_ratio = []
+    var write_completed_ratio = []
+    var read_merged_ratio = []
+    var write_merged_ratio = []
+    var read_ms_ratio = []
+    var write_ms_ratio = []
+    $.ajax({
+        url: '{{ url_for('health.index') }}{{ report.id }}/blocks_io',
+        dataType: "json",
+        contentType: "text/plain; charset=utf-8",
+        success: function(json) { 
+            $.each(json, function(i,v) {
+                devices.push(v["device_name"])
+                total_completed = v["reads_completed"] + v["writes_completed"]
+                total_merged = v["reads_merged"] + v["writes_merged"]
+                total_ms = v["reading_ms"] + v["writing_ms"]
+                read_completed_ratio.push(Math.round(v["reads_completed"] / total_completed * 10000) / 100)
+                write_completed_ratio.push(Math.round(v["writes_completed"] / total_completed * 10000) / 100)
+                read_merged_ratio.push(Math.round(v["reads_merged"] / total_merged * 10000) / 100)
+                write_merged_ratio.push(Math.round(v["writes_merged"] / total_merged * 10000) / 100)
+                read_ms_ratio.push(Math.round(v["reading_ms"] / total_ms * 10000) / 100)
+                write_ms_ratio.push(Math.round(v["writing_ms"] / total_ms * 10000) / 100)
+ 
+            })
+            chart.xAxis[0].setCategories(devices);
+            chart.addSeries({ id: 'read-completed', name: 'Reads Completed', data: read_completed_ratio, stack: 'completed'})
+            chart.addSeries({ id: 'write-completed', name: 'Writes Completed', data: write_completed_ratio, stack: 'completed'})
+            chart.addSeries({ id: 'read-merged', name: 'Reads Merged', data: read_merged_ratio, stack: 'merged'})
+            chart.addSeries({ id: 'write-merged', name: 'Writes Merged', data: write_merged_ratio, stack: 'merged'})
+            chart.addSeries({ id: 'read-ms', name: 'Reading milliseconds', data: read_ms_ratio, stack: 'ms'})
+            chart.addSeries({ id: 'write-ms', name: 'Writing milliseconds', data: write_ms_ratio, stack: 'ms'})
+        }
+    });
+}
+
+
 generateMemoryBarChart("graph-memory-summary")
 generateMemoryPieChart("graph-memory-details")
 generateCPUChart("graph-cpu-util-summary")
+generateBlockSpaceChart("graph-blocks-space")
+generateBlockInodeChart("graph-blocks-inode")
+generateBlockIOChart("graph-blocks-io")
 </script>
 {% endblock %}

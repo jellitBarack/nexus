@@ -1,75 +1,82 @@
 import re
 class Blocks:
     data_table = {}
-    def __init__(self):
-        return
+
+    def __init__(self, report):
+        self.report = report
+        self.dfblock = report.fullpath.rstrip("/") + "/sos_commands/filesys/df_-al"
+        self.dfinode = report.fullpath.rstrip("/") + "/sos_commands/filesys/df_-ali"
+        self.iostat =  report.fullpath.rstrip("/") + "/proc/diskstats"
+
+    def get_device(self, device_name, file_type):
+        try:
+            device = self.data_table[device_name]
+        except KeyError:
+            self.data_table[device_name] = {}
+
+        try:
+            device = self.data_table[device_name][file_type]
+        except KeyError:
+            if file_type == "io":
+                self.data_table[device_name][file_type] = Iostats(device_name)
+            elif file_type == "block":
+                self.data_table[device_name][file_type] = Blockstats(device_name)
+            elif file_type == "inode":
+                self.data_table[device_name][file_type] = Inodestats(device_name)
+
+        return self.data_table[device_name][file_type]
+
+    def match_line(self, file_type, file_name, regex):
+        fd = open(file_name, "r")
+        for l in fd:
+            m = re.search(regex, l)
+            if m:
+                block_device = self.get_device(m.group(1), file_type)
+                if file_type == "io":
+                    for k, v in dict(zip(block_device.io_names, m.group(2).split())).iteritems():
+                        setattr(block_device, k, int(v))
+
+                else:
+                    setattr(block_device, "total", int(m.group(2)))
+                    setattr(block_device, "used", int(m.group(3)))
+                    setattr(block_device, "free", int(m.group(4)))
+                    setattr(block_device, "percent", int(m.group(5)))
+                    if hasattr(block_device, "mountpoint") is False:
+                        setattr(block_device, "mountpoint", m.group(6))
+                self.data_table[block_device.device_name][file_type] = block_device
+        fd.close()
+
+    def list_io(self):
+        self.match_line("io", self.iostat, "[0-9]+[\s]+[0-9]+[\s]+([^0-9\s]+[0-9]*)[\s]+(.*)")
+
+    def list_block_space(self):
+        self.match_line("block", self.dfblock, "^/dev/([^\s]+)[\s]+([0-9]+)[\s]+([0-9]+)[\s]+([0-9]+)[\s]+([0-9]+)\%[\s]+(.*)")
+
+    def list_inode_space(self):
+        self.match_line("inode", self.dfinode, "^/dev/([^\s]+)[\s]+([0-9]+)[\s]+([0-9]+)[\s]+([0-9]+)[\s]+([0-9]+)\%[\s]+(.*)")
+
+    def get_ratio(self, key):
+        cycles = int(getattr(self, key))
+        return round(float(cycles) / float(self.time_total) * 100, 2)
+
+    def __repr__(self):
+        args = ['\n    {} => {}'.format(k, repr(v)) for (k,v) in vars(self).items()]
+        return self.__class__.__name__ + '({}\n)'.format(', '.join(args))
 
 
 class Blockinfo(Blocks):
     io_names = [ "reads_completed", "reads_merged", "sectors_read",
                 "reading_ms", "writes_completed", "writes_merged",
                 "writing_ms", "io_in_progress", "io_ms", "io_weighted" ]
-    def __init__(self, sosreport):
-        self.sosreport = sosreport
-        self.dfblock = sosreport.path.rstrip("/") + "/sos_commands/filesys/df_-al"
-        self.dfinode = sosreport.path.rstrip("/") + "/sos_commands/filesys/df_-ali"
-        self.iostat =  sosreport.path.rstrip("/") + "/proc/diskstats"
 
-    def get_list_io(self):
-        file = self.iostat
-        io = self.match_line("io", file, "[0-9\s]+([^0-9\s]+)[\s]+(.*)")
-        return io
+    def dump(self):
+        out = {}
+        for (k,v) in vars(self).items():
+            out[k] = v
+        return out
 
-    def get_list_block(self):
-        file = self.dfblock
-        blocks = self.match_line("block", file, 
-                            "^/dev/([^\s]+)[\s]+([0-9]+)[\s]+([0-9]+)[\s]+([0-9]+)[\s]+([0-9]+)\%[\s]+(.*)")
-        return blocks
-
-    def get_list_inode(self):
-        file = self.dfinode
-        inodes = self.match_line("inode", file, 
-                            "^/dev/([^\s]+)[\s]+([0-9]+)[\s]+([0-9]+)[\s]+([0-9]+)[\s]+([0-9]+)\%[\s]+(.*)")
-        return inodes
-
-    def get_device(self, device_name):
-        try:
-            self = self.data_table[device_name]
-        except KeyError:
-             self.device_name = device_name
-             self.data_table[device_name] = self
-        return self
-    
-    def match_line(self, type, file, regex):
-        fd = open(file, "r")
-        for l in fd:
-            m = re.search(regex, l)
-            if m:
-                block_device = self.get_device(m.group(1))
-                if (type == "io"):
-                    for k, v in dict(zip(block_device.io_names, m.group(2).split())).iteritems():
-                        setattr(block_device, k, v)
-                        
-                else:
-                    block_device.total = m.group(2)
-                    block_device.used = m.group(3)
-                    block_device.free = m.group(4)
-                    block_device.percent = m.group(5)
-                    block_device.mountpoint = m.group(6)
-                self.data_table[block_device.device_name] = block_device
-        fd.close()
-
-
-    def get_ratio(self, key):
-        cycles = int(getattr(self, key))
-        return round(float(cycles) / float(self.time_total) * 100, 2)
-
-    def get_all_ratios(self):
-        ratios = {}
-        for s in self.cpu_stat_names:
-            ratios[s] = self.get_ratio(s)
-
-        return ratios
+    def __init__(self, device_name):
+        self.device_name = device_name
 
     def __repr__(self):
         args = ['\n    {} => {}'.format(k, repr(v)) for (k,v) in vars(self).items()]
@@ -77,17 +84,19 @@ class Blockinfo(Blocks):
 
 
 class Iostats(Blockinfo):
-    def __init__(self, file, regex):
-        Parent.__init__(self)
 
+    def __init__(self, device_name):
+        self.device_name = device_name
 
-class Bockstats(Blockinfo):
-   def __init__(self):
-        Parent.__init__(self)
+class Blockstats(Blockinfo):
+
+   def __init__(self, device_name):
+        self.device_name = device_name
 
 class Inodestats(Blockinfo):
-   def __init__(self):
-        Parent.__init__(self)
+
+   def __init__(self, device_name):
+        self.device_name = device_name
 
 """
 Field  1 -- # of reads completed
