@@ -2,278 +2,278 @@
 {% set active_page = "cases" %} 
 {% block title %}Cases{% endblock %} 
 {% block body %} 
-{% include 'cases/modal.html' %} 
-{% if reportList is defined %}
-<div class="row toolbar-pf">
-    <div class="col-sm-12">
-        <form class="toolbar toolbar-pf-actions">
-            <div class="toolbar-pf-action-right">
-                <h5>{{ reportList|length}} reports</h5>
-            </div>
-            <div class="form-group toolbar-pf-filter">
-                <label class="sr-only" for="filter">Name</label>
-                <div class="input-group">
-                    <input id="filter" class="form-control" placeholder="Filter By Name..." type="text">
-                </div>
-            </div>
-            <div class="form-group">
-                <div class="input-group">
-                    <div class="input-group-btn">
-                        <button type="button" 
-                                name="mass-actions" id="mass-actions" 
-                                                    class="btn btn-default dropdown-toggle" 
-                                                    data-toggle="dropdown" aria-haspopup="true" 
-                                                                           aria-expanded="false">
-                            Actions <span class="caret"></span>
+    {% include 'cases/modal.html' %} 
+    {% if reportList is defined %}
+        <div class="row toolbar-pf">
+            <div class="col-sm-12">
+                <form class="toolbar toolbar-pf-actions">
+                    <div class="toolbar-pf-action-right">
+                        <h5>{{ reportList|length}} reports</h5>
+                    </div>
+                    <div class="form-group toolbar-pf-filter">
+                        <label class="sr-only" for="filter">Name</label>
+                        <div class="input-group">
+                            <input id="filter" class="form-control" placeholder="Filter By Name..." type="text">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="input-group">
+                            <div class="input-group-btn">
+                                <button type="button" 
+                                        name="mass-actions" id="mass-actions" 
+                                                            class="btn btn-default dropdown-toggle" 
+                                                            data-toggle="dropdown" aria-haspopup="true" 
+                                                                                   aria-expanded="false">
+                                    Actions <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a href="#" class="mass-actions">Compare</a></li>
+                                    <li><a href="{{ url_for('cases.yank', case = casenum, force = "False") }}">Yank</a></li>
+                                    <li><a href="{{ url_for('cases.yank', case = casenum, force = "True") }}">Force Yank </a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="dropdown btn-group">
+                            <button type="button" name="sort-reports" 
+                                                  id="sort-reports" 
+                                                  class="btn btn-default dropdown-toggle" 
+                                                  data-toggle="dropdown" 
+                                                  aria-haspopup="true" 
+                                                  aria-expanded="false"
+                                                  data-sortfield="collect-time">
+                                Sort <span class="caret"></span></button>
+                            <ul class="dropdown-menu">
+                                <li><a href="#" class="sort-reports" 
+                                                data-key="collect-time">Date</a></li>
+                                <li><a href="#" class="sort-reports"
+                                                data-key="machine-id">Server</a></li>
+                                <li><a href="#" class="sort-reports"
+                                                data-key="size">Size</a></li>
+                            </ul>
+                        </div>
+                        <button id="sortDirection" class="btn btn-link fa fa-sort-amount-asc" type="button">
+                            <span></span>
                         </button>
-                        <ul class="dropdown-menu">
-                            <li><a href="#" class="mass-actions">Compare</a></li>
-                            <li><a href="{{ url_for('cases.yank', case = casenum, force = "False") }}">Yank</a></li>
-                            <li><a href="{{ url_for('cases.yank', case = casenum, force = "True") }}">Force Yank </a></li>
+                    </div>
+            </div>
+        </div>
+        <!-- /row -->
+    {% endif %}
+
+
+    <div id="report-list" class="list-group list-view-pf list-view-pf-view">
+        {% for r in reportList %}
+            <div class="list-group-item" data-collect-time="{{ r['collect_time'] }}" 
+                                         data-size="{{ r['size'] }}"
+                                         data-machine-id="{{ r['machine_id'] }}">
+                <div class="list-view-pf-checkbox">
+                    <input type="checkbox" 
+                           {% if r['source'] == 'magui' %} disabled{% endif %} 
+                           data-report-id="{{ r['report_id'] }}">
+                </div>
+
+                <!-- /list-view-pf-checkbox -->
+                <div class="list-view-pf-actions">
+                    <div class="dropdown pull-right dropdown-kebab-pf">
+                        <button class="btn btn-link dropdown-toggle" 
+                                type="button" id="dropdownKebabRight9" 
+                                              data-toggle="dropdown" aria-haspopup="true" 
+                                                                     aria-expanded="true">
+                            <span class="fa fa-ellipsis-v"></span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-right" 
+                            aria-labelledby="dropdownKebabRight9">
+                            <li><a href="{{ url_for('reports.display_checks', 
+                            report_id = r['report_id']) }}">Checks</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a href="{{ url_for('metrics.display_metrics', 
+                            report_id = r['report_id']) }}">Metrics</a></li>
                         </ul>
                     </div>
+                    <!-- /dropdown -->
                 </div>
-            </div>
-            <div class="form-group">
-                <div class="dropdown btn-group">
-                    <button type="button" name="sort-reports" 
-                                          id="sort-reports" 
-                                          class="btn btn-default dropdown-toggle" 
-                                          data-toggle="dropdown" 
-                                          aria-haspopup="true" 
-                                          aria-expanded="false"
-                                          data-sortfield="collect-time">
-                        Sort <span class="caret"></span></button>
-                    <ul class="dropdown-menu">
-                        <li><a href="#" class="sort-reports" 
-                                        data-key="collect-time">Date</a></li>
-                        <li><a href="#" class="sort-reports"
-                                        data-key="machine-id">Server</a></li>
-                        <li><a href="#" class="sort-reports"
-                                        data-key="size">Size</a></li>
-                    </ul>
+                <!-- /list-view-pf-actions -->
+                <div class="list-view-pf-main-info">
+                    <div class="list-view-pf-left">
+                        <span class="fa fa-{{ r['icon'] }} list-view-pf-icon-sm"></span>
+                    </div>
+                    <!-- /list-view-pf-left -->
+                    <div class="list-view-pf-body" data-report-id="{{ r['report_id'] }}">
+                        <div class="list-view-pf-description">
+                            <div class="list-group-item-heading">
+                                <a href="{{ url_for('reports.display_checks', 
+                                report_id = r['report_id']) }}">{{ r['name'] }}</a>
+                            </div>
+                            <!-- /list-group-item-heading -->
+                        </div>
+                        <!-- /list-view-pf-description -->
+                        <div class="list-view-pf-additional-info">
+                            <div class="list-view-pf-additional-info-item">
+                                <div class="list-view-pf-expand view-all-checks">
+                                    <span class="fa fa-angle-right"></span>
+                                    <span class="fa fa-cubes"></span>
+                                    <strong>{{ r['checks_total'] }}</strong> Checks
+                                </div>
+                            </div>
+                            <!-- /list-view-pf-additional-info-item -->
+                            <div class="list-view-pf-additional-info-item">
+                                <div class="list-view-pf-expand show-check-list" data-type="RC_FAILED">
+                                    <span class="fa fa-angle-right"></span>
+                                    <span class="pficon pficon-error-circle-o"></span>
+                                    <strong>{{ r['checks_fail'] }}</strong> Failed
+                                </div>
+
+                            </div>
+                            <!-- /list-view-pf-additional-info-item -->
+                            <div class="list-view-pf-additional-info-item">
+                                <div class="list-view-pf-expand show-check-list" data-type="RC_SKIPPED">
+                                    <span class="fa fa-angle-right"></span>
+                                    <span class="pficon pficon-help"></span>
+                                    <strong>{{ r['checks_skip'] }}</strong> Skipped
+                                </div>
+                            </div>
+                            <!-- /list-view-pf-additional-info-item -->
+                            <div class="list-view-pf-additional-info-item">
+                                <div class="list-view-pf-expand show-check-list" data-type="RC_OKAY">
+                                    <span class="fa fa-angle-right"></span>
+                                    <span class="fa fa-check-circle-o"></span>
+                                    <strong>{{ r['checks_okay'] }}</strong> Okay
+                                </div>
+                            </div>
+                            <!-- /list-view-pf-additional-info-item -->
+                            <div class="list-view-pf-additional-info-item">
+                                <span class="fa fa-microchip"></span>
+                                <strong>{{ r['source'] }}</strong>
+                            </div>
+                            <!-- /list-view-pf-additional-info-item -->
+                            <div class="list-view-pf-additional-info-item">
+                                <span class="fa fa-clock-o"></span>
+                                <strong>{{ r['analyze_duration'] }}</strong>s
+                            </div>
+                            <!-- /list-view-pf-additional-info-item -->
+                            <div class="list-view-pf-additional-info-item">
+                                <span class="fa fa-hdd-o"></span>
+                                <strong>{{ r['hr_size'] }}</strong>
+                            </div>
+                            <!-- /list-view-pf-additional-info-item -->
+                            <div class="list-view-pf-additional-info-item">
+                                <div class="list-view-pf-expand show-metrics">
+                                    <span class="fa fa-line-chart"></span>
+                                    <strong>{{ r['sarfiles']|length }} days</strong>
+                                </div>
+                            </div>
+                            <!-- /list-view-pf-additional-info-item -->
+                        </div>
+                        <!-- /list-view-pf-additional-info -->
+                    </div>
+                    <!-- /list-view-pf-body -->
                 </div>
-                <button id="sortDirection" class="btn btn-link fa fa-sort-amount-asc" type="button">
-                    <span></span>
-                </button>
+                <!-- /list-view-pf-main-info -->
             </div>
+            <!-- /list-group-item -->
+        {% endfor %} 
     </div>
-</div>
-<!-- /row -->
-{% endif %}
-
-
-<div id="report-list" class="list-group list-view-pf list-view-pf-view">
-    {% for r in reportList %}
-    <div class="list-group-item" data-collect-time="{{ r['collect_time'] }}" 
-                                 data-size="{{ r['size'] }}"
-                                 data-machine-id="{{ r['machine_id'] }}">
-        <div class="list-view-pf-checkbox">
-            <input type="checkbox" 
-                   {% if r['source'] == 'magui' %} disabled{% endif %} 
-                   data-report-id="{{ r['report_id'] }}">
-        </div>
-
-        <!-- /list-view-pf-checkbox -->
-        <div class="list-view-pf-actions">
-            <div class="dropdown pull-right dropdown-kebab-pf">
-                <button class="btn btn-link dropdown-toggle" 
-                        type="button" id="dropdownKebabRight9" 
-                                      data-toggle="dropdown" aria-haspopup="true" 
-                                                             aria-expanded="true">
-                    <span class="fa fa-ellipsis-v"></span>
-                </button>
-                <ul class="dropdown-menu dropdown-menu-right" 
-                    aria-labelledby="dropdownKebabRight9">
-                    <li><a href="{{ url_for('reports.display_checks', 
-                    report_id = r['report_id']) }}">Checks</a></li>
-                    <li role="separator" class="divider"></li>
-                    <li><a href="{{ url_for('metrics.display_metrics', 
-                    report_id = r['report_id']) }}">Metrics</a></li>
-                </ul>
-            </div>
-            <!-- /dropdown -->
-        </div>
-        <!-- /list-view-pf-actions -->
-        <div class="list-view-pf-main-info">
-            <div class="list-view-pf-left">
-                <span class="fa fa-{{ r['icon'] }} list-view-pf-icon-sm"></span>
-            </div>
-            <!-- /list-view-pf-left -->
-            <div class="list-view-pf-body" data-report-id="{{ r['report_id'] }}">
-                <div class="list-view-pf-description">
-                    <div class="list-group-item-heading">
-                        <a href="{{ url_for('reports.display_checks', 
-                        report_id = r['report_id']) }}">{{ r['name'] }}</a>
-                    </div>
-                    <!-- /list-group-item-heading -->
-                </div>
-                <!-- /list-view-pf-description -->
-                <div class="list-view-pf-additional-info">
-                    <div class="list-view-pf-additional-info-item">
-                        <div class="list-view-pf-expand view-all-checks">
-                            <span class="fa fa-angle-right"></span>
-                            <span class="fa fa-cubes"></span>
-                            <strong>{{ r['checks_total'] }}</strong> Checks
-                        </div>
-                    </div>
-                    <!-- /list-view-pf-additional-info-item -->
-                    <div class="list-view-pf-additional-info-item">
-                        <div class="list-view-pf-expand show-check-list" data-type="RC_FAILED">
-                            <span class="fa fa-angle-right"></span>
-                            <span class="pficon pficon-error-circle-o"></span>
-                            <strong>{{ r['checks_fail'] }}</strong> Failed
-                        </div>
-
-                    </div>
-                    <!-- /list-view-pf-additional-info-item -->
-                    <div class="list-view-pf-additional-info-item">
-                        <div class="list-view-pf-expand show-check-list" data-type="RC_SKIPPED">
-                            <span class="fa fa-angle-right"></span>
-                            <span class="pficon pficon-help"></span>
-                            <strong>{{ r['checks_skip'] }}</strong> Skipped
-                        </div>
-                    </div>
-                    <!-- /list-view-pf-additional-info-item -->
-                    <div class="list-view-pf-additional-info-item">
-                        <div class="list-view-pf-expand show-check-list" data-type="RC_OKAY">
-                            <span class="fa fa-angle-right"></span>
-                            <span class="fa fa-check-circle-o"></span>
-                            <strong>{{ r['checks_okay'] }}</strong> Okay
-                        </div>
-                    </div>
-                    <!-- /list-view-pf-additional-info-item -->
-                    <div class="list-view-pf-additional-info-item">
-                        <span class="fa fa-microchip"></span>
-                        <strong>{{ r['source'] }}</strong>
-                    </div>
-                    <!-- /list-view-pf-additional-info-item -->
-                    <div class="list-view-pf-additional-info-item">
-                        <span class="fa fa-clock-o"></span>
-                        <strong>{{ r['analyze_duration'] }}</strong>s
-                    </div>
-                    <!-- /list-view-pf-additional-info-item -->
-                    <div class="list-view-pf-additional-info-item">
-                        <span class="fa fa-hdd-o"></span>
-                        <strong>{{ r['hr_size'] }}</strong>
-                    </div>
-                    <!-- /list-view-pf-additional-info-item -->
-                    <div class="list-view-pf-additional-info-item">
-                        <div class="list-view-pf-expand show-metrics">
-                            <span class="fa fa-line-chart"></span>
-                            <strong>{{ r['sarfiles']|length }} days</strong>
-                        </div>
-                    </div>
-                    <!-- /list-view-pf-additional-info-item -->
-                </div>
-                <!-- /list-view-pf-additional-info -->
-            </div>
-            <!-- /list-view-pf-body -->
-        </div>
-        <!-- /list-view-pf-main-info -->
-    </div>
-    <!-- /list-group-item -->
-    {% endfor %} 
-</div>
 {% endblock %} 
 {% block javascript %}
-<script>
-    $(document).ready(function() {
-        $("body").on("click", ".show-check-list", function(e) {
-            var report_id = $(this).parents('div[class^="list-view-pf-body"]').eq(0).data("report-id");
-            e.preventDefault()
-            rc = $(this).data("type")
-            var url = "{{ url_for('reports.index') }}" + report_id + "/checks?rc=" + citellus_rc[rc];
-            $("#modal_body").load(url, function(response, status, xhr) {
-                if (status == "error") {
-                    var msg = "Sorry but there was an error: ";
-                    $("#modal_body").html(msg + xhr.status + " " + xhr.statusText);
-                }
-            });
-            $("#modal_check_list_title").html(rc.substring(3) + " checks")
-            $('#modal_check_list').appendTo('body').modal('show');
-            console.log(url)
-
-        })
-        $("body").on("click", ".view-all-checks", function(e) {
-            var report_id = $(this).parents('div[class^="list-view-pf-body"]').eq(0).data("report-id");
-            e.preventDefault()
-            window.location.href = "{{ url_for('reports.index') }}" + report_id + "/checks";
-        })
-        $("body").on("click", ".show-metrics", function(e) {
-            var report_id = $(this).parents('div[class^="list-view-pf-body"]').eq(0).data("report-id");
-            e.preventDefault()
-            window.location.href = "{{ url_for('metrics.index') }}" + report_id;
-        })
-        function sortReports(sortkey) {
-            var mylist = $("#report-list");
-            var listitems = mylist.children('div .list-group-item').get();
-            var sortdirection = $("#sortDirection").data("direction");
-            listitems.sort(function(a, b) {
-                if (sortkey == "size") {
-                    if (sortdirection == "desc") {
-                        return ($(b).data(sortkey) - $(a).data(sortkey));
-                    } else {
-                        return ($(a).data(sortkey) - $(b).data(sortkey));
-                    }
-                } else {
-                    if (sortdirection == "desc") {
-                        return $(a).data(sortkey).toString().localeCompare($(b).data(sortkey).toString());
-                    } else {
-                        return $(b).data(sortkey).toString().localeCompare($(a).data(sortkey).toString());
-                    }
-                } 
-            })       
-            $.each(listitems, function(idx, itm) {
-                mylist.append(itm);
-            });   
-        }; 
-        $("body").on("click", "#sortDirection", function(e) {
-            var sortdir = $("#sortDirection");
-            sortdir.removeClass()    
-            if (sortdir.data("direction") == "desc") {
-                sortdir.addClass("btn btn-link fa fa-sort-amount-asc");
-                sortdir.data("direction", "asc")
-            } else {                 
-                sortdir.addClass("btn btn-link fa fa-sort-amount-desc");
-                sortdir.data("direction", "desc")
-            }                        
-            sortReports($("#sort-reports").data("sortfield"));
-        });   
-        $("body").on("click", ".sort-reports", function(e) {
-            var sortfield = $(this);
-            var sortkey = sortfield.html();
-            var sortkeyl = sortfield.data("key");
-            var sortbutton = $(this).parent().parent().parent().find("button").first();
-            sortfield.parent().parent().find("li").removeClass("selected");
-            sortfield.parent().addClass("selected");
-            sortbutton.html(sortkey + ' <span class="caret"></span>');
-            sortbutton.data("sortfield", sortkeyl)
-            sortReports(sortkeyl);
-        })
-        $("body").on("click", ".mass-actions", function(e) {
-            var reports = []
-            $('.list-view-pf-checkbox input:checked').each(function() {
-                reports.push($(this).data("report-id"));
-            })
-            if (reports.length < 2) {
-                warnMessage("warning", "You must choose at least 2 reports to compare")
-                return;
-            } else {
-                reports_json = JSON.stringify(reports)
-                $.ajax({
-                    type: "POST",
-                    data: reports_json,
-                    contentType: "application/json; charset=utf-8",
-                    dataType: "json",
-                    url: "{{ url_for('cases.compare') }}",
-                    success: function(msg) {
-                        warnMessage(msg.status, msg.msg)
+    <script>
+        $(document).ready(function() {
+            $("body").on("click", ".show-check-list", function(e) {
+                var report_id = $(this).parents('div[class^="list-view-pf-body"]').eq(0).data("report-id");
+                e.preventDefault()
+                rc = $(this).data("type")
+                var url = "{{ url_for('reports.index') }}" + report_id + "/checks?rc=" + citellus_rc[rc];
+                $("#modal_body").load(url, function(response, status, xhr) {
+                    if (status == "error") {
+                        var msg = "Sorry but there was an error: ";
+                        $("#modal_body").html(msg + xhr.status + " " + xhr.statusText);
                     }
                 });
-            }
-        })
-    });
-</script>
+                $("#modal_check_list_title").html(rc.substring(3) + " checks")
+                $('#modal_check_list').appendTo('body').modal('show');
+                console.log(url)
+
+            })
+            $("body").on("click", ".view-all-checks", function(e) {
+                var report_id = $(this).parents('div[class^="list-view-pf-body"]').eq(0).data("report-id");
+                e.preventDefault()
+                window.location.href = "{{ url_for('reports.index') }}" + report_id + "/checks";
+            })
+            $("body").on("click", ".show-metrics", function(e) {
+                var report_id = $(this).parents('div[class^="list-view-pf-body"]').eq(0).data("report-id");
+                e.preventDefault()
+                window.location.href = "{{ url_for('metrics.index') }}" + report_id;
+            })
+            function sortReports(sortkey) {
+                var mylist = $("#report-list");
+                var listitems = mylist.children('div .list-group-item').get();
+                var sortdirection = $("#sortDirection").data("direction");
+                listitems.sort(function(a, b) {
+                    if (sortkey == "size") {
+                        if (sortdirection == "desc") {
+                            return ($(b).data(sortkey) - $(a).data(sortkey));
+                        } else {
+                            return ($(a).data(sortkey) - $(b).data(sortkey));
+                        }
+                    } else {
+                        if (sortdirection == "desc") {
+                            return $(a).data(sortkey).toString().localeCompare($(b).data(sortkey).toString());
+                        } else {
+                            return $(b).data(sortkey).toString().localeCompare($(a).data(sortkey).toString());
+                        }
+                    } 
+                })       
+                $.each(listitems, function(idx, itm) {
+                    mylist.append(itm);
+                });   
+            }; 
+            $("body").on("click", "#sortDirection", function(e) {
+                var sortdir = $("#sortDirection");
+                sortdir.removeClass()    
+                if (sortdir.data("direction") == "desc") {
+                    sortdir.addClass("btn btn-link fa fa-sort-amount-asc");
+                    sortdir.data("direction", "asc")
+                } else {                 
+                    sortdir.addClass("btn btn-link fa fa-sort-amount-desc");
+                    sortdir.data("direction", "desc")
+                }                        
+                sortReports($("#sort-reports").data("sortfield"));
+            });   
+            $("body").on("click", ".sort-reports", function(e) {
+                var sortfield = $(this);
+                var sortkey = sortfield.html();
+                var sortkeyl = sortfield.data("key");
+                var sortbutton = $(this).parent().parent().parent().find("button").first();
+                sortfield.parent().parent().find("li").removeClass("selected");
+                sortfield.parent().addClass("selected");
+                sortbutton.html(sortkey + ' <span class="caret"></span>');
+                sortbutton.data("sortfield", sortkeyl)
+                sortReports(sortkeyl);
+            })
+            $("body").on("click", ".mass-actions", function(e) {
+                var reports = []
+                $('.list-view-pf-checkbox input:checked').each(function() {
+                    reports.push($(this).data("report-id"));
+                })
+                if (reports.length < 2) {
+                    warnMessage("warning", "You must choose at least 2 reports to compare")
+                    return;
+                } else {
+                    reports_json = JSON.stringify(reports)
+                    $.ajax({
+                        type: "POST",
+                        data: reports_json,
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        url: "{{ url_for('cases.compare') }}",
+                        success: function(msg) {
+                            warnMessage(msg.status, msg.msg)
+                        }
+                    });
+                }
+            })
+        });
+    </script>
 
 {% endblock %}

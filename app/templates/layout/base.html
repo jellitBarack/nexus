@@ -1,158 +1,164 @@
 <!DOCTYPE html>
 <html class="layout-pf layout-pf-fixed">
+    <head>
+        {% block head %} 
+            {% include 'layout/head.html' %} 
+        {% endblock %}
+        <title>{% block title %}{% endblock %} - Nexus</title>
+    </head>
+    <!-- Stupid workaround because my Visual Studio Code plugin is not good with curlies in JS -->
 
-<head>
-    {% block head %} {% include 'layout/head.html' %} {% endblock %}
-    <title>{% block title %}{% endblock %} - Nexus</title>
-</head>
-<!-- Stupid workaround because my Visual Studio Code plugin is not good with curlies in JS -->
-
-<body class="has-sidebar" data-okay="{{ config['RC_OKAY'] }}" data-skipped="{{ config['RC_SKIPPED'] }}" data-failed="{{ config['RC_FAILED'] }}">
-    <nav class="navbar navbar-default navbar-pf-vertical navbar-pf" role="navigation">
-        <div class="navbar-header">
-            <a href="{{ url_for('home.index') }}" class="navbar-brand">
-                <img class="navbar-brand-name" src="{{ url_for( 'static', filename='img/logo-text.png' ) }}" alt="Citellus Nexus Application" />
-            </a>
-        </div>
-        <div class="collapse navbar-collapse navbar-collapse-1">
-            <ul class="nav navbar-nav navbar-right navbar-utility">
-                <li class="dropdown">
-                    <a href="#0" class="dropdown-toggle nav-item-iconic" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                        <span title="Help" class="pficon pficon-help"></span> Help
-                        <span class="caret"></span>
-                    </a>
-                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                        <li><a href="https://github.com/zerodayz/citellus/blob/master/README.md">Usage Doc</a></li>
-                        <li><a href="https://github.com/zerodayz/citellus/tree/master/doc">Plugin Development</a></li>
-                        <li><a href="https://github.com/zerodayz/citellus/blob/master/CONTRIBUTING.md">Contribute</a></li>
-                    </ul>
-                </li>
-                <li class="dropdown">
-                    <a href="#" class="dropdown-toggle nav-item-iconic" data-toggle="dropdown">
+    <body class="has-sidebar" data-okay="{{ config['RC_OKAY'] }}" data-skipped="{{ config['RC_SKIPPED'] }}" data-failed="{{ config['RC_FAILED'] }}">
+        <nav class="navbar navbar-default navbar-pf-vertical navbar-pf" role="navigation">
+            <div class="navbar-header">
+                <a href="{{ url_for('home.index') }}" class="navbar-brand">
+                    <img class="navbar-brand-name" src="{{ url_for( 'static', filename='img/logo-text.png' ) }}" alt="Citellus Nexus Application" />
+                </a>
+            </div>
+            <div class="collapse navbar-collapse navbar-collapse-1">
+                <ul class="nav navbar-nav navbar-right navbar-utility">
+                    <li class="dropdown">
+                        <a href="#0" class="dropdown-toggle nav-item-iconic" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                            <span title="Help" class="pficon pficon-help"></span> Help
+                            <span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                            <li><a href="https://github.com/zerodayz/citellus/blob/master/README.md">Usage Doc</a></li>
+                            <li><a href="https://github.com/zerodayz/citellus/tree/master/doc">Plugin Development</a></li>
+                            <li><a href="https://github.com/zerodayz/citellus/blob/master/CONTRIBUTING.md">Contribute</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle nav-item-iconic" data-toggle="dropdown">
                         <span class="pficon pficon-user"></span> {% if current_user.first_name %}{{ current_user.first_name }} {{ current_user.last_name }} {% else %} {{ current_user.username }}{% endif %}<b class="caret"></b>
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a href="#"><span class="fa fa-key"></span> Nothing</a></li>
-                    </ul>
-                </li>
-            </ul>
-            <!-- /navbar-header -->
-            <ul class="nav navbar-nav navbar-primary persistent-secondary">
-               {% if report is defined %}
-                <li class="active">
-                    <a class="nav-item-iconic" href="#">Reports</a>
-                    <ul class="nav navbar-nav navbar-persistent">
-                        <li {% if 'checks' == active_page %} class="active" {% endif %}>
-                            <a href="{{ url_for('reports.display_checks', report_id = report.id) }}">
-                                Checks
-                            </a>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#"><span class="fa fa-key"></span> Nothing</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <!-- /navbar-header -->
+                <ul class="nav navbar-nav navbar-primary persistent-secondary">
+                    {% if report is defined %}
+                        <li class="active">
+                            <a class="nav-item-iconic" href="#">Reports</a>
+                            <ul class="nav navbar-nav navbar-persistent">
+                                <li {% if 'checks' == active_page %} class="active" {% endif %}>
+                                    <a href="{{ url_for('reports.display_checks', report_id = report.id) }}">
+                                        Checks
+                                    </a>
+                                </li>
+                                {% if report.source == "citellus" %}
+                                    <li {% if 'compare' == active_page %} class="active" {% endif %}>
+                                        <a href="{{ url_for('reports.compare', report_id = report.id) }}">
+                                            Compare
+                                        </a>
+                                    </li>
+                                    <li {% if 'metrics' == active_page %} class="active" {% endif %}>
+                                        <a href="{{ url_for('metrics.display_metrics', report_id = report.id) }}">
+                                            Metrics
+                                        </a>
+                                    </li>
+                                    <li {% if 'health' == active_page %} class="active" {% endif %}>
+                                        <a href="{{ url_for('health.display_health', report_id = report.id) }}">
+                                            Health
+                                        </a>
+                                    </li>
+                                {% endif %}
+                            </ul>
                         </li>
-                        <li {% if 'compare' == active_page %} class="active" {% endif %}>
-                            <a href="{{ url_for('reports.compare', report_id = report.id) }}">
-                                Compare
-                            </a>
-                        </li>
-                        <li {% if 'metrics' == active_page %} class="active" {% endif %}>
-                            <a href="{{ url_for('metrics.display_metrics', report_id = report.id) }}">
-                                Metrics
-                            </a>
-                        </li>
-                        <li {% if 'health' == active_page %} class="active" {% endif %}>
-                            <a href="{{ url_for('health.display_health', report_id = report.id) }}">
-                                Health
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-                {% endif %}
-                <li {% if 'cases' == active_page %} class="active" {% endif %}>
-                    <a class="nav-item-iconic" href="{{ url_for('cases.search') }}">Cases</a>
-                </li>
-                <li {% if 'upload' == active_page %} class="active" {% endif %}>
-                    <a class="nav-item-iconic" href="{{ url_for('reports.upload') }}">Upload</a>
-                </li>
-                <li {% if 'history' == active_page %} class="active" {% endif %}>
-                    <a class="nav-item-iconic" href="{{ url_for('reports.history') }}">History</a>
-                </li>
-                <li {% if 'trend' == active_page %} class="active" {% endif %}>
-                    <a class="nav-item-iconic" href="#">Trends</a>
-                </li>
-                <li class="dropdown">
-                    <a href="#0" class="dropdown-toggle nav-item-iconic" id="dropdownMenuTools" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                    Tools
-                                    <span class="caret"></span>
-                                </a>
-                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuTools">
-                        <li><a href="http://diag-prod.gsslab.rdu2.redhat.com:82/" target="_blank">SOS Differenciator</a></li>
-                        <li><a href="https://quest.gsslab.rdu2.redhat.com/quest?q=search%20kcs&t=true" target="_blank">Quest</a></li>
-                    </ul>
-                </li>
-                <li>
-                    <form class="navbar-form" method="post" action="{{ config['APPLICATION_ROOT'] }}/cases/" role="form">
-                        <div class="input-group">
-                            <input type="text" class="form-control" value="{% if report is defined %}{{ report.case_id }}{% endif %}" placeholder="Case number" name="casenum" id="toolbar_casenum">
-                            <div class="input-group-btn">
-                                <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
+                    {% endif %}
+                    <li {% if 'cases' == active_page %} class="active" {% endif %}>
+                        <a class="nav-item-iconic" href="{{ url_for('cases.search') }}">Cases</a>
+                    </li>
+                    <li {% if 'upload' == active_page %} class="active" {% endif %}>
+                        <a class="nav-item-iconic" href="{{ url_for('reports.upload') }}">Upload</a>
+                    </li>
+                    <li {% if 'history' == active_page %} class="active" {% endif %}>
+                        <a class="nav-item-iconic" href="{{ url_for('reports.history') }}">History</a>
+                    </li>
+                    <li {% if 'trend' == active_page %} class="active" {% endif %}>
+                        <a class="nav-item-iconic" href="#">Trends</a>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#0" class="dropdown-toggle nav-item-iconic" id="dropdownMenuTools" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                            Tools
+                            <span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuTools">
+                            <li><a href="http://diag-prod.gsslab.rdu2.redhat.com:82/" target="_blank">SOS Differenciator</a></li>
+                            <li><a href="https://quest.gsslab.rdu2.redhat.com/quest?q=search%20kcs&t=true" target="_blank">Quest</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <form class="navbar-form" method="post" action="{{ config['APPLICATION_ROOT'] }}/cases/" role="form">
+                            <div class="input-group">
+                                <input type="text" class="form-control" value="{% if report is defined %}{{ report.case_id }}{% endif %}" placeholder="Case number" name="casenum" id="toolbar_casenum">
+                                <div class="input-group-btn">
+                                    <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
+                                </div>
                             </div>
-                        </div>
-                    </form>
-                </li>
-            </ul>
-            <!-- /navbar-nav -->
+                        </form>
+                    </li>
+                </ul>
+                <!-- /navbar-nav -->
+            </div>
+        </nav>
+        <!--/navbar-->
+        <div class="container-fluid">
+            {% include 'layout/flash.html' %}
+            <ol class="breadcrumb">
+                {%- for breadcrumb in breadcrumbs -%}
+                <li><a href="{{ breadcrumb.url }}">{{ breadcrumb.text }}</a></li>
+                {{ '/' if not loop.last }} {%- endfor -%}
+            </ol>
+            {% block body %}{% endblock %}
+
         </div>
-    </nav>
-    <!--/navbar-->
-    <div class="container-fluid">
-        {% include 'layout/flash.html' %}
-        <ol class="breadcrumb">
-        {%- for breadcrumb in breadcrumbs -%}
-            <li><a href="{{ breadcrumb.url }}">{{ breadcrumb.text }}</a></li>
-            {{ '/' if not loop.last }} {%- endfor -%}
-        </ol>
-       {% block body %}{% endblock %}
-
-    </div>
         <footer>Powered by <a href="https://github.com/zerodayz/citellus">Citellus</a><br>Rendered in {{ g.request_time() }}</footer>
-    <!-- /container-fluid -->
-    <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/patternfly.min.js') }}"></script>
-    <script>
-        var citellus_rc = []
-        citellus_rc["RC_OKAY"] = $("body").data("okay")
-        citellus_rc["RC_SKIPPED"] = $("body").data("skipped")
-        citellus_rc["RC_FAILED"] = $("body").data("failed")
+        <!-- /container-fluid -->
+        <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/patternfly.min.js') }}"></script>
+        <script>
+            var citellus_rc = []
+citellus_rc["RC_OKAY"] = $("body").data("okay")
+citellus_rc["RC_SKIPPED"] = $("body").data("skipped")
+citellus_rc["RC_FAILED"] = $("body").data("failed")
 
-        $(document).ready(function() {
-            $().setupVerticalNavigation(true);
-        });
+$(document).ready(function() {
+    $().setupVerticalNavigation(true);
+});
 
-        function warnMessage(level, m) {
-            var html = '<div class="alert alert-' + level + ' alert-dismissable" role="alert">'
-            html += '<button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span class="pficon pficon-close"></span></button>';
-            if (level == "danger") html += '<span class="pficon pficon-error-circle-o"></span>'
-            if (level == "warning") html += '<span class="pficon pficon-warning-triangle-o"></span>'
-            if (level == "success") html += '<span class="pficon pficon-ok"></span>'
-            html += '<strong>' + level + '</strong> ' + m;
-            html += '</div>';
-            $("#alert_list").append(html);
-        }
-        $(document).ajaxError(function myErrorHandler(event, jqXHR, ajaxOptions, thrownError) {
-            if (jqXHR.status === 0) {
-                warnMessage("danger", "Unable to get JSON file. [0]");
-            } else if (jqXHR.status == 404) {
-                warnMessage("danger", "File not found. [404]");
-            } else if (jqXHR.status == 500) {
-                warnMessage("danger", "Internal Server Error [500].");
-            } else if (thrownError === "parsererror") {
-                warnMessage("danger", "Requested JSON parse failed.");
-            } else if (thrownError === "timeout") {
-                warnMessage("danger", "Time out error.");
-            } else if (thrownError === "abort") {
-                warnMessage("danger", "Ajax request aborted.");
-            } else {
-                warnMessage("danger", "Uncaught Error.\n" + jqXHR.responseText);
-            }
-        });
-    </script>
-    {% block javascript %}{% endblock %}
+function warnMessage(level, m) {
+    var html = '<div class="alert alert-' + level + ' alert-dismissable" role="alert">'
+    html += '<button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span class="pficon pficon-close"></span></button>';
+    if (level == "danger") html += '<span class="pficon pficon-error-circle-o"></span>'
+    if (level == "warning") html += '<span class="pficon pficon-warning-triangle-o"></span>'
+    if (level == "success") html += '<span class="pficon pficon-ok"></span>'
+    html += '<strong>' + level + '</strong> ' + m;
+    html += '</div>';
+    $("#alert_list").append(html);
+}
+$(document).ajaxError(function myErrorHandler(event, jqXHR, ajaxOptions, thrownError) {
+    if (jqXHR.status === 0) {
+        warnMessage("danger", "Unable to get JSON file. [0]");
+    } else if (jqXHR.status == 404) {
+        warnMessage("danger", "File not found. [404]");
+    } else if (jqXHR.status == 500) {
+        warnMessage("danger", "Internal Server Error [500].");
+    } else if (thrownError === "parsererror") {
+        warnMessage("danger", "Requested JSON parse failed.");
+    } else if (thrownError === "timeout") {
+        warnMessage("danger", "Time out error.");
+    } else if (thrownError === "abort") {
+        warnMessage("danger", "Ajax request aborted.");
+    } else {
+        warnMessage("danger", "Uncaught Error.\n" + jqXHR.responseText);
+    }
+});
+        </script>
+        {% block javascript %}
+        {% endblock %}
+    </body>
+</html>

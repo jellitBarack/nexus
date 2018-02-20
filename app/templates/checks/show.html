@@ -53,14 +53,14 @@
                     <dt>Priority</dt>
                     <dd><span class="badge badge-{{ check.priority_class }}">{{ check.priority_text }}</span></dd>
                     <dt>Bugzilla</dt> {% if check.bug_id %}
-                    <dd><a href="{{ check.bugzilla }}" target="_blank"><span class="badge badge-danger">{{ check.bug_id }}</span></a></dd>
+                        <dd><a href="{{ check.bugzilla }}" target="_blank"><span class="badge badge-danger">{{ check.bug_id }}</span></a></dd>
                     {% else %}
-                    <dd>N/A</dd>
+                        <dd>N/A</dd>
                     {% endif %}
 
                     <dt>Out</dt>
                     <dd>
-                        {% for result in check.check_results %}
+                    {% for result in check.check_results %}
                         <span class="badge badge-{{ config['PLUGIN_STATES'][result.result_rc][" hclass "] }}">{{ config['PLUGIN_STATES'][result.result_rc]["state"] }}</span> {{ result.hostname }}<br> {% if result.result_out|length > 0 %}
                         <pre>{{ result.result_out|urlize(40, true) }}</pre> {% else %} N/A
                         <br> {% endif %} {% endfor %}
@@ -68,7 +68,7 @@
 
                     <dt>Error</dt>
                     <dd>
-                        {% for result in check.check_results %}
+                    {% for result in check.check_results %}
                         <span class="badge badge-{{ config['PLUGIN_STATES'][result.result_rc][" hclass "] }}">{{ config['PLUGIN_STATES'][result.result_rc]["state"] }}</span> {{ result.hostname }}<br> {% if result.result_err|length > 0 %}
                         <pre>{{ result.result_err|urlize(40, true) }}</pre> {% else %} N/A
                         <br> {% endif %} {% endfor %}
