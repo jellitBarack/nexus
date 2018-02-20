@@ -290,3 +290,7 @@ footer {
     -ms-flex: 1 0 10%;
     flex: 1 0 10%;
 }
+
+.list-view-pf-view {
+    background: #fff;
+}

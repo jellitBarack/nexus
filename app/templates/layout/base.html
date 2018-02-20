@@ -110,9 +110,9 @@
             {{ '/' if not loop.last }} {%- endfor -%}
         </ol>
        {% block body %}{% endblock %}
-        <footer>Powered by <a href="https://github.com/zerodayz/citellus">Citellus</a><br>Rendered in {{ g.request_time() }}</footer>
 
     </div>
+        <footer>Powered by <a href="https://github.com/zerodayz/citellus">Citellus</a><br>Rendered in {{ g.request_time() }}</footer>
     <!-- /container-fluid -->
     <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
