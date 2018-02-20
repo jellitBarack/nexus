@@ -4,67 +4,60 @@
 {% endblock %} 
 {% import "reports/macros.html" as rdata %}
 {% block body %}
-{{ rdata.meta_table_html(report) }}    
-<div class="clearfix toolbar-pf">
-    <div class="col-sm-12">
-        <form class="toolbar-pf-actions">
-            <div class="form-group toolbar-pf-filter">
-                <label class="sr-only" for="filter">Name</label>
-                <div class="input-group">
-                    <input type="text" class="form-control" id="filter_text" placeholder="Filter...">
+    {{ rdata.meta_table_html(report) }}    
+    <div class="clearfix toolbar-pf">
+        <div class="col-sm-12">
+            <form class="toolbar-pf-actions">
+                <div class="form-group toolbar-pf-filter">
+                    <label class="sr-only" for="filter">Name</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="filter_text" placeholder="Filter...">
+                    </div>
+                    <!-- /input-group -->
                 </div>
-                <!-- /input-group -->
-            </div>
-            <!-- /form-group toolbar-pf-filter -->
-            <div class="form-group">
-                <div class="dropdown btn-group">
-                    <button id="plugin-sort" type="button" data-sortfield="priority" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Priority <span class="caret"></span></button>
-                    <ul class="dropdown-menu">
-                        <li class="selected"><a href="#" class="plugin-sort-field">Priority</a></li>
-                        <li><a href="#" class="plugin-sort-field">State</a></li>
-                        <li><a href="#" class="plugin-sort-field">Name</a></li>
-                    </ul>
+                <!-- /form-group toolbar-pf-filter -->
+                <div class="form-group">
+                    <div class="dropdown btn-group">
+                        <button id="plugin-sort" type="button" data-sortfield="priority" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Priority <span class="caret"></span></button>
+                        <ul class="dropdown-menu">
+                            <li class="selected"><a href="#" class="plugin-sort-field">Priority</a></li>
+                            <li><a href="#" class="plugin-sort-field">State</a></li>
+                            <li><a href="#" class="plugin-sort-field">Name</a></li>
+                        </ul>
+                    </div>
+                    <!-- /dropdown btn-group -->
+                    <button class="btn btn-link" type="button">
+                        <span data-direction="desc" id="sortDirection" class="fa fa-sort-amount-desc"></span>
+                    </button>
+                    <input type="hidden" id="filter_status" value="all">
+                    <div class="btn-group" role="group" aria-label="Status Filters">
+                        <button type="button" class="btn btn-success filter-status" data-filter="okay">okay</button>
+                        <button type="button" class="btn btn-danger filter-status" data-filter="failed">failed</button>
+                        <button type="button" class="btn btn-warning filter-status" data-filter="skipped">skipped</button>
+                        <button type="button" class="btn btn-dark filter-status" data-filter="all">all</button>
+                    </div>
+                    <!-- /btn-group -->
                 </div>
-                <!-- /dropdown btn-group -->
-                <button class="btn btn-link" type="button">
-                    <span data-direction="desc" id="sortDirection" class="fa fa-sort-amount-desc"></span>
-                </button>
-                <input type="hidden" id="filter_status" value="all">
-                <div class="btn-group" role="group" aria-label="Status Filters">
-                    <button type="button" class="btn btn-success filter-status" data-filter="okay">okay</button>
-                    <button type="button" class="btn btn-danger filter-status" data-filter="failed">failed</button>
-                    <button type="button" class="btn btn-warning filter-status" data-filter="skipped">skipped</button>
-                    <button type="button" class="btn btn-dark filter-status" data-filter="all">all</button>
-                </div>
-                <!-- /btn-group -->
-            </div>
-            <!-- /form-group -->
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-categories">Categories</button>
-            <button type="button" class="btn btn-secondary" id="expandAll">Expand All</button> {#
-            <div class="toolbar-pf-action-right">
-                <div class="form-group toolbar-pf-find">
-                    <!-- /toolbar-pf-find -->
-                </div>
-                <!-- /toolbar-pf-action-right -->#}
-        </form>
-        <div class="clearfix toolbar-pf-results">
-            <div class="col-sm-12">
-                <h5><span id="numresults"></span> Results</h5>
-            </div>
-            <!-- /col -->
-        </div>
-        <!-- /row -->
+                <!-- /form-group -->
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-categories">Categories</button>
+                <button type="button" class="btn btn-secondary" id="expandAll">Expand All</button> 
+            </form>
+        </div><!-- /col-->
+    </div><!-- /row toolbar-pf -->
+    <div class="clearfix toolbar-pf-results">
+        <div class="col-sm-12">
+            <h5><span id="numresults"></span> Results</h5>
         </div>
         <!-- /col -->
     </div>
     <!-- /row -->
 
-        {% include "reports/list.html" %} 
-        {% with categories=categories %} 
-            {% include "reports/modal-categories.html" %} 
-        {% endwith %} 
-    {% endblock %} 
-    {% block javascript %} 
+    {% include "reports/list.html" %} 
+    {% with categories=categories %} 
+        {% include "reports/modal-categories.html" %} 
+    {% endwith %} 
+{% endblock %} 
+{% block javascript %} 
     {{ rdata.meta_table_js() }}
     {% include "layout/report.js.html" %}
     <a href="#" id="debug_report_in">Debug</a>
