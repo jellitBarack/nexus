@@ -5,9 +5,19 @@
 {% include 'cases/modal.html' %} 
 {% if reportList is defined %}
 <div class="row toolbar-pf">
-    <div class="col-sm-6">
+    <div class="col-sm-12">
+        <form class="toolbar toolbar-pf-actions">
+        <div class="toolbar-pf-action-right">
+        <h5>{{ reportList|length}} reports</h5>
+        </div>
         <div class="form-group toolbar-pf-filter">
-            <div class="input-group">
+                <label class="sr-only" for="filter">Name</label>
+                <div class="input-group">
+                    <input id="filter" class="form-control" placeholder="Filter By Name..." type="text">
+                </div>
+        </div>
+                <div class="form-group">
+                <div class="input-group">
                 <div class="input-group-btn">
                     <button type="button" 
                             name="mass-actions" id="mass-actions" 
@@ -22,7 +32,10 @@
                         <li><a href="{{ url_for('cases.yank', case = casenum, force = "True") }}">Force Yank </a></li>
                     </ul>
                 </div>
-                <div class="input-group-btn">
+                </div>
+                </div>
+                <div class="form-group">
+                <div class="dropdown btn-group">
                     <button type="button" name="sort-reports" 
                                           id="sort-reports" 
                                           class="btn btn-default dropdown-toggle" 
@@ -39,20 +52,13 @@
                         <li><a href="#" class="sort-reports"
                                         data-key="size">Size</a></li>
                     </ul>
-                    <button class="btn btn-link" type="button">
-                     <span data-direction="desc" id="sortDirection" 
-                                                 class="fa fa-sort-amount-desc">
-                     </span>
-                    </button>
                 </div>
-            </div>
-        </div>
-
+                <button id="sortDirection" class="btn btn-link fa fa-sort-amount-asc" type="button">
+                  <span></span>
+                </button>
+                </div>
+       </div>
     </div>
-    <div class="col-sm-6">
-        <h5>{{ reportList|length}} reports</h5>
-    </div>
-</div>
 <!-- /row -->
 {% endif %}
 
@@ -224,10 +230,10 @@
                 var sortdir = $("#sortDirection");
                 sortdir.removeClass()    
                 if (sortdir.data("direction") == "desc") {
-                    sortdir.addClass("fa fa-sort-amount-asc");
+                    sortdir.addClass("btn btn-link fa fa-sort-amount-asc");
                     sortdir.data("direction", "asc")
                 } else {                 
-                    sortdir.addClass("fa fa-sort-amount-desc");
+                    sortdir.addClass("btn btn-link fa fa-sort-amount-desc");
                     sortdir.data("direction", "desc")
                 }                        
                 sortReports($("#sort-reports").data("sortfield"));
