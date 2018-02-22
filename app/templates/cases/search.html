@@ -225,10 +225,10 @@
                 var sortdir = $("#sortDirection");
                 sortdir.removeClass()    
                 if (sortdir.data("direction") == "desc") {
-                    sortdir.addClass("btn btn-link fa fa-sort-amount-asc");
+                    sortdir.addClass("btn btn-link fa fa-sort-amount-desc");
                     sortdir.data("direction", "asc")
                 } else {                 
-                    sortdir.addClass("btn btn-link fa fa-sort-amount-desc");
+                    sortdir.addClass("btn btn-link fa fa-sort-amount-asc");
                     sortdir.data("direction", "desc")
                 }                        
                 sortReports($("#sort-reports").data("sortfield"));
