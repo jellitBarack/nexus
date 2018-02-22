@@ -6,7 +6,7 @@ class Cpuinfo:
 
     def __init__(self, report):
         self.report = report
-        self.cpustat = report.fullpath.rstrip("/") + "/proc/stat"
+        self.cpustat = report.path.rstrip("/") + "/proc/stat"
 
     def get(self):
         fd = open(self.cpustat, "r")

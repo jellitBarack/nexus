@@ -51,25 +51,24 @@ def display_checks(report_id, rc=None):
     rc = request.args.get('rc')
     # Getting the checks from the DB
     q = db.session.query(Report).join(Check, Report.checks).options(contains_eager(Report.checks))
+    report_name = "show"
+
     if rc is not None:
         q = q.filter(Check.global_rc == rc)
         report_name = "list"
-    else:
-        report_name = "show"
 
     q = q.filter(Report.id == report_id).order_by(Check.priority.desc())
     report = q.options(subqueryload('checks','check_results')).all()
-    if report is None:
+    if report is None or len(report) == 0:
         abort(404)
     # Getting a list of categories
     categories = defaultdict(int)
     for c in report[0].checks:
         # Building the categories dict
         categories[c.category] += 1
+        subcategories = []
         if c.subcategory != "":
             subcategories = c.subcategory.split("/")
-        else:
-            subcategories = []
         c.subcategory = subcategories
         if c.category not in subcategories:
             subcategories.insert(0, c.category)
@@ -81,19 +80,17 @@ def display_checks(report_id, rc=None):
         c.plugin_html = current_app.config["PLUGIN_STATES"][c.global_rc]
         c.plugin_name = os.path.splitext(os.path.basename(c.plugin_path))[0]
 
-        # Building the visual for the plugin priority
+        # Building the visual for the plugin priority 
+        c.priority_text = "informative"
+        c.priority_class = "info"
         if not hasattr(c, 'priority'):
             c.priority = 0
-            c.priority_text = "info"
         if c.priority >= 666:
             c.priority_text = "critical"
             c.priority_class = "danger"
         elif c.priority >= 333:
             c.priority_text = "important"
             c.priority_class = "warning"
-        else:
-            c.priority_text = "informative"
-            c.priority_class = "info"
 
         # Extracting the bugzilla informations
         if re.match('^\d{7}$', c.plugin_name):

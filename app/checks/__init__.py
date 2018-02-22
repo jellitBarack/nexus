@@ -8,6 +8,8 @@ from collections import defaultdict
 from . import views
 from app.models import Check
 from app.models import CheckResult
+from sqlalchemy import func
+
 
 
 checks = Blueprint('checks', __name__)
@@ -36,39 +38,54 @@ def result_string(c):
         result_string = "sosreport"
     return result_string
 
-def loop_checks(report_id, results, source, report_changed):
-    # looping through the plugin results
+def count_checks(report_id):
+    """
+    Returns a count by return_code for plugins
+    that were executed in the context of a report
+    :param report_id: string with the id of the report
+    :return: dict of the count / rc
+    """
+    logging.debug("Counting checks for report %s", report_id)
+    checks = db.session.query(Check.global_rc, func.count(Check.global_rc)).filter(Check.report_id == report_id).group_by(Check.global_rc).all()
     counts = defaultdict(int)
-#    logging.debug("ReportID: %s", report_id)
-#    logging.debug("Results: %s", results)
-#    logging.debug("Source: %s", source)
+    for c in checks:
+        counts["total"] += c[1]
+        counts[c[0]] += c[1]
+    logging.debug("Count completed")
+    return counts
+
+
+def loop_checks(report, results, report_changed):
+    # looping through the plugin results
     # magui is returning a list, while citellus returns a dict
     # converting magui to a dict
-    if source == "magui":
+    if report.source == "magui":
         md = {}
         for i in results:
             md[i["id"]] = i
         results = md
-    logging.debug("Number of items to loop: %s - Report Changed: %s" % (len(results), report_changed))
+
+    # Defining lists that will be injecting to DB
     checks_to_db = []
     results_to_db = []
-    if report_changed is True:
-        Check.query.filter(Check.report_id == report_id).delete()
-    for k, c in results.iteritems():
 
+    # If the report already exists, and it has change, we delete it
+    if report_changed is True:
+        logging.debug("Report changed, flushing checks")
+        Check.query.filter(Check.report_id == report.id).delete()
+
+    # Loop through the results
+    for k, c in results.iteritems():
         # Sometimes the results are stored in result, results or sosreport. Let's guess this
         rs = result_string(c)
         # We need to keep a copy of these results
         original_results = c[rs]
-        new_result = {}
-        new_result["out"] = {}
-        new_result["err"] = {}
-        new_result["rc"] = {}
+
+        # Here we have a magui report
         if c["plugin"] == "citellus-outputs" or c["plugin"] == "metadata-outputs":
             # Restructuring the citellus-outputs
             original_err = c[rs]["err"]
 
-            new_checklist = []
             # We are going to convert the out and err to a string
             # We loop through the citellus plugins
             for element in original_err:
@@ -77,43 +94,52 @@ def loop_checks(report_id, results, source, report_changed):
                 # If all 3 are skipped, global is skipped
                 # Otherwize it's okay
                 global_rc = current_app.config["RC_OKAY"]
+
+                # In magui, the results are stored in sosreport object
                 original_results = element["sosreport"]
                 del element["sosreport"]
+
+                # we need to keep track of the number of hosts
+                # so we know when all the hosts skipped it.
                 hostcount = defaultdict(int)
+
                 for host in original_results:
+                    # When there's 1 failure, all the plugin is failed
                     if original_results[host]["rc"] == current_app.config["RC_FAILED"]:
                         global_rc = current_app.config["RC_FAILED"]
-                    hostcount[original_results[host]["rc"]] += 1
-                    new_result["rc"][host] = original_results[host]["rc"]
-                    new_result["err"][host] = original_results[host]["err"]
-                    new_result["out"][host] = original_results[host]["out"]
 
+                    # Keeping the count here
+                    hostcount[original_results[host]["rc"]] += 1
+
+                    # Restructuring the data
+                    new_result = generate_result_list(host, original_results[host], new_result)
+                
+                # All hosts have skipped?
                 if hostcount[current_app.config["RC_SKIPPED"]] == len(original_results):
                     global_rc = current_app.config["RC_SKIPPED"]
+
+                # Completing the object that we will pass to add_check
                 element["global_rc"] = global_rc
                 element["result"] = new_result
-                counts["total"] += 1
-                counts[global_rc] += 1
                 if report_changed is True:
-                   check, results = add_check(report_id, element, source)
+                   check, results = add_check(report.id, element, report.source)
+                   # We append the object to a list so we can do a mass insert later
                    checks_to_db.append(check)
                    results_to_db.extend(results)
         
         else:
             # It's easier to support magui if we convert regular citellus reports with the same
             # Data structure as magui. So let's do this
-            new_result["rc"]["localhost"] = original_results["rc"]
-            new_result["err"]["localhost"] = original_results["err"]
-            new_result["out"]["localhost"] = original_results["out"]
+            new_result = generate_result_list("localhost", original_results)
+
             if original_results["rc"]:
                 c["global_rc"] = original_results["rc"]
             else:
                  c["global_rc"] = current_app.config["RC_OKAY"]
+
             c[rs] = new_result
-            counts[c["global_rc"]] += 1
-            counts["total"] += 1
             if report_changed is True:
-                check, results = add_check(report_id, c, source)
+                check, results = add_check(report.id, c, report.source)
                 checks_to_db.append(check)
                 results_to_db.extend(results)
     
@@ -122,7 +148,17 @@ def loop_checks(report_id, results, source, report_changed):
         db.session.bulk_save_objects(results_to_db)
         db.session.commit()
 
-    return counts
+def generate_result_list(hostname, items, new_result = None):
+    o = defaultdict(dict)
+    o["rc"][hostname] = items["rc"]
+    o["out"][hostname] = items["out"]
+    o["err"][hostname] = items["err"]
+    if new_result is not None:
+        n = o.copy()
+        n.update(new_result)
+        return n
+    return o
+    
 
 def add_check(report_id, c, source):
     rs = result_string(c)
