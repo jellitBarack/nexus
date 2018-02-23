@@ -1,0 +1,148 @@
+    <script>
+        function filterPlugins(item, filter_text, filter_status) {
+            var plugin_cats = $(item).data("categories");
+            var plugin_txt = $(item).children('.plugin-error').first().text();
+            var plugin_name = $(item).data("name").toString();
+            var plugin_status = $(item).data("state");
+            console.log(item)
+            console.log("Cats: " + plugin_cats + " Text: " + plugin_txt + " Name: " + plugin_name + " Status: " + plugin_status + " filter_status: " + filter_status + " filter_text: " + filter_text)
+            var filter_category = "";
+            $(".nx-check-category").each(function(i, j) {
+                if ($(j).prop("checked")) {
+                    filter_category += $(j).attr("name") + "|";
+                }
+            }); 
+            filter_category = filter_category.slice(0, -1);
+            var cb_regex = new RegExp(filter_category);
+            console.log("Regex " + cb_regex + " test: " + cb_regex.test(plugin_cats))
+            // Validations:
+            // - if plugin categories match regex of checked categories
+            // - if plugin state match status filter
+            // - if plugin (name|text) match text filter, only if there's at least $ft_min_char char
+            if (cb_regex.test(plugin_cats) && /[a-z0-9]+/.test(cb_regex) && (filter_status == "all" || filter_status == $(item).data("state")) && (filter_text.length < ft_min_char || (filter_text.length >= ft_min_char && (plugin_txt && plugin_txt.toLowerCase().indexOf(filter_text) != -1) || (plugin_name && plugin_name.toLowerCase().indexOf(filter_text) != -1)))) {                                                    
+                $(item).show();
+                return 1
+            } else {        
+                $(item).hide();
+                return 0
+            }               
+        }
+        function filterCards() {
+            var count = 0
+            var filter_status = $(".nx-filter-status-btn").val();
+            var filter_text = $(".nx-filter-text").val();
+            $(".nx-list-group > div").each(function(i, j) {
+                count += filterPlugins(this, filter_text, filter_status)
+            }); 
+            $(".nx-num-results").html(count);
+        }       
+        function sortItems(sortkey) {
+            var listitems = $(".nx-list-group").children('div .list-group-item').get();
+            var sortdirection = $(".nx-sort-direction").data("direction");
+            listitems.sort(function(a, b) {
+                if (sortkey == "size" || sortkey == "priority") {
+                    if (sortdirection == "desc") {
+                        return ($(b).data(sortkey) - $(a).data(sortkey));
+                    } else {
+                        return ($(a).data(sortkey) - $(b).data(sortkey));
+                    }
+                } else {
+                    if (sortdirection == "desc") {
+                        return $(a).data(sortkey).toString().localeCompare($(b).data(sortkey).toString());
+                    } else {
+                        return $(b).data(sortkey).toString().localeCompare($(a).data(sortkey).toString());
+                    }
+                } 
+            })       
+            $.each(listitems, function(idx, itm) {
+                $(".nx-list-group").append(itm);
+            });   
+        }; 
+
+
+        $(document).ready(function() {
+
+             // listener when the user picks a status filter
+            $(".nx-filter-status").click(function(e) {
+                $(".nx-filter-status-btn").val($(this).data("filter"));
+                filterCards();
+            });
+
+            // listener when the user writes in the searchbox
+            $(".nx-filter-text").keyup(function(e) {
+                filterCards();
+            }); 
+            
+            // 
+            $("body").on("click", ".nx-check-count", function(e) {
+                var report_id = $(this).parents('div[class^="list-view-pf-body"]').eq(0).data("report-id");
+                e.preventDefault()
+                rc = $(this).data("type")
+                var url = "{{ url_for('reports.index') }}" + report_id + "/checks?rc=" + citellus_rc[rc];
+                $(".nx-check-list-modal-body").load(url, function(response, status, xhr) {
+                    if (status == "error") {
+                        var msg = "Sorry but there was an error: ";
+                        $(".nx-check-list-modal-body").html(msg + xhr.status + " " + xhr.statusText);
+                    }
+                });
+                $(".nx-check-list-modal-title").html(rc.substring(3) + " checks")
+                $('.nx-check-list-modal').appendTo('body').modal('show');
+
+            })
+            $("body").on("click", ".nx-view-all-checks", function(e) {
+                var report_id = $(this).parents('div[class^="list-view-pf-body"]').eq(0).data("report-id");
+                e.preventDefault()
+                window.location.href = "{{ url_for('reports.index') }}" + report_id + "/checks";
+            })
+            $("body").on("click", ".nx-show-metrics", function(e) {
+                var report_id = $(this).parents('div[class^="list-view-pf-body"]').eq(0).data("report-id");
+                e.preventDefault()
+                window.location.href = "{{ url_for('metrics.index') }}" + report_id;
+            })
+            $("body").on("click", "nx-sort-direction", function(e) {
+                var sortdir = $("nx-sort-direction");
+                sortdir.removeClass()    
+                if (sortdir.data("direction") == "desc") {
+                    sortdir.addClass("btn btn-link fa fa-sort-amount-desc");
+                    sortdir.data("direction", "asc")
+                } else {                 
+                    sortdir.addClass("btn btn-link fa fa-sort-amount-asc");
+                    sortdir.data("direction", "desc")
+                }                        
+                sortItems($(".nx-sort-item-btn").data("sortfield"));
+            });   
+            $("body").on("click", ".nx-sort-item", function(e) {
+                var sortfield = $(this);
+                var sortkey = sortfield.html();
+                var sortkeyl = sortfield.data("key");
+                var sortbutton = $(this).parent().parent().parent().find("button").first();
+                sortfield.parent().parent().find("li").removeClass("selected");
+                sortfield.parent().addClass("selected");
+                sortbutton.html(sortkey + ' <span class="caret"></span>');
+                sortbutton.data("sortfield", sortkeyl)
+                sortItems(sortkeyl);
+            })
+            $("body").on("click", ".nx-actions", function(e) {
+                var reports = []
+                $('.list-view-pf-checkbox input:checked').each(function() {
+                    reports.push($(this).data("report-id"));
+                })
+                if (reports.length < 2) {
+                    warnMessage("warning", "You must choose at least 2 reports to compare")
+                    return;
+                } else {
+                    reports_json = JSON.stringify(reports)
+                    $.ajax({
+                        type: "POST",
+                        data: reports_json,
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        url: "{{ url_for('cases.compare') }}",
+                        success: function(msg) {
+                            warnMessage(msg.status, msg.msg)
+                        }
+                    });
+                }
+            })
+        });
+    </script>

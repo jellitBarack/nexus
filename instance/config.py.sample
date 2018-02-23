@@ -1,0 +1,16 @@
+# Random string, use the following command to generate one
+# date +%s | sha256sum | base64 | head -c 64 ; echo
+SECRET_KEY = ''
+
+# Generate a key on the google API console
+GOOGLE_ID = ""
+GOOGLE_SECRET = ""
+
+#sbrbd1
+SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://nexus:password@10.10.10.10/nexus'
+
+# Path to install
+FS_ROOT = "/var/www/nexus"
+
+DEBUG = False
+SQLALCHEMY_ECHO = False
