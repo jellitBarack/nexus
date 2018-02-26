@@ -40,15 +40,12 @@ def add_report(report):
         report.changed = False
     elif report_db is not None:
         report.changed = True
-    if report_db is not None and report.changed is False:
-        return report_db
 
     report.setattrs(source=j["metadata"]["source"],
             live=j["metadata"]["live"],
             analyze_time=datetime.strptime(j["metadata"]["when"], '%Y-%m-%dT%H:%M:%S.%f'),
-            analyze_duration=j["metadata"]["time"])
+            analyze_duration=round(j["metadata"]["time"], 3))
 
-    #report_path = re.sub("^cases\/", "", "/".join(jsonfile.split("/")[-3:]))
     if report_db is None or report.changed is True:
         report.get_report_size()
         # add report to the database
@@ -59,5 +56,7 @@ def add_report(report):
 
         db.session.commit()
         report.changed = True
+    elif report_db is not None and report.changed is False:
+        report.size = report_db.size
+
     report.results = j["results"]
-    return report
