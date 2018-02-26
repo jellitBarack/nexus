@@ -18,7 +18,7 @@ from app.models import Report
 from app.models import Check
 from app import flash_errors
 from app import db
-from app.checks import loop_checks
+from app.checks import loop_checks, count_checks
 from app.reports import add_report
 from app.helpers import sysstat
 
@@ -60,63 +60,84 @@ def search(case=None):
         case = form.casenum.data
     if case is not None:
         casepath = "/cases/" + case
-        reportList = []
-        jsonregex = []
-        # Building regex for citellus[0-9]+.json and magui[0-9]+.json
-        combinedregex = re.compile("(" + ")|(".join(
-                                       current_app.config["REPORT_FILE_NAMES"])
-                                    + ")")
+        report_list = []
+        logging.debug("Case: %s", case)
+        # Folder doesn't exist, let's check the DB
         if os.path.isdir(casepath) is False:
-            abort(404)
-        # Looping through the files
-        for root, dirs, files in os.walk(casepath, topdown=True):
-            matched = filter(combinedregex.match, files)
-            if len(matched) == 0:
-                continue
-            for f in matched:
-                fullname = root + "/" + f
-                sardir = root + "/var/log/sa"
-                if os.path.isdir(sardir):
-                    sarfiles = sysstat.sysstat.get_file_date(sardir)
-                else:
-                    sarfiles = []
-                report, results, report_changed = add_report(fullname, form.casenum.data)
-                counts = loop_checks(report.id, results, report.source, report_changed)
+            reports = Report.query.filter(Report.case_id == case).all()
+            for r in reports:
+                count = count_checks(r.id)
+            return jsonify(reports)
+        else:
+            logging.debug("Finding reports")
+            report_list = find_reports(casepath, case)
+            report_delete = []
+            for report in report_list:
+                add_report(report)
+                if report.changed is True:
+                    report_delete.append(report.id)
+
+            # To make things faster, we need to bulk delete the 
+            # checks for the reports that have changed.
+            if len(report_delete) > 0:
+                logging.debug("Deleting reports %s", report_delete)
+                Check.query.filter(Check.report_id.in_(report_delete)).delete(synchronize_session=False)
+
+            for report in report_list:
+                loop_checks(report)
+                count = count_checks(report.id)
+                logging.debug("Parsed report: %s", report)
                 # add report to the web interface
+                report.icon = "cog"
                 if report.source == "magui":
-                    icon = "microchip"
-                else:
-                    icon = "cog"
-                reportList.append({"fullname": fullname,
-                            "name": "/".join(root.split("/")[-2:]), 
-                            "report_id": report.id,
-                            "icon": icon, 
-                            "sarfiles": sarfiles,
-                            "checks_total": counts["total"], 
-                            "checks_fail": counts[20], 
-                            "checks_skip": counts[30], 
-                            "checks_okay": counts[10], 
-                            "analyze_duration": report.analyze_duration,
-                            "size": report.size,
-                            "hr_size": report.get_hr_size(2),
-                            "collect_time": report.collect_time,
-                            "machine_id": report.machine_id,
-                            "source": report.source})
+                    report.icon = "microchip"
+                report.setattrs(
+                                checks_total = count["total"],
+                                checks_fail = count[current_app.config["RC_FAILED"]], 
+                                checks_skip = count[current_app.config["RC_SKIPPED"]], 
+                                checks_okay = count[current_app.config["RC_OKAY"]])
+                report.hr_size = report.get_hr_size()
     
-        # We don't go deeper than 2 directories
-        # to save some time
-        if root.count(os.sep) - casepath.count(os.sep) == 2:
-            del dirs[:]
-    
-        return render_template('cases/search.html', form=form, casenum = case, 
-                           reportList = reportList, 
-                           title = 'Search sosreport in case')
+        return render_template('cases/search.html', form = form, casenum = case, report_list = report_list)
     # There was an error with the form submission
     elif request.method == "POST":
         flash_errors(form)
     # If no caseid, we return standard form
     return render_template('cases/search.html')
 
+def find_reports(path, case):
+    """
+    Look for reports in path
+    :param path: Path of extracted sosreport
+    :param case: case id
+    :return reports: list of Reports
+    """
+    report_list = []
+    combinedregex = re.compile("(" + ")|(".join( current_app.config["REPORT_FILE_NAMES"]) + ")")
+    for root, dirs, files in os.walk(path, topdown=True):
+        matched = filter(combinedregex.match, files)
+        if len(matched) == 0:
+            continue
+        for f in matched:
+            fullname = root + "/" + f
+            sardir = root + "/var/log/sa"
+            if os.path.isdir(sardir):
+                sarfiles = sysstat.sysstat.get_file_date(sardir)
+            else:
+                sarfiles = []
+
+            report = Report(fullpath=root + "/" + f,
+                            case_id=case,
+                            sarfiles=sarfiles)
+            report_list.append(report)
+
+        # We don't go deeper than 2 directories
+        # to save some time
+        if root.count(os.sep) - path.count(os.sep) == 2:
+            del dirs[:]
+
+    return report_list
+    
 @cases.route('/compare', methods=['POST','GET'])
 @login_required
 def compare():

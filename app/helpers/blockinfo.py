@@ -4,9 +4,9 @@ class Blocks:
 
     def __init__(self, report):
         self.report = report
-        self.dfblock = report.fullpath.rstrip("/") + "/sos_commands/filesys/df_-al"
-        self.dfinode = report.fullpath.rstrip("/") + "/sos_commands/filesys/df_-ali"
-        self.iostat =  report.fullpath.rstrip("/") + "/proc/diskstats"
+        self.dfblock = report.path.rstrip("/") + "/sos_commands/filesys/df_-al"
+        self.dfinode = report.path.rstrip("/") + "/sos_commands/filesys/df_-ali"
+        self.iostat =  report.path.rstrip("/") + "/proc/diskstats"
 
     def get_device(self, device_name, file_type):
         try:

@@ -60,7 +60,7 @@ def get_points(report_id):
     function_start_time = datetime.now()
     data = json.loads(request.data)
     report = get_report(report_id)
-    sardir = report.fullpath + "/var/log/sa"
+    sardir = report.path + "/var/log/sa"
     fullstats = []
     global metricslist
     timestamps = ["Date"]
@@ -129,7 +129,7 @@ def add_point(items, data, label=None):
 def get_metadata(report, get_metadata, activity=None):
     sarfiles = []
     metadata = []
-    sardir = report.fullpath + "/var/log/sa"
+    sardir = report.path + "/var/log/sa"
     if os.path.isdir(sardir):
         sarfiles = sysstat.sysstat.get_file_date(sardir)
         metadata.extend(sysstat.sysstat.get_stats(file=sarfiles[-1]["filename"], get_metadata=get_metadata, activity=activity))

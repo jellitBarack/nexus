@@ -1,92 +1,92 @@
-<div class="list-group-item" data-priority="{{ check.priority }}" data-state="{{ check.plugin_html.state }}" data-name="{{ check.plugin_name }}" data-categories="{{ check.all_categories |join(',') }}" id="plugin-{{ check.id }}">
-    <textarea class="plugin-error" style="display: none;">'{{ check.result_err }}'</textarea>
-    <div class="list-group-item-header">
-        <div class="list-view-pf-expand">
-            <span class="fa fa-angle-right"></span>
-        </div>
-        <!-- /list-view-pf-expand -->
-        <div class="list-view-pf-main-info">
-            <div class="list-view-pf-left">
-                <span class="{{ check.plugin_html.icon }} list-view-pf-icon-sm list-view-pf-icon-{{ check.plugin_html.hclass }}"></span><span class="badge badge-{{ check.priority_class }}">{{ check.priority_text }}</span>
-            </div>
-            <!-- /list-view-pf-left -->
-            <div class="list-view-pf-body">
-                <div class="list-view-pf-description">
-                    <div class="list-group-item-heading">
-                        <div class="clearfix">
-                            <div class="col-sm-1">
-                                {{ check.plugin_name|capitalize() }}
-                            </div>
+                <div class="list-group-item" data-priority="{{ check.priority }}" data-state="{{ check.plugin_html.state }}" data-name="{{ check.plugin_name }}" data-categories="{{ check.all_categories |join(',') }}" id="plugin-{{ check.id }}">
+                    <textarea class="plugin-error" style="display: none;">'{{ check.result_err }}'</textarea>
+                    <div class="list-group-item-header">
+                        <div class="list-view-pf-expand">
+                            <span class="fa fa-angle-right"></span>
                         </div>
+                        <!-- /list-view-pf-expand -->
+                        <div class="list-view-pf-main-info">
+                            <div class="list-view-pf-left">
+                                <span class="{{ check.plugin_html.icon }} list-view-pf-icon-sm list-view-pf-icon-{{ check.plugin_html.hclass }}"></span><span class="badge badge-{{ check.priority_class }}">{{ check.priority_text }}</span>
+                            </div>
+                            <!-- /list-view-pf-left -->
+                            <div class="list-view-pf-body">
+                                <div class="list-view-pf-description">
+                                    <div class="list-group-item-heading">
+                                        <div class="clearfix">
+                                            <div class="col-sm-1">
+                                                {{ check.plugin_name|capitalize() }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- /list-group-item-heading -->
+                                    <div class="list-group-item-text pull-left">{{ check.description }}</div>
+                                </div>
+                                <!-- /list-view-pf-description -->
+                                <div class="list-view-pf-additional-info-item" style="width: 25%">
+                                    <span class="pficon pficon-replicator"></span> {% for c in check.all_categories %}
+                                    <a href="#" data-category="{{ c }}" class="badge badge-primary nx-badge-category">{{ c }}</a> {% endfor %}
+                                </div>
+                                <!-- /list-view-pf-additional-info-item -->
+                            </div>
+                            <!-- /list-view-pf-body -->
+                        </div>
+                        <!-- /list-view-pf-main-info -->
                     </div>
-                    <!-- /list-group-item-heading -->
-                    <div class="list-group-item-text pull-left">{{ check.description }}</div>
+                    <!-- /list-group-item-header -->
+                    <div class="list-group-item-container container-fluid hidden">
+                        <div class="close">
+                            <span class="pficon pficon-close"></span>
+                        </div>
+                        <!-- /close -->
+                        <div class="clearfix">
+                            <div class="col-md-9">
+                                <dl class="dl-horizontal">
+                                    <dt>Description</dt>
+                                    <dd>{{ check.description }}</dd>
+                                    <dt>Plugin Execution Time</dt>
+                                    <dd>{{ check.execution_time }}</dd>
+                                    <dt>Backend</dt>
+                                    <dd>{{ check.backend }}</dd>
+                                    <dt>State</dt>
+                                    <dd><span class="badge badge-{{ config['PLUGIN_STATES'][check.global_rc][" hclass "] }}">{{ config['PLUGIN_STATES'][check.global_rc]["state"] }}</span></dd>
+                                    <dt>Priority</dt>
+                                    <dd><span class="badge badge-{{ check.priority_class }}">{{ check.priority_text }}</span></dd>
+                                    <dt>Bugzilla</dt> {% if check.bug_id %}
+                                        <dd><a href="{{ check.bugzilla }}" target="_blank"><span class="badge badge-danger">{{ check.bug_id }}</span></a></dd>
+                                    {% else %}
+                                        <dd>N/A</dd>
+                                    {% endif %}
+                
+                                    <dt>Out</dt>
+                                    <dd>
+                                    {% for result in check.check_results %}
+                                        <span class="badge badge-{{ config['PLUGIN_STATES'][result.result_rc][" hclass "] }}">{{ config['PLUGIN_STATES'][result.result_rc]["state"] }}</span> {{ result.hostname }}<br> {% if result.result_out|length > 0 %}
+                                        <pre>{{ result.result_out|urlize(40, true) }}</pre> {% else %} N/A
+                                        <br> {% endif %} {% endfor %}
+                                    </dd>
+                
+                                    <dt>Error</dt>
+                                    <dd>
+                                    {% for result in check.check_results %}
+                                        <span class="badge badge-{{ config['PLUGIN_STATES'][result.result_rc][" hclass "] }}">{{ config['PLUGIN_STATES'][result.result_rc]["state"] }}</span> {{ result.hostname }}<br> {% if result.result_err|length > 0 %}
+                                        <pre>{{ result.result_err|urlize(40, true) }}</pre> {% else %} N/A
+                                        <br> {% endif %} {% endfor %}
+                                    </dd>
+                                </dl>
+                                <p>
+                                </p>
+                                <!-- /p -->
+                            </div>
+                            <!-- /col-md-9 -->
+                            <div class="col-md-3">
+                                <a href="#plugin-{{ check.id }}"><span class="fa fa-link"></span> Direct Link</a><br>
+                                <a href="{{ check.plugin_path|replace('/git/citellus/', config['GITHUB_ROOT']) }}" class="code-link" target="_blank"><span class="fa fa-code-fork"></span> Under the hood</a>
+                            </div>
+                            <!-- /col-md-3 -->
+                        </div>
+                        <!-- /row -->
+                    </div>
+                    <!-- /list-group-item-container -->
                 </div>
-                <!-- /list-view-pf-description -->
-                <div class="list-view-pf-additional-info-item" style="width: 25%">
-                    <span class="pficon pficon-replicator"></span> {% for c in check.all_categories %}
-                    <a href="#" data-category="{{ c }}" class="badge badge-primary category-badge">{{ c }}</a> {% endfor %}
-                </div>
-                <!-- /list-view-pf-additional-info-item -->
-            </div>
-            <!-- /list-view-pf-body -->
-        </div>
-        <!-- /list-view-pf-main-info -->
-    </div>
-    <!-- /list-group-item-header -->
-    <div class="list-group-item-container container-fluid hidden">
-        <div class="close">
-            <span class="pficon pficon-close"></span>
-        </div>
-        <!-- /close -->
-        <div class="clearfix">
-            <div class="col-md-9">
-                <dl class="dl-horizontal">
-                    <dt>Description</dt>
-                    <dd>{{ check.description }}</dd>
-                    <dt>Plugin Execution Time</dt>
-                    <dd>{{ check.execution_time }}</dd>
-                    <dt>Backend</dt>
-                    <dd>{{ check.backend }}</dd>
-                    <dt>State</dt>
-                    <dd><span class="badge badge-{{ config['PLUGIN_STATES'][check.global_rc][" hclass "] }}">{{ config['PLUGIN_STATES'][check.global_rc]["state"] }}</span></dd>
-                    <dt>Priority</dt>
-                    <dd><span class="badge badge-{{ check.priority_class }}">{{ check.priority_text }}</span></dd>
-                    <dt>Bugzilla</dt> {% if check.bug_id %}
-                        <dd><a href="{{ check.bugzilla }}" target="_blank"><span class="badge badge-danger">{{ check.bug_id }}</span></a></dd>
-                    {% else %}
-                        <dd>N/A</dd>
-                    {% endif %}
-
-                    <dt>Out</dt>
-                    <dd>
-                    {% for result in check.check_results %}
-                        <span class="badge badge-{{ config['PLUGIN_STATES'][result.result_rc][" hclass "] }}">{{ config['PLUGIN_STATES'][result.result_rc]["state"] }}</span> {{ result.hostname }}<br> {% if result.result_out|length > 0 %}
-                        <pre>{{ result.result_out|urlize(40, true) }}</pre> {% else %} N/A
-                        <br> {% endif %} {% endfor %}
-                    </dd>
-
-                    <dt>Error</dt>
-                    <dd>
-                    {% for result in check.check_results %}
-                        <span class="badge badge-{{ config['PLUGIN_STATES'][result.result_rc][" hclass "] }}">{{ config['PLUGIN_STATES'][result.result_rc]["state"] }}</span> {{ result.hostname }}<br> {% if result.result_err|length > 0 %}
-                        <pre>{{ result.result_err|urlize(40, true) }}</pre> {% else %} N/A
-                        <br> {% endif %} {% endfor %}
-                    </dd>
-                </dl>
-                <p>
-                </p>
-                <!-- /p -->
-            </div>
-            <!-- /col-md-9 -->
-            <div class="col-md-3">
-                <a href="#plugin-{{ check.id }}"><span class="fa fa-link"></span> Direct Link</a><br>
-                <a href="{{ check.plugin_path|replace('/git/citellus/', config['GITHUB_ROOT']) }}" class="code-link" target="_blank"><span class="fa fa-code-fork"></span> Under the hood</a>
-            </div>
-            <!-- /col-md-3 -->
-        </div>
-        <!-- /row -->
-    </div>
-    <!-- /list-group-item-container -->
-</div>
-<!-- /list-group-item -->
+                <!-- /list-group-item -->

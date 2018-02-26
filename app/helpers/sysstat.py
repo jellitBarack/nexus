@@ -1,3 +1,11 @@
+"""
+Disclaimer: This class is ugly and needs to be rewritten. If you 
+            look at this class for too long, you can start having
+            nightmares, epilepsy or something.
+            I am not responsible if something bad happens.
+
+"""
+
 import re
 import os
 import json
@@ -99,11 +107,11 @@ class sysstat:
                                     'filedate': h["date"]
                                 })
         else:
-            raise Exception("Invalid folder: " + folder)
+            return []
         if len(matching_files) == 0:
             return []
-
         return sorted(matching_files, key=lambda k: k["filedate"])
+
     @staticmethod
     def pd_get_stats(stat):
         logging.debug(stat)
