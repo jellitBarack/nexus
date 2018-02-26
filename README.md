@@ -58,6 +58,7 @@ WSGIScriptAlias /nexus /var/www/nexus/run.py
 Make a copy and edit `instance/config.py`. 
 * You need to create Credentials on [Google API Console](https://console.developers.google.com/apis)
 * You need to setup a MySQL DB. Here's a docker command:
+
 ```
 docker network create --subnet=172.18.0.0/16 net-db
 docker run \

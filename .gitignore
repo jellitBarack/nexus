@@ -19,3 +19,4 @@ __pycache__
 *.po
 .cache
 *~
+app/helpers/test.py
