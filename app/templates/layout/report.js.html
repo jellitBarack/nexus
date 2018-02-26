@@ -1,8 +1,8 @@
 <script>
     var ft_min_char = 3;
     // function to either check or uncheck all categories
-    function checkAllCat(checked) {
-        $(".nx-check-category").each(function(i, j) {
+    function checkAllCat(checked, type) {
+        $(".nx-type-" + type).each(function(i, j) {
             $(this).prop("checked", checked);
         });
         $(".nx-modal-checkall").prop("checked", checked);
@@ -12,6 +12,7 @@
     $(document).ready(function() {
         // Default sort
         sortItems("priority");
+
         // Detect if someone passed href
         // And srolls/expan check results
         if (window.location.hash.substr(1)) {
@@ -38,14 +39,16 @@
         // listener when the user checks or uncheck the "All categories"
         $("body").on("change", ".nx-modal-checkall", function() {
             var cb = $(this);
-            checkAllCat(cb.prop("checked"));
+            var type = cb.data("type")
+            checkAllCat(cb.prop("checked"), type);
         });
         
         // listener when someone is clicking on a badge in an expanded card
-        $("body").on("click", ".category-badge", function() {
+        $("body").on("click", ".nx-badge-category", function() {
             var cat = $(this).data("category");
-            checkAllCat(false);
-            $("#cb_cat_" + cat).prop("checked", true).change();
+            warnMessage("success", "Showing only " + cat + ", click on the Include button to add the other categories")
+            checkAllCat(false, "Include");
+            $("#nx-cb-cat-" + cat).prop("checked", true).change();
         });
 
         // click the list-view heading then expand a row
@@ -59,6 +62,11 @@
         $("body").on("click", ".list-group-item-container .close", function() {
             $(this).parent().addClass("hidden").parent().removeClass("list-view-pf-expand-active").find(".fa-angle-right").removeClass("fa-angle-down");
         })
+
+        $("body").on("click", ".nx-debug-report-btn", function(e) {
+            e.preventDefault()
+            $(".nx-debug-report").toggle()
+        });
 
         filterCards()
     }); // doc ready

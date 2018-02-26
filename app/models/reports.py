@@ -1,7 +1,6 @@
 import datetime
 import hashlib
 import re
-import logging
 import os
 
 from subprocess import check_output, CalledProcessError
@@ -76,14 +75,14 @@ class Report(db.Model):
             out = ""
         self.machine_id = out.rstrip()
 
-    def get__machine_name(self):
+    def get_machine_name(self):
         """
         Read /etc/hostname
         :return: hostname
         """
         try: 
              out = open(self.path + '/etc/hostname', 'r').readline()
-        except CalledProcessError:
+        except IOError:
             out = str(self.fullpath.split("/")[-2])
         self.name = out.rstrip()
  

@@ -73,12 +73,12 @@ def search(case=None):
             report_list = find_reports(casepath, case)
             report_delete = []
             for report in report_list:
-                logging.debug("Parsing report %s", report)
-                report = add_report(report)
+                add_report(report)
                 if report.changed is True:
                     report_delete.append(report.id)
 
-            # To make things faster, we need to bulk delete
+            # To make things faster, we need to bulk delete the 
+            # checks for the reports that have changed.
             if len(report_delete) > 0:
                 logging.debug("Deleting reports %s", report_delete)
                 Check.query.filter(Check.report_id.in_(report_delete)).delete(synchronize_session=False)
@@ -86,17 +86,17 @@ def search(case=None):
             for report in report_list:
                 loop_checks(report)
                 count = count_checks(report.id)
-                logging.debug("Parsed report")
+                logging.debug("Parsed report: %s", report)
                 # add report to the web interface
+                report.icon = "cog"
                 if report.source == "magui":
                     report.icon = "microchip"
-                else:
-                    report.icon = "cog"
                 report.setattrs(
                                 checks_total = count["total"],
                                 checks_fail = count[current_app.config["RC_FAILED"]], 
                                 checks_skip = count[current_app.config["RC_SKIPPED"]], 
                                 checks_okay = count[current_app.config["RC_OKAY"]])
+                report.hr_size = report.get_hr_size()
     
         return render_template('cases/search.html', form = form, casenum = case, report_list = report_list)
     # There was an error with the form submission

@@ -105,6 +105,7 @@
             </div>
         </nav>
         <!--/navbar-->
+        <div class="spinner spinner-lg nx-loader" style="display: none"></div>
         <div class="container-fluid">
             {% include 'layout/flash.html' %}
             <ol class="breadcrumb">
@@ -121,42 +122,44 @@
         <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
         <script src="{{ url_for('static', filename='js/patternfly.min.js') }}"></script>
         <script>
+            var ft_min_char = 3;
             var citellus_rc = []
-citellus_rc["RC_OKAY"] = $("body").data("okay")
-citellus_rc["RC_SKIPPED"] = $("body").data("skipped")
-citellus_rc["RC_FAILED"] = $("body").data("failed")
+            citellus_rc["RC_OKAY"] = $("body").data("okay")
+            citellus_rc["RC_SKIPPED"] = $("body").data("skipped")
+            citellus_rc["RC_FAILED"] = $("body").data("failed")
 
-$(document).ready(function() {
-    $().setupVerticalNavigation(true);
-});
-
-function warnMessage(level, m) {
-    var html = '<div class="alert alert-' + level + ' alert-dismissable" role="alert">'
-    html += '<button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span class="pficon pficon-close"></span></button>';
-    if (level == "danger") html += '<span class="pficon pficon-error-circle-o"></span>'
-    if (level == "warning") html += '<span class="pficon pficon-warning-triangle-o"></span>'
-    if (level == "success") html += '<span class="pficon pficon-ok"></span>'
-    html += '<strong>' + level + '</strong> ' + m;
-    html += '</div>';
-    $("#alert_list").append(html);
-}
-$(document).ajaxError(function myErrorHandler(event, jqXHR, ajaxOptions, thrownError) {
-    if (jqXHR.status === 0) {
-        warnMessage("danger", "Unable to get JSON file. [0]");
-    } else if (jqXHR.status == 404) {
-        warnMessage("danger", "File not found. [404]");
-    } else if (jqXHR.status == 500) {
-        warnMessage("danger", "Internal Server Error [500].");
-    } else if (thrownError === "parsererror") {
-        warnMessage("danger", "Requested JSON parse failed.");
-    } else if (thrownError === "timeout") {
-        warnMessage("danger", "Time out error.");
-    } else if (thrownError === "abort") {
-        warnMessage("danger", "Ajax request aborted.");
-    } else {
-        warnMessage("danger", "Uncaught Error.\n" + jqXHR.responseText);
-    }
-});
+            // Display loading div when ajax calls are executed
+            function warnMessage(level, m) {
+                var html = '<div class="alert alert-' + level + ' alert-dismissable" role="alert">'
+                html += '<button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span class="pficon pficon-close"></span></button>';
+                if (level == "danger") html += '<span class="pficon pficon-error-circle-o"></span>'
+                if (level == "warning") html += '<span class="pficon pficon-warning-triangle-o"></span>'
+                if (level == "success") html += '<span class="pficon pficon-ok"></span>'
+                html += m;
+                html += '</div>';
+                $("#alert_list").append(html);
+            }
+            $(document).ajaxError(function myErrorHandler(event, jqXHR, ajaxOptions, thrownError) {
+                if (jqXHR.status === 0) {
+                    warnMessage("danger", "Unable to get JSON file. [0]");
+                } else if (jqXHR.status == 404) {
+                    warnMessage("danger", "File not found. [404]");
+                } else if (jqXHR.status == 500) {
+                    warnMessage("danger", "Internal Server Error [500].");
+                } else if (thrownError === "parsererror") {
+                    warnMessage("danger", "Requested JSON parse failed.");
+                } else if (thrownError === "timeout") {
+                    warnMessage("danger", "Time out error.");
+                } else if (thrownError === "abort") {
+                    warnMessage("danger", "Ajax request aborted.");
+                } else {
+                    warnMessage("danger", "Uncaught Error.\n" + jqXHR.responseText);
+                }
+            }).ajaxStart(function() {
+                $('.nx-loader').show(); 
+            }).ajaxStop(function(){   
+                $('.nx-loader').hide(); 
+           });
         </script>
         {% block javascript %}
         {% endblock %}

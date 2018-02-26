@@ -2,7 +2,7 @@
     <div class="list-group list-view-pf list-view-pf-view nx-list-group">
         {% for check in report.checks %} 
             {% with check=check %} 
-                {% include "checks/show.html" %} 
+{% include "checks/show.html" %} 
             {% endwith %} 
         {% endfor %}
     </div>

@@ -10,7 +10,7 @@
                 <div class="form-group toolbar-pf-filter">
                     <label class="sr-only" for="filter">Name</label>
                     <div class="input-group">
-                        <input type="text" class="form-control nx-filter-text" placeholder="Filter...">
+                        <input type="text" class="form-control nx-filter-text" data-type="checks" placeholder="Filter...">
                     </div>
                     <!-- /input-group -->
                 </div>
@@ -25,8 +25,8 @@
                         </ul>
                     </div>
                     <!-- /dropdown btn-group -->
-                    <button class="btn btn-link" type="button">
-                        <span data-direction="desc" class="fa fa-sort-amount-desc nx-sort-direction"></span>
+                    <button class="btn btn-link nx-sort-direction" data-direction="desc" type="button">
+                        <span class="fa fa-sort-amount-desc"></span>
                     </button>
                     <input type="hidden" class="nx-filter-status-btn" value="all">
                     <div class="btn-group" role="group" aria-label="Status Filters">
@@ -38,20 +38,20 @@
                     <!-- /btn-group -->
                 </div>
                 <!-- /form-group -->
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#nx-modal-Exclude">Include</button>
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#nx-modal-Include">Include</button>
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#nx-modal-Exclude">Exclude</button>
-                <button type="button" class="btn btn-secondary" id="expandAll">Toggle All</button> 
+                <button type="button" class="btn btn-secondary nx-toggle-all">Toggle All</button> 
             </form>
         </div><!-- /col-->
     </div><!-- /row toolbar-pf -->
     <div class="clearfix toolbar-pf-results">
         <div class="col-sm-12">
-            <h5><span class="nx-num-results"></span> Results</h5>
+            <h5><span class="nx-num-results"></span> check(s)</h5>
         </div>
         <!-- /col -->
     </div>
     <!-- /row -->
-
+    {% include "reports/list.html" %} 
     {{ rdata.create_modal("Include", categories, True) }}
     {{ rdata.create_modal("Exclude", categories, False) }}
 {% endblock %} 
@@ -59,6 +59,6 @@
     {{ rdata.meta_table_js() }}
     {% include "layout/toolbar.html" %}
     {% include "layout/report.js.html" %}
-    <a href="#" class="nx-debug-switch">Debug</a>
+    <a href="#" class="nx-debug-report-btn">Debug</a>
     <div id="nx-debug-report" style="display:none"><pre>{{ report|pprint }}</pre></div>
-{% endblock %}
+    {% endblock %}

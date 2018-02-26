@@ -57,7 +57,7 @@ def loop_checks(report):
     # looping through the plugin results
     # magui is returning a list, while citellus returns a dict
     # converting magui to a dict
-    logging.debug(report)
+    logging.debug("Checks: %s", report)
     if report.source == "magui":
         logging.debug("This is magui")
         md = {}
