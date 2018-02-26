@@ -38,17 +38,19 @@ class Report(db.Model):
     checks = db.relationship("Check", back_populates="report")
     name = db.Column(db.String(100))
     sarfiles = ""
+    changed = False
+    results = {}
     def __init__(self, **kwargs):
         super(Report, self).__init__(**kwargs)
         try:
            self.fullpath = kwargs.pop('fullpath')
         except KeyError:
            return
-        report_name = "/".join(self.fullpath.split("/")[-2:])
+        split_path = self.fullpath.split("/")
         self.id = self.generate_id(self.fullpath)
         self.path = os.path.dirname(os.path.abspath(self.fullpath))
-        self.name = "/".join(self.fullpath.split("/")[-2:]),
         self.get_machine_id()
+        self.get_machine_name()
         self.get_collect_time()
 
     def setattrs(self, **kwargs):
@@ -73,6 +75,18 @@ class Report(db.Model):
         except CalledProcessError:
             out = ""
         self.machine_id = out.rstrip()
+
+    def get__machine_name(self):
+        """
+        Read /etc/hostname
+        :return: hostname
+        """
+        try: 
+             out = open(self.path + '/etc/hostname', 'r').readline()
+        except CalledProcessError:
+            out = str(self.fullpath.split("/")[-2])
+        self.name = out.rstrip()
+ 
 
     def get_report_size(self):
         """

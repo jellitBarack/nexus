@@ -127,22 +127,24 @@
                 $('.list-view-pf-checkbox input:checked').each(function() {
                     reports.push($(this).data("report-id"));
                 })
-                if (reports.length < 2) {
-                    warnMessage("warning", "You must choose at least 2 reports to compare")
-                    return;
-                } else {
-                    reports_json = JSON.stringify(reports)
-                    $.ajax({
-                        type: "POST",
-                        data: reports_json,
-                        contentType: "application/json; charset=utf-8",
-                        dataType: "json",
-                        url: "{{ url_for('cases.compare') }}",
-                        success: function(msg) {
-                            warnMessage(msg.status, msg.msg)
-                        }
-                    });
-                }
+                if ($(this).html() == "Compare") {
+                     if (reports.length < 2) {
+                         warnMessage("warning", "You must choose at least 2 reports to compare")
+                         return;
+                     } else {
+                         reports_json = JSON.stringify(reports)
+                         $.ajax({
+                             type: "POST",
+                             data: reports_json,
+                             contentType: "application/json; charset=utf-8",
+                             dataType: "json",
+                             url: "{{ url_for('cases.compare') }}",
+                             success: function(msg) {
+                                 warnMessage(msg.status, msg.msg)
+                             }
+                         });
+                     }
+                } 
             })
         });
     </script>

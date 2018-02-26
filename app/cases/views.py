@@ -71,10 +71,20 @@ def search(case=None):
         else:
             logging.debug("Finding reports")
             report_list = find_reports(casepath, case)
+            report_delete = []
             for report in report_list:
                 logging.debug("Parsing report %s", report)
-                report, results, report_changed = add_report(report)
-                loop_checks(report, results, report_changed)
+                report = add_report(report)
+                if report.changed is True:
+                    report_delete.append(report.id)
+
+            # To make things faster, we need to bulk delete
+            if len(report_delete) > 0:
+                logging.debug("Deleting reports %s", report_delete)
+                Check.query.filter(Check.report_id.in_(report_delete)).delete(synchronize_session=False)
+
+            for report in report_list:
+                loop_checks(report)
                 count = count_checks(report.id)
                 logging.debug("Parsed report")
                 # add report to the web interface
@@ -88,7 +98,7 @@ def search(case=None):
                                 checks_skip = count[current_app.config["RC_SKIPPED"]], 
                                 checks_okay = count[current_app.config["RC_OKAY"]])
     
-        return render_template('cases/search.html', form=form, casenum = case, report_list = report_list)
+        return render_template('cases/search.html', form = form, casenum = case, report_list = report_list)
     # There was an error with the form submission
     elif request.method == "POST":
         flash_errors(form)
@@ -127,10 +137,6 @@ def find_reports(path, case):
             del dirs[:]
 
     return report_list
- 
-
-
-
     
 @cases.route('/compare', methods=['POST','GET'])
 @login_required
