@@ -17,22 +17,23 @@ from app.helpers.blockinfo import Blocks, Blockinfo
 def display_health(report_id):
     report = Report.query.get(report_id)
     return render_template('health/show.html', report=report,
-                           #cpuinfo = cpuinfo.get_all_ratios(),
-                           #meminfo = meminfo,
-                           #mem_used = meminfo.ratio_mem_used(),
-                           #hugepages_used = meminfo.ratio_hugepages_used(),
-                           #swap_used = meminfo.ratio_swap_used(),
-                           #io = blockinfo.get_list_io(),
-                           #blocks = blockinfo.get_list_block(),
-                           #inodes = blockinfo.get_list_inode()
-                          )
+                           # cpuinfo = cpuinfo.get_all_ratios(),
+                           # meminfo = meminfo,
+                           # mem_used = meminfo.ratio_mem_used(),
+                           # hugepages_used = meminfo.ratio_hugepages_used(),
+                           # swap_used = meminfo.ratio_swap_used(),
+                           # io = blockinfo.get_list_io(),
+                           # blocks = blockinfo.get_list_block(),
+                           # inodes = blockinfo.get_list_inode()
+                           )
 
 
 # placeholder route to allow the creation of /health/ url
 @health.route('/', methods=['GET'])
 @login_required
 def index():
-    return  render_template('layout/not-ready.html')
+    return render_template('layout/not-ready.html')
+
 
 def get_data(report_id):
     report = Report.query.get(report_id)
@@ -40,12 +41,14 @@ def get_data(report_id):
         abort(404)
     return report
 
+
 @health.route('/<report_id>/cpu_summary', methods=['GET'])
 @login_required
 def get_cpu_summary(report_id):
     report = get_data(report_id)
     cpuinfo = Cpuinfo(report)
     return jsonify(cpuinfo.get_all_ratios())
+
 
 @health.route('/<report_id>/mem_summary', methods=['GET'])
 @login_required
@@ -56,10 +59,11 @@ def get_mem_summary(report_id):
     swap_used = round(meminfo.ratio_swap_used(), 2)
     hugepages_used = round(meminfo.ratio_hugepages_used(), 2)
     return jsonify({
-            "labels": ["Memory", "Swap", "HugePages" ],
-            "free": [100 - memory_used, 100 - swap_used, 100 - hugepages_used],
-            "used": [ memory_used, swap_used, hugepages_used]
+        "labels": ["Memory", "Swap", "HugePages"],
+        "free": [100 - memory_used, 100 - swap_used, 100 - hugepages_used],
+        "used": [memory_used, swap_used, hugepages_used]
     })
+
 
 @health.route('/<report_id>/mem_details', methods=['GET'])
 @login_required
@@ -67,23 +71,22 @@ def get_mem_details(report_id):
     report = get_data(report_id)
     meminfo = Meminfo(report)
     meminfo.get()
-    return jsonify([{"name": "Memory Available", 
-                "value": meminfo.MemFree + meminfo.Buffers + meminfo.Cached + meminfo.Dirty + meminfo.AnonPages + meminfo.Slab + meminfo.VmallocUsed,
-                "children": [
-                     {"name": "MemFree", "value": meminfo.MemFree}, 
-                     {"name": "Buffers", "value": meminfo.Buffers}, 
-                     {"name": "Cached", "value": meminfo.Cached},
-                     {"name": "Dirty", "value": meminfo.Dirty},
-                     {"name": "AnonPages", "value": meminfo.AnonPages},
-                     {"name": "Slab", "value": meminfo.Slab}, 
-                     {"name": "VmallocUsed", "value": meminfo.VmallocUsed},
-                ]},
-                {"name": "HugePages", "value": meminfo.HugePages_Total * meminfo.Hugepagesize,
-                 "children": [
-                     {"name": "Free", "value": meminfo.HugePages_Free * meminfo.Hugepagesize},
-                     {"name": "Reserved", "value": meminfo.HugePages_Rsvd * meminfo.Hugepagesize},
-                     {"name": "Surplus", "value": meminfo.HugePages_Surp * meminfo.Hugepagesize}
-                 ]}])
+    return jsonify([{"name": "Memory Available",
+                     "value": meminfo.MemFree + meminfo.Buffers + meminfo.Cached + meminfo.Dirty + meminfo.AnonPages + meminfo.Slab + meminfo.VmallocUsed,
+                     "children": [{"name": "MemFree", "value": meminfo.MemFree},
+                                  {"name": "Buffers", "value": meminfo.Buffers},
+                                  {"name": "Cached", "value": meminfo.Cached},
+                                  {"name": "Dirty", "value": meminfo.Dirty},
+                                  {"name": "AnonPages", "value": meminfo.AnonPages},
+                                  {"name": "Slab", "value": meminfo.Slab},
+                                  {"name": "VmallocUsed", "value": meminfo.VmallocUsed}]
+                     },
+                    {"name": "HugePages", "value": meminfo.HugePages_Total * meminfo.Hugepagesize,
+                     "children": [{"name": "Free", "value": meminfo.HugePages_Free * meminfo.Hugepagesize},
+                                  {"name": "Reserved", "value": meminfo.HugePages_Rsvd * meminfo.Hugepagesize},
+                                  {"name": "Surplus", "value": meminfo.HugePages_Surp * meminfo.Hugepagesize}]
+                     }])
+
 
 @health.route('/<report_id>/blocks_io', methods=['GET'])
 @login_required
@@ -93,7 +96,7 @@ def get_blocks_io(report_id):
     blocks.list_io()
     out = []
     for o in blocks.data_table:
-        out.append(blocks.data_table[o]["io"].dump()) 
+        out.append(blocks.data_table[o]["io"].dump())
     return jsonify(out)
 
 
@@ -106,10 +109,11 @@ def get_blocks_space(report_id):
     out = []
     for o in blocks.data_table:
         try:
-            out.append(blocks.data_table[o]["block"].dump()) 
+            out.append(blocks.data_table[o]["block"].dump())
         except KeyError:
             logging.debug(blocks.data_table[o])
     return jsonify(out)
+
 
 @health.route('/<report_id>/blocks_inode', methods=['GET'])
 @login_required
@@ -120,7 +124,7 @@ def get_blocks_inode(report_id):
     out = []
     for o in blocks.data_table:
         try:
-            out.append(blocks.data_table[o]["inode"].dump()) 
+            out.append(blocks.data_table[o]["inode"].dump())
         except KeyError:
             logging.debug(blocks.data_table[o])
     return jsonify(out)
