@@ -1,0 +1,12 @@
+{% extends "layout/base.html" %} 
+{% set active_page = "cases" %} 
+{% block title %}Cases{% endblock %} 
+{% block body %} 
+    <h1>Case Not found</h1>
+    This case is not found (404). 
+    <ul>
+        <li><a href="{{ url_for('cases.yank', case = casenum, force = "True") }}">Yank it.</a></li>
+        <li><a href="{{ config["CRM_CASE_URL"] }}{{ casenum }}" target="_blank">Salesforce</li>
+    </ul>
+
+{% endblock %} 
