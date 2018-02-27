@@ -2,11 +2,18 @@
 {% set active_page = "cases" %} 
 {% block title %}Cases{% endblock %} 
 {% block body %} 
-    <h1>Case Not found</h1>
-    This case is not found (404). 
-    <ul>
-        <li><a href="{{ url_for('cases.yank', case = casenum, force = "True") }}">Yank it.</a></li>
-        <li><a href="{{ config["CRM_CASE_URL"] }}{{ casenum }}" target="_blank">Salesforce</li>
-    </ul>
+    <div class="row row-cards-pf">
+        <div class="col-md-4 col-md-offset-4">
+            <div class="card-pf card-pf-accented card-pf-aggregate-status">
+                <h2 class="card-pf-title">
+                    <span class="fa fa-question-circle"></span> Case not found
+                </h2>
+                <div class="card-pf-body">
+                    <a href="{{ url_for('cases.yank', case = casenum, force = "True") }}" class="btn btn-success nx-btn-yank">Yank</a>
+                    <a href="{{ config["CRM_CASE_URL"] }}{{ casenum }}" target="_blank" class="btn btn-primary nx-btn-crm">Salesforce</a>
+                </div>
+            </div>
+        </div>
+    </div>
 
 {% endblock %} 
