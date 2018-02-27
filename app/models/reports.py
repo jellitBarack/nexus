@@ -2,8 +2,10 @@ import datetime
 import hashlib
 import re
 import os
+import logging
 
 from subprocess import check_output, CalledProcessError
+from dateutil.parser import *
 
 from app import db
 
@@ -114,14 +116,13 @@ class Report(db.Model):
 
     def get_collect_time(self):
         """
-        Get the report collection time
+        Get the report collection time from the /date file in the report
         :return datetime about the date of the report
         """
         try:
             with open(self.path + '/date', "r") as f:
                 date = f.readlines()
-            cdate = datetime.datetime.strptime(re.sub(' +',' ',date[0]),
-                                                '%a %b %d %H:%M:%S %Z %Y\n')
+            cdate = parse(date[0])
         except:
             cdate = datetime.datetime.now()
         self.collect_time = cdate
