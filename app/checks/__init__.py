@@ -15,9 +15,10 @@ checks = Blueprint('checks', __name__)
 checks.config = {}
 global current_app
 
+
 @checks.record
 def setup(state):
-    # Tried to load citellusclient but it doesn't work, 
+    # Tried to load citellusclient but it doesn't work,
     #  ImportError: No module named citellusclient
     global citellus
     global current_app
@@ -26,7 +27,7 @@ def setup(state):
     # from citellusclient import shell as citellus
 
 
-# Sometimes it's results, some other time it's result, 
+# Sometimes it's results, some other time it's result,
 # depending if called from magui or citellus
 def result_string(c):
     if "results" in c:
@@ -103,7 +104,7 @@ def loop_checks(report):
 
                     # Restructuring the data
                     new_results = generate_result_list(host, original_results[host], report)
-                
+
                 # All hosts have skipped?
                 if hostcount[current_app.config["RC_SKIPPED"]] == len(original_results):
                     global_rc = current_app.config["RC_SKIPPED"]
@@ -116,7 +117,7 @@ def loop_checks(report):
                     # We append the object to a list so we can do a mass insert later
                     checks_to_db.append(check_obj)
                     results_to_db.extend(result_obj)
-        
+
         else:
             # It's easier to support magui if we convert regular citellus reports with the same
             # Data structure as magui. So let's do this
@@ -135,6 +136,7 @@ def loop_checks(report):
         db.session.bulk_save_objects(checks_to_db)
         db.session.bulk_save_objects(results_to_db)
         db.session.commit()
+
 
 def generate_result_list(hostname, items, report):
     o = defaultdict(dict)
