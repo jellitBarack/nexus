@@ -9,7 +9,7 @@ class CheckResult(db.Model):
     __tablename__ = 'check_results'
 
     id = db.Column(db.String(32), primary_key=True)
-    check_id = db.Column(db.String(32), db.ForeignKey('reports_checks.id', ondelete='CASCADE'))
+    check_id = db.Column(db.String(32), db.ForeignKey('report_checks.id', ondelete='CASCADE'))
     check = db.relationship("Check", back_populates="check_results")
     hostname = db.Column(db.String(100))
     result_rc = db.Column(db.SmallInteger)

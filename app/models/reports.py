@@ -13,15 +13,15 @@ class Report(db.Model):
     """
     Reports metadata
     """
-    __tablename__ = 'reports_metadata'
+    __tablename__ = 'report_metadata'
 
     """
-    ALTER TABLE reports_metadata add column collect_time datetime after live;
-    ALTER TABLE reports_metadata ADD COLUMN machine_id VARCHAR(50)
-    ALTER TABLE reports_metadata ADD COLUMN name VARCHAR(100) after fullpath;
-    ALTER TABLE reports_metadata ADD COLUMN `size` bigint unsigned AFTER path;
-    ALTER TABLE reports_metadata CHANGE COLUMN `when` `analyze_time` datetime after `collect_time`;
-    ALTER TABLE reports_metadata CHANGE COLUMN `execution_time` `analyze_duration` decimal(6,3) after  analyze_time;
+    ALTER TABLE report_metadata add column collect_time datetime after live;
+    ALTER TABLE report_metadata ADD COLUMN machine_id VARCHAR(50)
+    ALTER TABLE report_metadata ADD COLUMN name VARCHAR(100) after fullpath;
+    ALTER TABLE report_metadata ADD COLUMN `size` bigint unsigned AFTER path;
+    ALTER TABLE report_metadata CHANGE COLUMN `when` `analyze_time` datetime after `collect_time`;
+    ALTER TABLE report_metadata CHANGE COLUMN `execution_time` `analyze_duration` decimal(6,3) after  analyze_time;
     """
 
     id = db.Column(db.String(32), primary_key=True)

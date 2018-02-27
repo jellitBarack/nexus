@@ -7,10 +7,10 @@ class Check(db.Model):
     """
     Report plugins
     """
-    __tablename__ = 'reports_checks'
+    __tablename__ = 'report_checks'
 
     id = db.Column(db.String(32), primary_key=True)
-    report_id = db.Column(db.String(32), db.ForeignKey('reports_metadata.id', ondelete='CASCADE'))
+    report_id = db.Column(db.String(32), db.ForeignKey('report_metadata.id', ondelete='CASCADE'))
     report = db.relationship("Report", back_populates="checks" )
     check_results = db.relationship("CheckResult", back_populates="check")
     category = db.Column(db.String(50))
