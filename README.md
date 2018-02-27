@@ -1,3 +1,9 @@
+[![License](https://img.shields.io/github/license/valleedelisle/nexus.svg)](LICENSE)
+[![Build Status](https://travis-ci.org/valleedelisle/nexus.svg?branch=master)](https://travis-ci.org/valleedelisle/nexus)
+[![Coverage Status](https://coveralls.io/repos/github/valleedelisle/nexus/badge.svg?branch=master)](https://coveralls.io/github/valleedelisle/nexus?branch=master)
+[![Release status](https://img.shields.io/github/release/valleedelisle/nexus.svg)](https://github.com/valleedelisle/nexus/releases)
+
+
 # About
 
 This web application is a frontend for the [Citellus](https://github.com/zerodayz/citellus) framework by rcernin
