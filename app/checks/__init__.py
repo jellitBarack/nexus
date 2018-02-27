@@ -11,7 +11,6 @@ from app.models import CheckResult
 from sqlalchemy import func
 
 
-
 checks = Blueprint('checks', __name__)
 checks.config = {}
 global current_app
@@ -24,8 +23,8 @@ def setup(state):
     global current_app
     current_app = state.app
     sys.path.insert(0, state.app.config["CITELLUS_PATH"])
-    #from citellusclient import shell as citellus
-    
+    # from citellusclient import shell as citellus
+
 
 # Sometimes it's results, some other time it's result, 
 # depending if called from magui or citellus
@@ -37,6 +36,7 @@ def result_string(c):
     elif "sosreport" in c:
         result_string = "sosreport"
     return result_string
+
 
 def count_checks(report_id):
     """
@@ -112,10 +112,10 @@ def loop_checks(report):
                 element["global_rc"] = global_rc
                 element["result"] = new_results
                 if report.changed is True:
-                   check_obj, result_obj = add_check(report, element)
-                   # We append the object to a list so we can do a mass insert later
-                   checks_to_db.append(check_obj)
-                   results_to_db.extend(result_obj)
+                    check_obj, result_obj = add_check(report, element)
+                    # We append the object to a list so we can do a mass insert later
+                    checks_to_db.append(check_obj)
+                    results_to_db.extend(result_obj)
         
         else:
             # It's easier to support magui if we convert regular citellus reports with the same
@@ -143,7 +143,7 @@ def generate_result_list(hostname, items, report):
     o["err"][hostname] = items["err"]
     n = o.copy()
     return n
-    
+
 
 def add_check(report, c):
     rs = result_string(c)
@@ -159,27 +159,23 @@ def add_check(report, c):
     if "priority" not in c:
         c["priority"] = 0
     result_list = []
-    check_obj = Check(
-                report_id=report.id,
-                category=c["category"],
-                subcategory=c["subcategory"],
-                description=c["description"],
-                plugin_path=c["plugin"],
-                plugin_id=c["id"],
-                backend=c["backend"],
-                long_name=c["long_name"],
-                bugzilla=c["bugzilla"],
-                priority=c["priority"],
-                global_rc=c["global_rc"],
-                execution_time=round(c["time"],6)
-                )
-        
+    check_obj = Check(report_id=report.id,
+                      category=c["category"],
+                      subcategory=c["subcategory"],
+                      description=c["description"],
+                      plugin_path=c["plugin"],
+                      plugin_id=c["id"],
+                      backend=c["backend"],
+                      long_name=c["long_name"],
+                      bugzilla=c["bugzilla"],
+                      priority=c["priority"],
+                      global_rc=c["global_rc"],
+                      execution_time=round(c["time"], 6))
+
     for hostname in c[rs]["rc"]:
-        result_list.append(CheckResult(
-                check_id = check_obj.id,
-                hostname=hostname,
-                result_rc=c[rs]["rc"][hostname],
-                result_err=c[rs]["err"][hostname],
-                result_out=c[rs]["err"][hostname]
-        ))
+        result_list.append(CheckResult(check_id=check_obj.id,
+                                       hostname=hostname,
+                                       result_rc=c[rs]["rc"][hostname],
+                                       result_err=c[rs]["err"][hostname],
+                                       result_out=c[rs]["err"][hostname]))
     return check_obj, result_list
