@@ -34,7 +34,7 @@ def yank(case, force=None):
     :return: redirect to /cases/caseid
     """
     if force == 'True':
-        command = "/bin/bash /usr/bin/yank --force " + case
+        command = "/bin/bash /usr/bin/yank " + case + "--force "
     else:
         command = "/bin/bash /usr/bin/yank " + case
     try:
