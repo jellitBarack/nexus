@@ -57,9 +57,7 @@ def loop_checks(report):
     # looping through the plugin results
     # magui is returning a list, while citellus returns a dict
     # converting magui to a dict
-    logging.debug("Checks: %s", report)
     if report.source == "magui":
-        logging.debug("This is magui")
         md = {}
         for i in report.results:
             md[i["id"]] = i
@@ -70,7 +68,6 @@ def loop_checks(report):
     results_to_db = []
     # Loop through the results
     for k, c in report.results.iteritems():
-        logging.debug(c)
         # Sometimes the results are stored in result, results or sosreport. Let's guess this
         rs = result_string(c)
         # We need to keep a copy of these results
@@ -149,7 +146,6 @@ def generate_result_list(hostname, items, report):
     
 
 def add_check(report, c):
-    logging.debug(c)
     rs = result_string(c)
     # sometimes bugzilla is not defined
     if "bugzilla" not in c:

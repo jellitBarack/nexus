@@ -61,7 +61,6 @@ def search(case=None):
     if case is not None:
         casepath = "/cases/" + case
         report_list = []
-        logging.debug("Case: %s", case)
         # Folder doesn't exist, let's check the DB
         if os.path.isdir(casepath) is False:
             reports = Report.query.filter(Report.case_id == case).all()
@@ -69,7 +68,6 @@ def search(case=None):
                 count = count_checks(r.id)
             return jsonify(reports)
         else:
-            logging.debug("Finding reports")
             report_list = find_reports(casepath, case)
             report_delete = []
             for report in report_list:
@@ -80,13 +78,11 @@ def search(case=None):
             # To make things faster, we need to bulk delete the 
             # checks for the reports that have changed.
             if len(report_delete) > 0:
-                logging.debug("Deleting reports %s", report_delete)
                 Check.query.filter(Check.report_id.in_(report_delete)).delete(synchronize_session=False)
 
             for report in report_list:
                 loop_checks(report)
                 count = count_checks(report.id)
-                logging.debug("Parsed report: %s", report)
                 # add report to the web interface
                 report.icon = "cog"
                 if report.source == "magui":
