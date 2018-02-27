@@ -80,20 +80,23 @@
                     <li {% if 'trend' == active_page %} class="active" {% endif %}>
                         <a class="nav-item-iconic" href="#">Trends</a>
                     </li>
-                    <li class="dropdown">
-                        <a href="#0" class="dropdown-toggle nav-item-iconic" id="dropdownMenuTools" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                            Tools
-                            <span class="caret"></span>
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuTools">
-                            <li><a href="http://diag-prod.gsslab.rdu2.redhat.com:82/" target="_blank">SOS Differenciator</a></li>
-                            <li><a href="https://quest.gsslab.rdu2.redhat.com/quest?q=search%20kcs&t=true" target="_blank">Quest</a></li>
-                        </ul>
-                    </li>
+                    {% if config["TOOLS_MENU"] is defined %}
+                        <li class="dropdown">
+                            <a href="#0" class="dropdown-toggle nav-item-iconic" id="dropdownMenuTools" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                Tools
+                                <span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuTools">
+                                {% for t in config["TOOLS_MENU"] %}
+                                    <li><a href="{{ config["TOOLS_MENU"][t] }}" target="_blank">{{ t }}</a></li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                    {% endif %}
                     <li>
                         <form class="navbar-form" method="post" action="{{ config['APPLICATION_ROOT'] }}/cases/" role="form">
                             <div class="input-group">
-                                <input type="text" class="form-control" value="{% if report is defined %}{{ report.case_id }}{% endif %}" placeholder="Case number" name="casenum" id="toolbar_casenum">
+                                <input type="search" class="form-control" value="{% if report is defined %}{{ report.case_id }}{% endif %}" placeholder="Case number" name="casenum" id="toolbar_casenum">
                                 <div class="input-group-btn">
                                     <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
                                 </div>
@@ -123,43 +126,43 @@
         <script src="{{ url_for('static', filename='js/patternfly.min.js') }}"></script>
         <script>
             var ft_min_char = 3;
-            var citellus_rc = []
-            citellus_rc["RC_OKAY"] = $("body").data("okay")
-            citellus_rc["RC_SKIPPED"] = $("body").data("skipped")
-            citellus_rc["RC_FAILED"] = $("body").data("failed")
+var citellus_rc = []
+citellus_rc["RC_OKAY"] = $("body").data("okay")
+citellus_rc["RC_SKIPPED"] = $("body").data("skipped")
+citellus_rc["RC_FAILED"] = $("body").data("failed")
 
-            // Display loading div when ajax calls are executed
-            function warnMessage(level, m) {
-                var html = '<div class="alert alert-' + level + ' alert-dismissable" role="alert">'
-                html += '<button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span class="pficon pficon-close"></span></button>';
-                if (level == "danger") html += '<span class="pficon pficon-error-circle-o"></span>'
-                if (level == "warning") html += '<span class="pficon pficon-warning-triangle-o"></span>'
-                if (level == "success") html += '<span class="pficon pficon-ok"></span>'
-                html += m;
-                html += '</div>';
-                $("#alert_list").append(html);
-            }
-            $(document).ajaxError(function myErrorHandler(event, jqXHR, ajaxOptions, thrownError) {
-                if (jqXHR.status === 0) {
-                    warnMessage("danger", "Unable to get JSON file. [0]");
-                } else if (jqXHR.status == 404) {
-                    warnMessage("danger", "File not found. [404]");
-                } else if (jqXHR.status == 500) {
-                    warnMessage("danger", "Internal Server Error [500].");
-                } else if (thrownError === "parsererror") {
-                    warnMessage("danger", "Requested JSON parse failed.");
-                } else if (thrownError === "timeout") {
-                    warnMessage("danger", "Time out error.");
-                } else if (thrownError === "abort") {
-                    warnMessage("danger", "Ajax request aborted.");
-                } else {
-                    warnMessage("danger", "Uncaught Error.\n" + jqXHR.responseText);
-                }
-            }).ajaxStart(function() {
-                $('.nx-loader').show(); 
-            }).ajaxStop(function(){   
-                $('.nx-loader').hide(); 
-           });
+// Display loading div when ajax calls are executed
+function warnMessage(level, m) {
+    var html = '<div class="alert alert-' + level + ' alert-dismissable" role="alert">'
+    html += '<button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span class="pficon pficon-close"></span></button>';
+    if (level == "danger") html += '<span class="pficon pficon-error-circle-o"></span>'
+    if (level == "warning") html += '<span class="pficon pficon-warning-triangle-o"></span>'
+    if (level == "success") html += '<span class="pficon pficon-ok"></span>'
+    html += m;
+    html += '</div>';
+    $("#alert_list").append(html);
+}
+$(document).ajaxError(function myErrorHandler(event, jqXHR, ajaxOptions, thrownError) {
+    if (jqXHR.status === 0) {
+        warnMessage("danger", "Unable to get JSON file. [0]");
+    } else if (jqXHR.status == 404) {
+        warnMessage("danger", "File not found. [404]");
+    } else if (jqXHR.status == 500) {
+        warnMessage("danger", "Internal Server Error [500].");
+    } else if (thrownError === "parsererror") {
+        warnMessage("danger", "Requested JSON parse failed.");
+    } else if (thrownError === "timeout") {
+        warnMessage("danger", "Time out error.");
+    } else if (thrownError === "abort") {
+        warnMessage("danger", "Ajax request aborted.");
+    } else {
+        warnMessage("danger", "Uncaught Error.\n" + jqXHR.responseText);
+    }
+}).ajaxStart(function() {
+    $('.nx-loader').show(); 
+}).ajaxStop(function(){   
+    $('.nx-loader').hide(); 
+});
         </script>
         {% block javascript %}
         {% endblock %}
