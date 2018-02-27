@@ -10,7 +10,6 @@ from app.models import Check
 from app.models import CheckResult
 from sqlalchemy import func
 
-
 checks = Blueprint('checks', __name__)
 checks.config = {}
 global current_app
@@ -46,7 +45,8 @@ def count_checks(report_id):
     :param report_id: string with the id of the report
     :return: dict of the count / rc
     """
-    checks = db.session.query(Check.global_rc, func.count(Check.global_rc)).filter(Check.report_id == report_id).group_by(Check.global_rc).all()
+    checks = db.session.query(Check.global_rc, func.count(Check.global_rc)).filter(
+        Check.report_id == report_id).group_by(Check.global_rc).all()
     counts = defaultdict(int)
     for c in checks:
         counts["total"] += c[1]

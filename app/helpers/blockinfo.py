@@ -1,4 +1,6 @@
 import re
+
+
 class Blocks:
     data_table = {}
 
@@ -6,7 +8,7 @@ class Blocks:
         self.report = report
         self.dfblock = report.path.rstrip("/") + "/sos_commands/filesys/df_-al"
         self.dfinode = report.path.rstrip("/") + "/sos_commands/filesys/df_-ali"
-        self.iostat =  report.path.rstrip("/") + "/proc/diskstats"
+        self.iostat = report.path.rstrip("/") + "/proc/diskstats"
 
     def get_device(self, device_name, file_type):
         try:
@@ -50,28 +52,30 @@ class Blocks:
         self.match_line("io", self.iostat, "[0-9]+[\s]+[0-9]+[\s]+([^0-9\s]+[0-9]*)[\s]+(.*)")
 
     def list_block_space(self):
-        self.match_line("block", self.dfblock, "^/dev/([^\s]+)[\s]+([0-9]+)[\s]+([0-9]+)[\s]+([0-9]+)[\s]+([0-9]+)\%[\s]+(.*)")
+        self.match_line("block", self.dfblock,
+                        "^/dev/([^\s]+)[\s]+([0-9]+)[\s]+([0-9]+)[\s]+([0-9]+)[\s]+([0-9]+)\%[\s]+(.*)")
 
     def list_inode_space(self):
-        self.match_line("inode", self.dfinode, "^/dev/([^\s]+)[\s]+([0-9]+)[\s]+([0-9]+)[\s]+([0-9]+)[\s]+([0-9]+)\%[\s]+(.*)")
+        self.match_line("inode", self.dfinode,
+                        "^/dev/([^\s]+)[\s]+([0-9]+)[\s]+([0-9]+)[\s]+([0-9]+)[\s]+([0-9]+)\%[\s]+(.*)")
 
     def get_ratio(self, key):
         cycles = int(getattr(self, key))
         return round(float(cycles) / float(self.time_total) * 100, 2)
 
     def __repr__(self):
-        args = ['\n    {} => {}'.format(k, repr(v)) for (k,v) in vars(self).items()]
+        args = ['\n    {} => {}'.format(k, repr(v)) for (k, v) in vars(self).items()]
         return self.__class__.__name__ + '({}\n)'.format(', '.join(args))
 
 
 class Blockinfo(Blocks):
-    io_names = [ "reads_completed", "reads_merged", "sectors_read",
+    io_names = ["reads_completed", "reads_merged", "sectors_read",
                 "reading_ms", "writes_completed", "writes_merged",
-                "writing_ms", "io_in_progress", "io_ms", "io_weighted" ]
+                "writing_ms", "io_in_progress", "io_ms", "io_weighted"]
 
     def dump(self):
         out = {}
-        for (k,v) in vars(self).items():
+        for (k, v) in vars(self).items():
             out[k] = v
         return out
 
@@ -79,7 +83,7 @@ class Blockinfo(Blocks):
         self.device_name = device_name
 
     def __repr__(self):
-        args = ['\n    {} => {}'.format(k, repr(v)) for (k,v) in vars(self).items()]
+        args = ['\n    {} => {}'.format(k, repr(v)) for (k, v) in vars(self).items()]
         return self.__class__.__name__ + '({}\n)'.format(', '.join(args))
 
 
@@ -88,15 +92,18 @@ class Iostats(Blockinfo):
     def __init__(self, device_name):
         self.device_name = device_name
 
+
 class Blockstats(Blockinfo):
 
-   def __init__(self, device_name):
+    def __init__(self, device_name):
         self.device_name = device_name
+
 
 class Inodestats(Blockinfo):
 
-   def __init__(self, device_name):
+    def __init__(self, device_name):
         self.device_name = device_name
+
 
 """
 Field  1 -- # of reads completed

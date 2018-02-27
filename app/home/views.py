@@ -3,6 +3,7 @@ from flask_login import login_required
 
 from . import home
 
+
 @home.route('/')
 @login_required
 def index():
@@ -11,6 +12,7 @@ def index():
     """
     return render_template('home/index.html')
 
+
 @home.route('/dashboard')
 @login_required
 def dashboard():
@@ -18,6 +20,7 @@ def dashboard():
     Render the dashboard template on the /dashboard route
     """
     return render_template('home/dashboard.html', title="Dashboard")
+
 
 @home.route("/site-map")
 def site_map():
@@ -31,7 +34,8 @@ def site_map():
     # links is now a list of url, endpoint tuples
     return render_template('home/sitemap.html', out=links)
 
+
 def has_no_empty_params(rule):
     defaults = rule.defaults if rule.defaults is not None else ()
     arguments = rule.arguments if rule.arguments is not None else ()
-    return len(defaults) >= len(arguments) 
+    return len(defaults) >= len(arguments)

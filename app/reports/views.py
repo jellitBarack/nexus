@@ -3,9 +3,9 @@ from flask_login import login_required
 from sqlalchemy.orm import subqueryload, contains_eager
 from collections import defaultdict
 
-
 import os
 import re
+
 """
 http://docs.sqlalchemy.org/en/latest/orm/loading_relationships.html#what-kind-of-loading-to-use
 When using subquery loading, the load of 100 objects will emit two SQL statements.
@@ -20,30 +20,38 @@ from . import reports
 from app import db
 from app.models import Report
 from app.models import Check
+
+
 @reports.route('/upload', methods=['GET', 'POST'])
 @login_required
 def upload():
     return render_template('layout/not-ready.html')
 
+
 @reports.route('/history', methods=['GET', 'POST'])
 @login_required
 def history():
     return render_template('layout/not-ready.html')
+
+
 # placeholder route to allow the creation of /reports/ url
 @reports.route('/', methods=['GET'])
 @login_required
 def index():
-    return  render_template('layout/not-ready.html')
+    return render_template('layout/not-ready.html')
+
 
 @reports.route('/<report_id>/metrics', methods=['GET', 'POST'])
 @login_required
 def display_metrics(report_id):
     return render_template('layout/not-ready.html')
 
+
 @reports.route('/<report_id>/compare', methods=['GET', 'POST'])
 @login_required
 def compare(report_id):
     return render_template('layout/not-ready.html')
+
 
 @reports.route('/<report_id>/checks', methods=['GET', 'POST'])
 @login_required
@@ -58,7 +66,7 @@ def display_checks(report_id, rc=None):
         report_name = "list"
 
     q = q.filter(Report.id == report_id).order_by(Check.priority.desc())
-    report = q.options(subqueryload('checks','check_results')).all()
+    report = q.options(subqueryload('checks', 'check_results')).all()
     if report is None or len(report) == 0:
         abort(404)
     # Getting a list of categories
@@ -102,4 +110,5 @@ def display_checks(report_id, rc=None):
                 c.bug_id = m.group(0)
             except:
                 pass
-    return render_template('reports/'+report_name+'.html', report=report[0], categories=categories, title='sosreport')
+    return render_template('reports/' + report_name + '.html', report=report[0], categories=categories,
+                           title='sosreport')

@@ -1,4 +1,6 @@
-import os, sys, signal
+import os
+import sys
+import signal
 
 try:
     from flask_debugtoolbar import DebugToolbarExtension
@@ -24,6 +26,6 @@ try:
 except:
     pass
 
-#os.kill(os.getpid(), signal.SIGINT)
+# os.kill(os.getpid(), signal.SIGINT)
 if __name__ == '__main__':
     application.run()

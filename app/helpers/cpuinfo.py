@@ -1,8 +1,9 @@
 import re
 
+
 class Cpuinfo:
-    cpu_stat_names = [ "user", "nice", "system", "idle", "iowait", "irq",
-                      "softirq", "steal", "guest", "guest_nice" ]
+    cpu_stat_names = ["user", "nice", "system", "idle", "iowait", "irq",
+                      "softirq", "steal", "guest", "guest_nice"]
 
     def __init__(self, report):
         self.report = report
@@ -35,5 +36,5 @@ class Cpuinfo:
         return ratios
 
     def __repr__(self):
-        args = ['\n    {} => {}'.format(k, repr(v)) for (k,v) in vars(self).items()]
+        args = ['\n    {} => {}'.format(k, repr(v)) for (k, v) in vars(self).items()]
         return self.__class__.__name__ + '({}\n)'.format(', '.join(args))

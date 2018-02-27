@@ -9,6 +9,7 @@ from dateutil.parser import *
 
 from app import db
 
+
 class Report(db.Model):
     """
     Reports metadata
@@ -29,7 +30,7 @@ class Report(db.Model):
     source = db.Column(db.String(10))
     live = db.Column(db.Boolean, default=True)
     collect_time = db.Column(db.DateTime, default=datetime.datetime.utcnow)
-    analyze_duration = db.Column(db.Numeric(6,3))
+    analyze_duration = db.Column(db.Numeric(6, 3))
     analyze_time = db.Column(db.DateTime, default=datetime.datetime.utcnow)
     size = db.Column(db.Integer)
     path = db.Column(db.String(200))
@@ -41,12 +42,13 @@ class Report(db.Model):
     sarfiles = ""
     changed = False
     results = {}
+
     def __init__(self, **kwargs):
         super(Report, self).__init__(**kwargs)
         try:
-           self.fullpath = kwargs.pop('fullpath')
+            self.fullpath = kwargs.pop('fullpath')
         except KeyError:
-           return
+            return
         split_path = self.fullpath.split("/")
         self.id = self.generate_id(self.fullpath)
         self.path = os.path.dirname(os.path.abspath(self.fullpath))
@@ -55,12 +57,12 @@ class Report(db.Model):
         self.get_collect_time()
 
     def setattrs(self, **kwargs):
-        for k,v in kwargs.items():
+        for k, v in kwargs.items():
             setattr(self, k, v)
 
     def generate_id(self, path):
         """
-        Generates an id 
+        Generates an id
         :param path:  jsonfile path
         :return: md5sum
         """
@@ -82,12 +84,11 @@ class Report(db.Model):
         Read /etc/hostname
         :return: hostname
         """
-        try: 
-             out = open(self.path + '/etc/hostname', 'r').readline()
+        try:
+            out = open(self.path + '/etc/hostname', 'r').readline()
         except IOError:
             out = str(self.fullpath.split("/")[-2])
         self.name = out.rstrip()
- 
 
     def get_report_size(self):
         """
@@ -97,8 +98,8 @@ class Report(db.Model):
         try:
             out = re.search('^([0-9]+)', check_output('du -sb ' + self.path, shell=True)).group(1)
         except CalledProcessError:
-            out = ""  
-        self.size =  int(out)
+            out = ""
+        self.size = int(out)
 
     def get_hr_size(self, precision=2):
         """
@@ -106,13 +107,13 @@ class Report(db.Model):
         :param precision: to round the number
         :return: human readable format
         """
-        suffixes=['B','KB','MB','GB','TB']
+        suffixes = ['B', 'KB', 'MB', 'GB', 'TB']
         suffix_index = 0
         hr_size = self.size
         while hr_size > 1024 and suffix_index < 4:
-            suffix_index += 1 #increment the index of the suffix
-            hr_size = hr_size/1024.0 #apply the division
-        return "%.*f%s"%(precision,hr_size,suffixes[suffix_index])
+            suffix_index += 1  # increment the index of the suffix
+            hr_size = hr_size / 1024.0  # apply the division
+        return "%.*f%s" % (precision, hr_size, suffixes[suffix_index])
 
     def get_collect_time(self):
         """
@@ -128,6 +129,6 @@ class Report(db.Model):
         self.collect_time = cdate
 
     def __repr__(self):
-        args = ['\n    {} => {}'.format(k, repr(v)) 
-                for (k,v) in vars(self).items()]
+        args = ['\n    {} => {}'.format(k, repr(v))
+                for (k, v) in vars(self).items()]
         return self.__class__.__name__ + '({}\n)'.format(', '.join(args))

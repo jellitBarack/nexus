@@ -1,4 +1,3 @@
-
 from flask import Blueprint
 
 import json
@@ -9,12 +8,12 @@ import re
 from datetime import datetime
 from sqlalchemy import or_
 
-
 reports = Blueprint('reports', __name__)
 
 from . import views
 from app import db
 from app.models import Report
+
 
 def add_report(report):
     """
@@ -42,9 +41,9 @@ def add_report(report):
         report.changed = True
 
     report.setattrs(source=j["metadata"]["source"],
-            live=j["metadata"]["live"],
-            analyze_time=datetime.strptime(j["metadata"]["when"], '%Y-%m-%dT%H:%M:%S.%f'),
-            analyze_duration=round(j["metadata"]["time"], 3))
+                    live=j["metadata"]["live"],
+                    analyze_time=datetime.strptime(j["metadata"]["when"], '%Y-%m-%dT%H:%M:%S.%f'),
+                    analyze_duration=round(j["metadata"]["time"], 3))
 
     if report_db is None or report.changed is True:
         report.get_report_size()

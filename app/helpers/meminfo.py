@@ -1,4 +1,6 @@
 import re
+
+
 class Meminfo:
 
     def __init__(self, report):
@@ -10,7 +12,7 @@ class Meminfo:
         for l in fd:
             m = re.search("^([^:]+):[\s]+([0-9]+)", l)
             if m:
-                setattr(self, m.group(1),int(m.group(2)))
+                setattr(self, m.group(1), int(m.group(2)))
         fd.close()
 
     def ratio(self, current, total):
@@ -38,5 +40,5 @@ class Meminfo:
         return (self.SwapTotal - self.SwapFree) / float(self.SwapTotal) * 100
 
     def __repr__(self):
-        args = ['\n    {} => {}'.format(k, repr(v)) for (k,v) in vars(self).items()]
+        args = ['\n    {} => {}'.format(k, repr(v)) for (k, v) in vars(self).items()]
         return self.__class__.__name__ + '({}\n)'.format(', '.join(args))

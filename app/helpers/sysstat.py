@@ -12,6 +12,7 @@ import json
 from datetime import datetime
 from datetime import timedelta
 from subprocess import Popen, PIPE
+
 global sadfbin
 global sysstat_activies
 global sysstat_default_days
@@ -24,6 +25,7 @@ sadfbin = conf.FS_ROOT + "/bin/sadf"
 sysstat_activies = conf.SYSSTAT_ACTIVITIES
 sysstat_default_days = conf.SYSSTAT_DEFAULT_DAYS
 default_start_date = datetime.now() - timedelta(days=sysstat_default_days)
+
 
 class sysstat:
     @staticmethod
@@ -39,9 +41,9 @@ class sysstat:
 
         args = [sadfbin]
         if data_type is "header":
-            args.extend(["-H",file])
+            args.extend(["-H", file])
         else:
-            args.extend(["-j",file,"--"])
+            args.extend(["-j", file, "--"])
             if data_type is None:
                 args.append("-A")
             else:
@@ -80,6 +82,7 @@ class sysstat:
             if rh:
                 headers[rh.group(1)] = rh.group(2)
         return headers
+
     @staticmethod
     def get_file_date(folder=None, start_date=None, end_date=datetime.now()):
         """
@@ -99,11 +102,11 @@ class sysstat:
             for root, dirs, files in os.walk(folder, topdown=True):
                 for f in files:
                     if re.match(r'^sa[0-9]+$', f):
-                        h = sysstat.headers(root+f)
+                        h = sysstat.headers(root + f)
                         if "date" in h:
                             if start_date <= h["date"] + timedelta(days=1) <= end_date:
                                 matching_files.append({
-                                    'filename': root+f,
+                                    'filename': root + f,
                                     'filedate': h["date"]
                                 })
         else:
@@ -115,8 +118,10 @@ class sysstat:
     @staticmethod
     def pd_get_stats(stat):
         logging.debug(stat)
+
     @staticmethod
-    def get_stats(file=None, get_metadata=None, activity=None, data_type=None, start_date=None, end_date=datetime.now(), filter_list=None, filter_condition=None):
+    def get_stats(file=None, get_metadata=None, activity=None, data_type=None, start_date=None, end_date=datetime.now(),
+                  filter_list=None, filter_condition=None):
         """
         This is a dispatcher function to get points/activities/keys
         :param single file: path to a var/log/sa/sa[0-9]+
@@ -128,8 +133,8 @@ class sysstat:
         :param filter_contition: "and" or "or"
         :return : either keys, activities or filtered items
         """
-        #import numpy
-        #import pandas as pd
+        # import numpy
+        # import pandas as pd
 
         global default_start_date
         if start_date is None:
@@ -137,15 +142,16 @@ class sysstat:
         stats = "".join(sysstat.sadf(file=file, data_type=data_type))
         jstats = json.loads(stats)
         dated_events = sysstat.get_event_by_date(stats=jstats, start_date=start_date, end_date=end_date)
-        #df = pd.DataFrame(dated_events)
-        #logging.debug(df)
-        #s = df.set_index('date')['a']
+        # df = pd.DataFrame(dated_events)
+        # logging.debug(df)
+        # s = df.set_index('date')['a']
         if get_metadata == "keys":
             matching_events = sysstat.get_event_keys(dated_events, activity)
         elif get_metadata == "activities":
             matching_events = sysstat.get_event_activities(dated_events)
         else:
-            matching_events = sysstat.transform_stats(stats=dated_events, activity=activity, data_type=data_type, filter_list=filter_list, filter_condition=filter_condition)
+            matching_events = sysstat.transform_stats(stats=dated_events, activity=activity, data_type=data_type,
+                                                      filter_list=filter_list, filter_condition=filter_condition)
         return matching_events
 
     @staticmethod
@@ -174,7 +180,7 @@ class sysstat:
             event_date = sysstat.get_event_time(s)
             if start_date <= event_date <= end_date:
                 matching_events.append(s)
-        #logging.debug("Matching Events: %s", matching_events)
+        # logging.debug("Matching Events: %s", matching_events)
         return matching_events
 
     @staticmethod
@@ -271,9 +277,11 @@ class sysstat:
             outeval = eval(evalstr)
         return outeval
 
+
 """
 Test zone, please ignore
 """
+
 
 class Statset(object):
     def __init__(self, timestamp, activity, key, value, label):

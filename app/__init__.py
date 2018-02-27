@@ -5,7 +5,7 @@ from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_breadcrumbs import current_breadcrumbs
 import datetime
-#, sys, os
+# , sys, os
 import logging, sys
 import logging.config
 import pprint
@@ -13,7 +13,6 @@ import time
 import traceback
 
 from flask_oauthlib.client import OAuth
-
 
 LOGGING = {
     'version': 1,
@@ -43,14 +42,15 @@ from config import app_config
 db = SQLAlchemy()
 login_manager = LoginManager()
 
-def create_app(config_name,cli = False):
+
+def create_app(config_name, cli=False):
     global google
     logging.config.dictConfig(LOGGING)
 
     app = Flask(__name__, instance_relative_config=True, static_url_path='/static')
     app.config.from_object(app_config[config_name])
     app.config.from_pyfile('config.py')
-    #logging.debug("Config %s", app.config)
+    # logging.debug("Config %s", app.config)
 
     from app import models
     db.init_app(app)
@@ -120,9 +120,8 @@ def create_app(config_name,cli = False):
 
     return app
 
+
 def flash_errors(form):
     for field, errors in form.errors.items():
         for error in errors:
-            flash(u"Error in the %s field - %s" % (getattr(form, field).label.text,error), category="error")
-
-
+            flash(u"Error in the %s field - %s" % (getattr(form, field).label.text, error), category="error")
