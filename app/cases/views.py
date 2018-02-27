@@ -63,12 +63,12 @@ def search(case=None):
         report_list = []
         # Folder doesn't exist, let's check the DB
         if os.path.isdir(casepath) is False:
-            reports = Report.query.filter(Report.case_id == case).all()
-            for r in reports:
-                count = count_checks(r.id)
-            return jsonify(reports)
+            report_list = Report.query.filter(Report.case_id == case).all()
+            if report_list is None or len(report_list) == 0:
+               return render_template('cases/notfound.html', casenum = case), 404
         else:
             report_list = find_reports(casepath, case)
+            # We prepare to delete in case report has changed.
             report_delete = []
             for report in report_list:
                 add_report(report)
@@ -80,18 +80,20 @@ def search(case=None):
             if len(report_delete) > 0:
                 Check.query.filter(Check.report_id.in_(report_delete)).delete(synchronize_session=False)
 
-            for report in report_list:
-                loop_checks(report)
-                count = count_checks(report.id)
-                # add report to the web interface
-                report.icon = "cog"
-                if report.source == "magui":
-                    report.icon = "microchip"
-                report.setattrs(
-                                checks_total = count["total"],
-                                checks_fail = count[current_app.config["RC_FAILED"]], 
-                                checks_skip = count[current_app.config["RC_SKIPPED"]], 
-                                checks_okay = count[current_app.config["RC_OKAY"]])
+        for report in report_list:
+            loop_checks(report)
+            count = count_checks(report.id)
+            # add report to the web interface
+            report.icon = "cog"
+            if report.source == "magui":
+                report.icon = "microchip"
+            report.setattrs(
+                            checks_total = count["total"],
+                            checks_fail = count[current_app.config["RC_FAILED"]], 
+                            checks_skip = count[current_app.config["RC_SKIPPED"]], 
+                            checks_okay = count[current_app.config["RC_OKAY"]])
+
+            if report.changed is True:
                 report.hr_size = report.get_hr_size()
     
         return render_template('cases/search.html', form = form, casenum = case, report_list = report_list)
