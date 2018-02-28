@@ -1,4 +1,4 @@
-from flask import Blueprint, g, current_app
+from flask import Blueprint
 
 pyinfo = Blueprint('pyinfo', __name__)
 

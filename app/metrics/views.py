@@ -1,14 +1,9 @@
-from flask import flash, redirect, render_template, url_for, current_app, request, abort, jsonify
+from flask import render_template, current_app, request, abort, jsonify
 from flask_login import login_required
-from sqlalchemy.orm import subqueryload
-from collections import defaultdict
 from datetime import datetime
 
 import os
-import re
 import json
-
-import logging
 
 from . import metrics
 from ..helpers import sysstat
@@ -58,7 +53,6 @@ def get_points(report_id):
     This function is called by ajax calls.
     :returns sets of points matching criteria
     """
-    function_start_time = datetime.now()
     data = json.loads(request.data)
     report = get_report(report_id)
     sardir = report.path + "/var/log/sa"
@@ -108,7 +102,6 @@ def get_points(report_id):
         else:
             busted = 1
 
-    exectime = datetime.now() - function_start_time
     metricslist = {}
     return jsonify({"search_rc": busted, "search_msg": "Too many results, try using some filters", "output": output})
 

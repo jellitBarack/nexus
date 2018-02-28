@@ -1,12 +1,10 @@
 # Flask
 from flask import flash, redirect, render_template, url_for
-from flask import current_app, request, abort, jsonify
+from flask import current_app, request, jsonify
 from flask_login import login_required
 
 # Global imports
 import os
-import app
-import logging
 import re
 import datetime
 import subprocess
@@ -38,7 +36,7 @@ def yank(case, force=None):
     else:
         command = "/bin/bash /usr/bin/yank " + case
     try:
-        result = subprocess.check_output([command], shell=True)
+        subprocess.check_output([command], shell=True)
     except subprocess.CalledProcessError as e:
         flash(u"Unable to yank case %s: %s" % (case, e.output),
               category="error")
@@ -73,11 +71,13 @@ def search(case=None):
             # We prepare to delete in case report has changed.
             report_delete = []
             for report in report_list:
-                add_report(report)
+                add_report_status = add_report(report)
                 if report.changed is True:
                     report_delete.append(report.id)
+                if add_report_status is not None:
+                    return render_template('errors/generic-error.html', message=report.fullpath + ": " + add_report_status), 403
 
-            # To make things faster, we need to bulk delete the 
+            # To make things faster, we need to bulk delete the
             # checks for the reports that have changed.
             if len(report_delete) > 0:
                 Check.query.filter(Check.report_id.in_(report_delete)).delete(synchronize_session=False)
@@ -120,7 +120,6 @@ def find_reports(path, case):
         if len(matched) == 0:
             continue
         for f in matched:
-            fullname = root + "/" + f
             sardir = root + "/var/log/sa"
             if os.path.isdir(sardir):
                 sarfiles = sysstat.sysstat.get_file_date(sardir)
@@ -157,8 +156,7 @@ def compare():
         if report is None:
             return jsonify({"status": "danger", "msg": "Report not found"})
         rlist.append(os.path.dirname(report.path))
-    outfile = re.match("(/cases/[0-9]+/)", rlist[0]).group(1) + "magui" \
-              + str(datetime.datetime.today().strftime('%Y%m%d%H%M%S')) + ".json"
+    outfile = re.match("(/cases/[0-9]+/)", rlist[0]).group(1) + "magui" + str(datetime.datetime.today().strftime('%Y%m%d%H%M%S')) + ".json"
     return magui(outfile, rlist)
 
 
@@ -174,8 +172,8 @@ def magui(outfile, reports):
     args.extend(reports)
     command = " ".join(args)
     try:
-        result = subprocess.check_output([command], shell=True)
-    except subprocess.CalledProcessError as e:
+        subprocess.check_output([command], shell=True)
+    except subprocess.CalledProcessError:
         return jsonify({"status": "danger",
                         "msg": "An error occurred while executing command."})
     return jsonify({"status": "success",

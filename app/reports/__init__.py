@@ -11,6 +11,7 @@ from sqlalchemy import or_
 reports = Blueprint('reports', __name__)
 
 from . import views
+
 from app import db
 from app.models import Report
 
@@ -23,12 +24,16 @@ def add_report(report):
     :param report: object that was previously scanned
     :return: report object, results list, and if report has changed
     """
-    j = json.load(open(report.fullpath))
+    try:
+        j = json.load(open(report.fullpath))
+    except IOError as e:
+        return e.strerror
+
     report.md5sum = hashlib.md5(open(report.fullpath, 'rb').read()).hexdigest()
 
     if j["metadata"]["source"] == "magui":
         j["metadata"]["live"] = False
-    if j["metadata"].has_key("time") is False:
+    if "time" not in j["metadata"]: 
         j["metadata"]["time"] = 0
 
     report_db = db.session.query(Report).filter(
@@ -59,3 +64,4 @@ def add_report(report):
         report.size = report_db.size
 
     report.results = j["results"]
+    return None

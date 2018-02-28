@@ -11,7 +11,7 @@ class Config(object):
     RC_OKAY = 10
     RC_FAILED = 20
     RC_SKIPPED = 30
-    COLOR_ORDER = [ 'primary', 'success', 'danger']
+    COLOR_ORDER = ['primary', 'success', 'danger']
     PLUGIN_STATES = {
         10: {
             "icon": "fa fa-check-circle-o",

@@ -1,4 +1,4 @@
-from flask import render_template, current_app
+from flask import render_template, current_app, url_for
 from flask_login import login_required
 
 from . import home
@@ -29,8 +29,7 @@ def site_map():
         # Filter out rules we can't navigate to in a browser
         # and rules that require parameters
         if "GET" in rule.methods and has_no_empty_params(rule):
-            url = url_for(rule.endpoint, **(rule.defaults or {}))
-            links.append((url, rule.endpoint))
+            links.append((url_for(rule.endpoint, **(rule.defaults or {})), rule.endpoint))
     # links is now a list of url, endpoint tuples
     return render_template('home/sitemap.html', out=links)
 

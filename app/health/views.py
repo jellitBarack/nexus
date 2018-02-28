@@ -1,31 +1,30 @@
-from flask import flash, redirect, render_template, url_for, current_app, request, abort, jsonify
+from flask import render_template, abort, jsonify
 from flask_login import login_required
 
-import json
 import logging
-from collections import defaultdict
 
 from . import health
 from app.models import Report
 from app.helpers.cpuinfo import Cpuinfo
 from app.helpers.meminfo import Meminfo
-from app.helpers.blockinfo import Blocks, Blockinfo
+from app.helpers.blockinfo import Blocks
 
 
 @health.route('/<report_id>', methods=['GET'])
 @login_required
 def display_health(report_id):
     report = Report.query.get(report_id)
-    return render_template('health/show.html', report=report,
-                           # cpuinfo = cpuinfo.get_all_ratios(),
-                           # meminfo = meminfo,
-                           # mem_used = meminfo.ratio_mem_used(),
-                           # hugepages_used = meminfo.ratio_hugepages_used(),
-                           # swap_used = meminfo.ratio_swap_used(),
-                           # io = blockinfo.get_list_io(),
-                           # blocks = blockinfo.get_list_block(),
-                           # inodes = blockinfo.get_list_inode()
-                           )
+    return render_template('health/show.html', report=report)
+    """
+    cpuinfo = cpuinfo.get_all_ratios(),
+    meminfo = meminfo,
+    mem_used = meminfo.ratio_mem_used(),
+    hugepages_used = meminfo.ratio_hugepages_used(),
+    swap_used = meminfo.ratio_swap_used(),
+    io = blockinfo.get_list_io(),
+    blocks = blockinfo.get_list_block(),
+    inodes = blockinfo.get_list_inode()
+    """
 
 
 # placeholder route to allow the creation of /health/ url

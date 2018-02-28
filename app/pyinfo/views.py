@@ -1,7 +1,10 @@
-from flask import flash, redirect, render_template, url_for, current_app, request, abort, jsonify
 from flask_login import login_required
 
-import os, sys, platform, cgi, socket
+import os
+import sys
+import platform
+import cgi
+import socket
 
 from . import pyinfo
 

@@ -1,13 +1,10 @@
-from flask import flash, redirect, url_for, current_app, request, g, session, jsonify, Response
-from flask_login import login_required, login_user, logout_user
+from flask import redirect, url_for, request, session
+from flask_login import login_user
 
-import logging
-import requests
 import base64
 
 from . import auth
 from app import db, google
-from app import flash_errors
 from app.models import User
 
 

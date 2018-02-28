@@ -2,10 +2,9 @@ import datetime
 import hashlib
 import re
 import os
-import logging
 
 from subprocess import check_output, CalledProcessError
-from dateutil.parser import *
+from dateutil.parser import parse
 
 from app import db
 
@@ -49,7 +48,6 @@ class Report(db.Model):
             self.fullpath = kwargs.pop('fullpath')
         except KeyError:
             return
-        split_path = self.fullpath.split("/")
         self.id = self.generate_id(self.fullpath)
         self.path = os.path.dirname(os.path.abspath(self.fullpath))
         self.get_machine_id()

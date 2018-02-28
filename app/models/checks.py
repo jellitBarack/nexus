@@ -1,7 +1,6 @@
 import hashlib
 
 from app import db
-import logging
 
 
 class Check(db.Model):

@@ -1,14 +1,12 @@
-# third-party imports
-from flask import Flask, render_template, flash, g, request, session, flash, abort
+from flask import Flask, render_template, flash, g
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_migrate import Migrate
-from flask_breadcrumbs import current_breadcrumbs
-import datetime
-# , sys, os
-import logging, sys
+
+import logging
+import sys
+
 import logging.config
-import pprint
 import time
 import traceback
 
@@ -52,9 +50,8 @@ def create_app(config_name, cli=False):
     app.config.from_pyfile('config.py')
     # logging.debug("Config %s", app.config)
 
-    from app import models
     db.init_app(app)
-    migrate = Migrate(app, db)
+    Migrate(app, db)
     oauth = OAuth(app)
     google = oauth.remote_app(
         'google',
@@ -74,7 +71,6 @@ def create_app(config_name, cli=False):
         login_manager.init_app(app)
         login_manager.login_view = "auth.login"
 
-        from .helpers import sysstat
         from .admin import admin as admin_blueprint
         app.register_blueprint(admin_blueprint, url_prefix='/admin')
         from .cases import cases as cases_blueprint

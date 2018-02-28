@@ -1,0 +1,6 @@
+{% extends "layout/base.html" %} 
+{% block title %}Page not Ready - Nexus{% endblock %} 
+{% block body %} 
+    {% import "layout/macros.html" as rdata %}
+    {{ rdata.input_card(message, "exclamation-circle")  }}
+{% endblock %}

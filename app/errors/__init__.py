@@ -1,7 +1,6 @@
-from flask import Blueprint
+from flask import Blueprint, render_template
 
 errors = Blueprint('errors', __name__)
-
 
 class ReportNotFound(Exception):
     pass

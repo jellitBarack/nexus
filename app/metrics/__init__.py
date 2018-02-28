@@ -1,4 +1,4 @@
-from flask import Blueprint, g, current_app
+from flask import Blueprint
 
 metrics = Blueprint('metrics', __name__)
 
