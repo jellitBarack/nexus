@@ -96,7 +96,7 @@
                     <li>
                         <form class="navbar-form" method="post" action="{{ config['APPLICATION_ROOT'] }}/cases/" role="form">
                             <div class="input-group">
-                                <input type="search" class="form-control" value="{% if report is defined %}{{ report.case_id }}{% endif %}" placeholder="Case number" name="casenum" id="toolbar_casenum">
+                            <input type="search" class="form-control" value="{% if report is defined %}{{ report.case_id }}{% elif casenum is defined %}{{ casenum }}{% endif %}" placeholder="Case number" name="casenum" id="toolbar_casenum">
                                 <div class="input-group-btn">
                                     <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
                                 </div>

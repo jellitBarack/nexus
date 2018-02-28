@@ -1,1 +1,6 @@
-{% extends "layout/base.html" %} {% block title %}Page not Ready - Nexus{% endblock %} {% block body %} This page is still under development. {% endblock %}
+{% extends "layout/base.html" %} 
+{% block title %}Page not Ready - Nexus{% endblock %} 
+{% block body %} 
+    {% import "layout/macros.html" as rdata %}
+    {% rdata.input_card("Page under development", "tasks", config["NOT_READY_LINKS"])  %}
+{% endblock %}

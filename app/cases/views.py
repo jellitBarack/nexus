@@ -63,6 +63,7 @@ def search(case=None):
         report_list = []
         # Folder doesn't exist, let's check the DB
         if os.path.isdir(casepath) is False:
+            flash(u"Files for case %s are not found, but we have cached the metadata" % (case), category="warning")
             report_list = Report.query.filter(Report.case_id == case).all()
             if report_list is None or len(report_list) == 0:
                 return render_template('cases/notfound.html', casenum=case), 404
