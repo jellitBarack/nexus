@@ -12,12 +12,12 @@ class Blocks:
 
     def get_device(self, device_name, file_type):
         try:
-            device = self.data_table[device_name]
+            self.data_table[device_name]
         except KeyError:
             self.data_table[device_name] = {}
 
         try:
-            device = self.data_table[device_name][file_type]
+            self.data_table[device_name][file_type]
         except KeyError:
             if file_type == "io":
                 self.data_table[device_name][file_type] = Iostats(device_name)

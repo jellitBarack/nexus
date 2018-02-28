@@ -25,7 +25,7 @@ app = create_app(config_name, True)
 manager = Manager(app)
 manager.add_command('db', MigrateCommand)
 
-
+"""
 @manager.command
 def seed():
     user = User(email="dvd@redhat.com", username="dvd", first_name="David", last_name="Vallee Delisle", is_admin=True,
@@ -44,7 +44,7 @@ def seed():
                 is_admin=True, password="q1w2e3")
     db.session.add(user)
     db.session.commit()
-
+"""
 
 if __name__ == '__main__':
     manager.run()

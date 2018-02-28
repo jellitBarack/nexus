@@ -1,17 +1,18 @@
 from flask import Blueprint
-
-from app import db
-import app
-import logging
-import sys
 from collections import defaultdict
-from . import views
+
+import sys
+
 from app.models import Check
+from app import db
 from app.models import CheckResult
 from sqlalchemy import func
 
 checks = Blueprint('checks', __name__)
 checks.config = {}
+
+from . import views
+
 global current_app
 
 

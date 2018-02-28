@@ -1,5 +1,5 @@
 """
-Disclaimer: This class is ugly and needs to be rewritten. If you 
+Disclaimer: This class is ugly and needs to be rewritten. If you
             look at this class for too long, you can start having
             nightmares, epilepsy or something.
             I am not responsible if something bad happens.
@@ -21,7 +21,6 @@ import logging
 
 # SADF binary: On RHEL7, you need to have a sysstat-10 parse
 sadfbin = conf.FS_ROOT + "/bin/sadf"
-
 sysstat_activies = conf.SYSSTAT_ACTIVITIES
 sysstat_default_days = conf.SYSSTAT_DEFAULT_DAYS
 default_start_date = datetime.now() - timedelta(days=sysstat_default_days)
@@ -161,7 +160,6 @@ class sysstat:
         :param stats: stat under ["sysstat"]["hosts"][0]["statistics"]
         :return : datetime Object
         """
-        timestamp = stats["timestamp"]["date"] + " " + stats["timestamp"]["time"]
         return datetime.strptime(stats["timestamp"]["date"] + " " + stats["timestamp"]["time"], '%Y-%m-%d %H:%M:%S')
 
     @staticmethod
@@ -203,7 +201,6 @@ class sysstat:
 
     @staticmethod
     def get_event_keys(stats, activity):
-        keylist = []
         if "." in activity:
             a, subact = activity.split(".")
             thing = stats[-1][a][subact]
@@ -284,10 +281,9 @@ Test zone, please ignore
 
 
 class Statset(object):
-    def __init__(self, timestamp, activity, key, value, label):
+    def __init__(self, timestamp, activity, label):
         self.timetamp = timestamp
         self.activity = activity
-        self.keys = keys
         self.label = label
 
     def match_filter(self, filter_list, filter_condition):
@@ -298,7 +294,7 @@ class Statset(object):
                     raise Exception("Filter key %s is not in event %s", f["key"], self)
                 if f["operator"] not in ["==", "!=", ">", ">=", "<", "<=", "is", "is not"]:
                     raise Exception("Filter operator invalid " + f["operator"])
-                evalstr += ' ' + filter_condition + ' "' + str(thing[f["key"]]) + '" ' + f["operator"] + ' '
+                evalstr += ' ' + filter_condition + ' "' + str(self.things[f["key"]]) + '" ' + f["operator"] + ' '
                 if isinstance(f["value"], int) or isinstance(f["value"], float):
                     evalstr += str(f["value"])
                 else:

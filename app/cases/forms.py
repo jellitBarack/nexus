@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, ValidationError
-from wtforms.validators import DataRequired, EqualTo, Length, Regexp
+from wtforms import StringField, SubmitField
+from wtforms.validators import DataRequired, Regexp
 
 
 class CaseSearchForm(FlaskForm):

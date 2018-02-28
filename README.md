@@ -10,7 +10,7 @@ This web application is a frontend for the [Citellus](https://github.com/zeroday
 
 # Components
 
-* python 2.x
+* python 2.7
 * [Flask framework](http://flask.pocoo.org/)
 * [Patternfly](http://www.patternfly.org)
 * sqlite

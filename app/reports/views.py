@@ -1,4 +1,4 @@
-from flask import flash, redirect, render_template, url_for, current_app, request, abort
+from flask import render_template, current_app, request, abort
 from flask_login import login_required
 from sqlalchemy.orm import subqueryload, contains_eager
 from collections import defaultdict
@@ -13,8 +13,6 @@ The second statement will fetch a total number of rows equal to the sum of the s
 An INNER JOIN is used, and a minimum of parent columns are requested, only the primary keys.
 So a subquery load makes sense when the collections are larger.
 """
-
-import logging
 
 from . import reports
 from app import db
@@ -88,7 +86,7 @@ def display_checks(report_id, rc=None):
         c.plugin_html = current_app.config["PLUGIN_STATES"][c.global_rc]
         c.plugin_name = os.path.splitext(os.path.basename(c.plugin_path))[0]
 
-        # Building the visual for the plugin priority 
+        # Building the visual for the plugin priority
         c.priority_text = "informative"
         c.priority_class = "info"
         if not hasattr(c, 'priority'):
