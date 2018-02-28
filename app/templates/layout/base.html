@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html class="layout-pf layout-pf-fixed">
     <head>
-        {% block head %} 
-            {% include 'layout/head.html' %} 
+        {% block head %}
+            {% include 'layout/head.html' %}
         {% endblock %}
         <title>{% block title %}{% endblock %} - Nexus</title>
     </head>
@@ -62,6 +62,11 @@
                                     <li {% if 'health' == active_page %} class="active" {% endif %}>
                                         <a href="{{ url_for('health.display_health', report_id = report.id) }}">
                                             Health
+                                        </a>
+                                    </li>
+                                    <li {% if 'network' == active_page %} class="active" {% endif %}>
+                                        <a href="{{ url_for('network.display_network', report_id = report.id) }}">
+                                            Network
                                         </a>
                                     </li>
                                 {% endif %}
@@ -159,9 +164,9 @@ $(document).ajaxError(function myErrorHandler(event, jqXHR, ajaxOptions, thrownE
         warnMessage("danger", "Uncaught Error.\n" + jqXHR.responseText);
     }
 }).ajaxStart(function() {
-    $('.nx-loader').show(); 
-}).ajaxStop(function(){   
-    $('.nx-loader').hide(); 
+    $('.nx-loader').show();
+}).ajaxStop(function(){
+    $('.nx-loader').hide();
 });
         </script>
         {% block javascript %}

@@ -1,0 +1,13 @@
+{% extends"layout/base.html" %}
+{% set active_page = "network" %}
+{% block title %}Network{% endblock %}
+{% block head %}
+{{ super() }}
+{% endblock %}
+{% block body %}
+
+<h1>Server Networking</h1>
+<div class="row">
+    <img src="{{ report.path }}/sos_commands/networking/plotnetcfg.svg" alt="{{ report.path }}/sos_commands/networking/plotnetcfg.svg" />
+</div>
+{% endblock %}

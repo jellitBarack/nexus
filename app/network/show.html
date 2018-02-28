@@ -1,0 +1,13 @@
+{% extends"layout/base.html" %}
+{% set active_page = "network" %}
+{% block title %}Network{% endblock %}
+{% block head %}
+{{ super() }}
+{% endblock %}
+{% block body %}
+
+<h1>Server Networking</h1>
+<div class="row">
+    <img src="{{ url_for('report.path', filename='sos_commands/networking/plotnetcfg.svg' ) }}" alt="Citellus Nexus Application" />
+</div>
+{% endblock %}
