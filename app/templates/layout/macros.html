@@ -1,0 +1,18 @@
+{% macro input_card(title, icon, links) %}
+<div class="row row-cards-pf"> 
+    <div class="col-md-4 col-md-offset-4">
+        <div class="card-pf card-pf-accented card-pf-aggregate-status">
+            <h2 class="card-pf-title"> 
+                <span class="fa fa-{{ icon }}"></span> {{ title }}
+            </h2> 
+            <div class="card-pf-body"> 
+                {% if links is defined %}
+                    {% for l in links %}
+                        <a href="{{ links[l] }}" target="_blank" class="btn btn-{{ config["COLOR_ORDER"][loop.index0] }} nx-btn-issues">{{ l }}</a>
+                    {% endfor %}
+                {% endif %}
+            </div> 
+        </div> 
+    </div>
+</div> 
+{% endmacro %}
