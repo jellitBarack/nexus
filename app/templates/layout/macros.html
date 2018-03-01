@@ -16,3 +16,7 @@
     </div>
 </div> 
 {% endmacro %}
+
+{% macro state_badge(rc) %}
+<span class="badge badge-{{ config['PLUGIN_STATES'][rc]["hclass"] }}">{{ config['PLUGIN_STATES'][rc]["state"] }}</span>
+{% endmacro %}

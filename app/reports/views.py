@@ -58,13 +58,11 @@ def display_checks(report_id, rc=None):
     # Getting the checks from the DB
     q = db.session.query(Report).join(Check, Report.checks).options(contains_eager(Report.checks))
     report_name = "show"
-
     if rc is not None:
         q = q.filter(Check.global_rc == rc)
         report_name = "list"
-
     q = q.filter(Report.id == report_id).order_by(Check.priority.desc())
-    report = q.options(subqueryload('checks', 'check_results')).all()
+    report = q.options(subqueryload('checks', 'datahooks'), subqueryload('checks', 'check_results')).all()
     if report is None or len(report) == 0:
         abort(404)
     # Getting a list of categories
