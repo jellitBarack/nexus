@@ -13,6 +13,7 @@ class Check(db.Model):
     report_id = db.Column(db.String(32), db.ForeignKey('report_metadata.id', ondelete='CASCADE'))
     report = db.relationship("Report", back_populates="checks")
     check_results = db.relationship("CheckResult", back_populates="check")
+    datahooks = db.relationship("Datahook", back_populates="check")
     category = db.Column(db.String(50))
     subcategory = db.Column(db.String(50))
     description = db.Column(db.String(250))

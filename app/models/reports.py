@@ -38,9 +38,10 @@ class Report(db.Model):
     case_id = db.Column(db.Integer)
     checks = db.relationship("Check", back_populates="report")
     name = db.Column(db.String(100))
-    sarfiles = ""
+    sarfiles = []
     changed = False
     results = {}
+    datahooks = {}
 
     def __init__(self, **kwargs):
         super(Report, self).__init__(**kwargs)

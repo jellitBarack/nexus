@@ -33,14 +33,14 @@ def add_report(report):
 
     if j["metadata"]["source"] == "magui":
         j["metadata"]["live"] = False
-    if "time" not in j["metadata"]: 
+    if "time" not in j["metadata"]:
         j["metadata"]["time"] = 0
 
     report_db = db.session.query(Report).filter(
         or_(Report.md5sum == report.md5sum, Report.id == report.id)).first()
 
     report.changed = False
-    if report_db.md5sum != report.md5sum:
+    if report_db is not None and report_db.md5sum != report.md5sum:
         report.changed = True
 
     report.setattrs(source=j["metadata"]["source"],

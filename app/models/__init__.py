@@ -6,3 +6,4 @@ from .users import User
 from .auth import Client
 from .auth import Grant
 from .auth import Token
+from .datahooks import Datahook
