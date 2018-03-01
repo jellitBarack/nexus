@@ -50,9 +50,6 @@ class Report(db.Model):
             return
         self.id = self.generate_id(self.fullpath)
         self.path = os.path.dirname(os.path.abspath(self.fullpath))
-        self.get_machine_id()
-        self.get_machine_name()
-        self.get_collect_time()
 
     def setattrs(self, **kwargs):
         for k, v in kwargs.items():
@@ -121,10 +118,30 @@ class Report(db.Model):
         try:
             with open(self.path + '/date', "r") as f:
                 date = f.readlines()
-            cdate = parse(date[0])
+            cdate = self.untz(parse(date[0]))
         except:
-            cdate = datetime.datetime.now()
+            try:
+                cdate = self.analyze_time
+            except:
+                cdate = datetime.datetime.now()
         self.collect_time = cdate
+
+    def untz(self, date):
+        """
+        Converts date to UTC tz
+        :param date: date to convert
+        :return:
+        """
+        # tz = pytz.timezone('UTC')
+        tz = None
+        try:
+            code = date.astimezone(tz)
+        except:
+            try:
+                code = date.replace(tzinfo=tz)
+            except:
+                code = date
+        return code
 
     def __repr__(self):
         args = ['\n    {} => {}'.format(k, repr(v))

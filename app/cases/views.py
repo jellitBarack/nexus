@@ -95,8 +95,7 @@ def search(case=None):
                 checks_skip=count[current_app.config["RC_SKIPPED"]],
                 checks_okay=count[current_app.config["RC_OKAY"]])
 
-            if report.changed is True:
-                report.hr_size = report.get_hr_size()
+            report.hr_size = report.get_hr_size()
 
         return render_template('cases/search.html', form=form, casenum=case, report_list=report_list)
     # There was an error with the form submission

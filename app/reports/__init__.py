@@ -40,18 +40,19 @@ def add_report(report):
         or_(Report.md5sum == report.md5sum, Report.id == report.id)).first()
 
     report.changed = False
-    if report_db is not None and report_db.md5sum == report.md5sum:
-        report.changed = False
-    elif report_db is not None:
+    if report_db.md5sum != report.md5sum:
         report.changed = True
 
     report.setattrs(source=j["metadata"]["source"],
                     live=j["metadata"]["live"],
-                    analyze_time=datetime.strptime(j["metadata"]["when"], '%Y-%m-%dT%H:%M:%S.%f'),
-                    analyze_duration=round(j["metadata"]["time"], 3))
+                    analyze_time = datetime.strptime(j["metadata"]["when"], '%Y-%m-%dT%H:%M:%S.%f'),
+                    analyze_duration = round(j["metadata"]["time"], 3))
 
     if report_db is None or report.changed is True:
         report.get_report_size()
+        report.get_machine_id()
+        report.get_machine_name()
+        report.get_collect_time()
         # add report to the database
         if report.changed is True:
             db.session.merge(report)
@@ -62,6 +63,9 @@ def add_report(report):
         report.changed = True
     elif report_db is not None and report.changed is False:
         report.size = report_db.size
+        report.name = report_db.name
+        report.collect_time = report_db.collect_time
+        report.machine_id = report.machine_id
 
     report.results = j["results"]
     return None
