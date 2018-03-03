@@ -33,8 +33,9 @@ def yank(case, force=None):
     :return: redirect to /cases/caseid
     """
     create_event("yank", "case", [case])
+    case = re.sub('^[0]*', '0', str(case))
     if force == 'True':
-        command = "/bin/bash /usr/bin/yank " + case + "--force "
+        command = "/bin/bash /usr/bin/yank " + case + " --force "
     else:
         command = "/bin/bash /usr/bin/yank " + case
     try:
