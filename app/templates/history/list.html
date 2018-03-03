@@ -1,0 +1,30 @@
+{% extends "layout/base.html" %} 
+{% set active_page = "history" %} 
+{% block title %}History{% endblock %} 
+{% block body %}
+      <div class="row">
+        <div class="col-sm-8 col-md-9">
+          <h2 class="h4">History</h2>
+          <table class="table">
+            <tr>
+              <th>Time</th>
+              <th>Action</th>
+              <th>Type</th>
+              <th>Item</th>
+            </tr>
+            {% for h in history_list %}
+            <tr>
+                <td><time datetime="{{ h.time }}">{{ h.time }}</time></td>
+                <td><span class="label label-success">{{ h.action }}</span></td>
+                <td>{{ h.item_type }}</td>
+                {% if h.item_type == "report" %}
+                    <td><a href="{{ url_for(h.action_link, report_id=h.item_id) }}" title="Collected on {{ h.report_date }}">{{ h.report_name }}</a></td>
+                {% elif h.item_type == "case" %}
+                    <td><a href="{{ url_for(h.action_link, case=h.item_id) }}">{{ h.item_id }}</a></td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+          </table>
+        </div><!-- /col -->
+      </div><!-- /row -->
+{% endblock %}

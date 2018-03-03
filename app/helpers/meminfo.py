@@ -8,7 +8,10 @@ class Meminfo:
         self.memfile = report.fullpath.rstrip("/") + "/proc/meminfo"
 
     def get(self):
-        fd = open(self.memfile, "r")
+        try:
+            fd = open(self.memfile, "r")
+        except IOError:
+            return
         for l in fd:
             m = re.search("^([^:]+):[\s]+([0-9]+)", l)
             if m:

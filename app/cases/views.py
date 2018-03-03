@@ -19,6 +19,7 @@ from app import db
 from app.checks import loop_checks, count_checks
 from app.reports import add_report
 from app.helpers import sysstat
+from app.helpers.history import create_event
 
 
 @cases.route('/<case>/yank?force=<force>')
@@ -31,6 +32,7 @@ def yank(case, force=None):
     :param force: if true, we force the yank
     :return: redirect to /cases/caseid
     """
+    create_event("yank", "case", [case])
     if force == 'True':
         command = "/bin/bash /usr/bin/yank " + case + "--force "
     else:
@@ -60,6 +62,7 @@ def search(case=None):
         casepath = "/cases/" + case
         report_list = []
         # Folder doesn't exist, let's check the DB
+        create_event("show", "case", [case])
         if os.path.isdir(casepath) is False:
             report_list = Report.query.filter(Report.case_id == case).all()
             if report_list is None or len(report_list) == 0:
@@ -149,6 +152,8 @@ def compare():
     if len(reports) < 2:
         return jsonify({"status": "danger",
                         "msg": "We need at least 2 reports to compare"})
+
+    create_event("compare", "report", [reports])
     rlist = []
     for r in reports:
         report = db.session.query(Report).filter_by(id=r).first()

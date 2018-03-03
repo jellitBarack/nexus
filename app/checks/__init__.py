@@ -218,4 +218,4 @@ def add_check(report, c):
                                        result_rc=c[rs]["rc"][hostname],
                                        result_err=c[rs]["err"][hostname],
                                        result_out=c[rs]["out"][hostname]))
-    return check_obj, result_list
+    return check_obj, result_list, datahook_list

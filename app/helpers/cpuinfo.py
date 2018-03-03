@@ -10,7 +10,10 @@ class Cpuinfo:
         self.cpustat = report.path.rstrip("/") + "/proc/stat"
 
     def get(self):
-        fd = open(self.cpustat, "r")
+        try:
+            fd = open(self.cpustat, "r")
+        except IOError:
+            return
         for l in fd:
             m = re.search("^cpu[\s]+(.*)", l)
             if m:

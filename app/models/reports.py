@@ -70,7 +70,7 @@ class Report(db.Model):
         :return: save machine_id to object
         """
         try:
-            out = check_output('grep -oP --color=never "UUID: \K([^\s]+)" ' + self.path + '/dmidecode', shell=True)
+            out = check_output('grep -oP --color=never "UUID: \K([^\s]+)" ' + self.path + '/dmidecode | head -1', shell=True)
         except CalledProcessError:
             out = ""
         self.machine_id = out.rstrip()

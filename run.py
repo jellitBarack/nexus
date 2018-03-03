@@ -26,6 +26,5 @@ try:
 except:
     pass
 
-# os.kill(os.getpid(), signal.SIGINT)
 if __name__ == '__main__':
     application.run()

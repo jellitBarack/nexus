@@ -4,6 +4,7 @@ from flask_login import login_required
 from . import network
 from app.models import Report
 from subprocess import check_output, CalledProcessError
+from app.helpers.history import create_event
 
 
 @network.route('/<report_id>', methods=['GET'])
@@ -18,6 +19,7 @@ def display_network(report_id):
     except CalledProcessError as e:
         flash(u"Unable to create networking topology: %s" % (e),
               category="error")
+    create_event("network", "report", [report_id])
     return render_template('network/show.html', report=report)
 
 

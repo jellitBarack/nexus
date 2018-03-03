@@ -8,12 +8,14 @@ from app.models import Report
 from app.helpers.cpuinfo import Cpuinfo
 from app.helpers.meminfo import Meminfo
 from app.helpers.blockinfo import Blocks
+from app.helpers.history import create_event
 
 
 @health.route('/<report_id>', methods=['GET'])
 @login_required
 def display_health(report_id):
     report = Report.query.get(report_id)
+    create_event("health", "report", [report_id])
     return render_template('health/show.html', report=report)
     """
     cpuinfo = cpuinfo.get_all_ratios(),
@@ -53,15 +55,18 @@ def get_cpu_summary(report_id):
 @login_required
 def get_mem_summary(report_id):
     report = get_data(report_id)
-    meminfo = Meminfo(report)
-    memory_used = round(meminfo.ratio_mem_used(), 2)
-    swap_used = round(meminfo.ratio_swap_used(), 2)
-    hugepages_used = round(meminfo.ratio_hugepages_used(), 2)
-    return jsonify({
-        "labels": ["Memory", "Swap", "HugePages"],
-        "free": [100 - memory_used, 100 - swap_used, 100 - hugepages_used],
-        "used": [memory_used, swap_used, hugepages_used]
-    })
+    try:
+        meminfo = Meminfo(report)
+        memory_used = round(meminfo.ratio_mem_used(), 2)
+        swap_used = round(meminfo.ratio_swap_used(), 2)
+        hugepages_used = round(meminfo.ratio_hugepages_used(), 2)
+        return jsonify({
+            "labels": ["Memory", "Swap", "HugePages"],
+            "free": [100 - memory_used, 100 - swap_used, 100 - hugepages_used],
+            "used": [memory_used, swap_used, hugepages_used]
+        })
+    except:
+        return jsonify({})
 
 
 @health.route('/<report_id>/mem_details', methods=['GET'])
@@ -70,21 +75,24 @@ def get_mem_details(report_id):
     report = get_data(report_id)
     meminfo = Meminfo(report)
     meminfo.get()
-    return jsonify([{"name": "Memory Available",
-                     "value": meminfo.MemFree + meminfo.Buffers + meminfo.Cached + meminfo.Dirty + meminfo.AnonPages + meminfo.Slab + meminfo.VmallocUsed,
-                     "children": [{"name": "MemFree", "value": meminfo.MemFree},
-                                  {"name": "Buffers", "value": meminfo.Buffers},
-                                  {"name": "Cached", "value": meminfo.Cached},
-                                  {"name": "Dirty", "value": meminfo.Dirty},
-                                  {"name": "AnonPages", "value": meminfo.AnonPages},
-                                  {"name": "Slab", "value": meminfo.Slab},
-                                  {"name": "VmallocUsed", "value": meminfo.VmallocUsed}]
-                     },
-                    {"name": "HugePages", "value": meminfo.HugePages_Total * meminfo.Hugepagesize,
-                     "children": [{"name": "Free", "value": meminfo.HugePages_Free * meminfo.Hugepagesize},
-                                  {"name": "Reserved", "value": meminfo.HugePages_Rsvd * meminfo.Hugepagesize},
-                                  {"name": "Surplus", "value": meminfo.HugePages_Surp * meminfo.Hugepagesize}]
-                     }])
+    try:
+        return jsonify([{"name": "Memory Available",
+                         "value": meminfo.MemFree + meminfo.Buffers + meminfo.Cached + meminfo.Dirty + meminfo.AnonPages + meminfo.Slab + meminfo.VmallocUsed,
+                         "children": [{"name": "MemFree", "value": meminfo.MemFree},
+                                      {"name": "Buffers", "value": meminfo.Buffers},
+                                      {"name": "Cached", "value": meminfo.Cached},
+                                      {"name": "Dirty", "value": meminfo.Dirty},
+                                      {"name": "AnonPages", "value": meminfo.AnonPages},
+                                      {"name": "Slab", "value": meminfo.Slab},
+                                      {"name": "VmallocUsed", "value": meminfo.VmallocUsed}]
+                         },
+                        {"name": "HugePages", "value": meminfo.HugePages_Total * meminfo.Hugepagesize,
+                         "children": [{"name": "Free", "value": meminfo.HugePages_Free * meminfo.Hugepagesize},
+                                      {"name": "Reserved", "value": meminfo.HugePages_Rsvd * meminfo.Hugepagesize},
+                                      {"name": "Surplus", "value": meminfo.HugePages_Surp * meminfo.Hugepagesize}]
+                         }])
+    except AttributeError:
+        return jsonify({})
 
 
 @health.route('/<report_id>/blocks_io', methods=['GET'])

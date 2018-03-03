@@ -29,7 +29,11 @@ class Blocks:
         return self.data_table[device_name][file_type]
 
     def match_line(self, file_type, file_name, regex):
-        fd = open(file_name, "r")
+        try:
+            fd = open(file_name, "r")
+        except IOError:
+            return
+
         for l in fd:
             m = re.search(regex, l)
             if m:

@@ -6,7 +6,7 @@
         <div class="col-md-4 col-md-offset-4">
             <div class="card-pf card-pf-accented card-pf-aggregate-status">
                 <h2 class="card-pf-title">
-                    <span class="fa fa-question-circle"></span> Case not found
+                    <span class="fa fa-question-circle"></span> Case {{ casenum }} not found
                 </h2>
                 <div class="card-pf-body">
                     <a href="{{ url_for('cases.yank', case = casenum, force = "True") }}" class="btn btn-success nx-btn-yank">Yank</a>

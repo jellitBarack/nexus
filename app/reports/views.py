@@ -13,7 +13,7 @@ The second statement will fetch a total number of rows equal to the sum of the s
 An INNER JOIN is used, and a minimum of parent columns are requested, only the primary keys.
 So a subquery load makes sense when the collections are larger.
 """
-
+from app.helpers.history import create_event
 from . import reports
 from app import db
 from app.models import Report
@@ -66,6 +66,7 @@ def display_checks(report_id, rc=None):
     if report is None or len(report) == 0:
         abort(404)
     # Getting a list of categories
+    create_event("checks", "report", [report[0].id])
     categories = defaultdict(int)
     for c in report[0].checks:
         # Building the categories dict

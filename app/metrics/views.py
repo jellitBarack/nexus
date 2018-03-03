@@ -9,6 +9,7 @@ from . import metrics
 from ..helpers import sysstat
 from app import db
 from app.models import Report
+from app.helpers.history import create_event
 
 metricslist = {}
 
@@ -21,7 +22,7 @@ def display_metrics(report_id):
 
     if len(sarfiles) == 0:
         abort(404)
-
+    create_event("metrics", "report", [report_id])
     return render_template('metrics/show.html', report=report, sarfiles=sarfiles, activities=set(activities))
 
 
