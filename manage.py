@@ -1,4 +1,7 @@
-# third-party imports
+"""
+this script is to initialize the database
+"""
+
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_script import Manager
