@@ -13,7 +13,7 @@ def display_network(report_id):
     report = Report.query.get(report_id)
     plotfile = report.path + "/sos_commands/networking/plotnetcfg"
     plotfilesvg = plotfile + ".svg"
-    command = "/usr/bin/dot -Tsvg " + plotfile + " -o " + plotfilesvg
+    command = "/usr/bin/dot -Grankdir=LR -Tsvg " + plotfile + " -o " + plotfilesvg
     try:
         check_output([command], shell=True)
     except CalledProcessError as e:
