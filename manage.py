@@ -35,7 +35,6 @@ manager.add_command('db', MigrateCommand)
 @manager.command
 def crawl():
     path = app.config.get("CASES_PATH")
-    report_delete = []
     for root, dirs, files in os.walk(path, topdown=True):
         logging.debug("Root %s Dirs %s" % (root, dirs))
         for d in dirs:
@@ -44,9 +43,8 @@ def crawl():
             report_list = find_reports(root + "/" + d, d, app.config.get("REPORT_FILE_NAMES"))
             for report in report_list:
                 add_report_status = add_report(report)
-                logging.debug("Report Path: %s Changed: %s" % (report.fullpath, report.changed))
                 if report.changed is True:
-                    report_delete.append(report.id)
+                    logging.debug("Report Path: %s ID: %s Changed: %s" % (report.fullpath, report.id, report.changed))
                     Check.query.filter(Check.report_id==report.id).delete(synchronize_session=False)
                     loop_checks(report, app)
                 if add_report_status is not None:
@@ -55,26 +53,6 @@ def crawl():
         if root.count(os.sep) - path.count(os.sep) == 0:
             del dirs[:]
 
-"""
-@manager.command
-def seed():
-    user = User(email="dvd@redhat.com", username="dvd", first_name="David", last_name="Vallee Delisle", is_admin=True,
-                password="q1w2e3")
-    db.session.add(user)
-    user = User(email="iranzo@redhat.com", username="iranzo", first_name="Pablo", last_name="Iranzo Gomez",
-                is_admin=True, password="q1w2e3")
-    db.session.add(user)
-    user = User(email="rcernin@redhat.com", username="rcernin", first_name="Robin", last_name="Cernin", is_admin=True,
-                password="q1w2e3")
-    db.session.add(user)
-    user = User(email="pcaruana@redhat.com", username="pcaruana", first_name="Pablo", last_name="Caruana",
-                is_admin=True, password="q1w2e3")
-    db.session.add(user)
-    user = User(email="mschuppert@redhat.com", username="mschuppert", first_name="Martin", last_name="Schuppert",
-                is_admin=True, password="q1w2e3")
-    db.session.add(user)
-    db.session.commit()
-"""
 
 if __name__ == '__main__':
     manager.run()

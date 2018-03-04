@@ -2,8 +2,6 @@ from flask import render_template, current_app
 from flask_login import login_required
 from sqlalchemy.sql import text
 
-import logging
-
 from . import trends
 
 from app import db
@@ -25,7 +23,6 @@ def index():
 
     # Returns the max and avg citellus runtime per report
     durations = get_kv("select max(analyze_duration) as max,avg(analyze_duration) as avg from report_metadata;")
-    logging.debug(durations)
     # Returns count by plugin status (okay, failed, skipped)
     rcs = get_kv("select global_rc as rc,count(*) as count from report_checks group by global_rc;")
     # Returns count by source (magui, citellus)
@@ -59,7 +56,6 @@ def get_kv(t):
         d = {}
         for k, v in r.items():
             d[k] = v
-            # logging.debug("K %s V %s" % (k,v))
             if k == "count":
                 ob.total += v
                 ob.count += 1
