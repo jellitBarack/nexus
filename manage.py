@@ -8,6 +8,7 @@ from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
 import os
 import logging
+import re
 
 db = SQLAlchemy()
 
@@ -38,6 +39,8 @@ def crawl():
     for root, dirs, files in os.walk(path, topdown=True):
         logging.debug("Root %s Dirs %s" % (root, dirs))
         for d in dirs:
+            if re.match('^0[0-9]{7}$', d) is None:
+                continue
             report_list = find_reports(root + "/" + d, d, app.config.get("REPORT_FILE_NAMES"))
             for report in report_list:
                 add_report_status = add_report(report)
