@@ -1,0 +1,132 @@
+{% extends "layout/base.html" %} 
+{% set active_page = "trends" %} 
+{% block title %}Trends{% endblock %} 
+{% block body %}  
+    {% import "trends/macros.html" as rdata %}
+    <h1>Trends</h1>
+    <div class="row row-cards-pf">
+        <div class="col-xs-6 col-sm-4 col-md-4">
+            <div class="card-pf card-pf-accented card-pf-aggregate-status">
+                <div class="card-pf-heading">
+                    <h2 class="card-pf-title">
+                        Return Codes
+                    </h2>
+                </div>
+                <div class="card-pf-body">
+                    {% for rc in rcs.list %}
+                        <div class="progress-description">
+                            {{ config['PLUGIN_STATES'][rc["rc"]]["state"] }}
+                        </div>
+                        <div claSs="progress progress-label-top-right">
+                            <div class="progress-bar progress-bar-{{ config['PLUGIN_STATES'][rc["rc"]]["hclass"] }}" role="progressbar" aria-valuenow="{{ rc["percent"] }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ rc["percent"] }}%;"  data-toggle="tooltip" title="{{ rc["percent"] }}% Used">
+                                <span><strong>{{ rc["count"] }}</strong> checks</span>
+                            </div>
+                            <div class="progress-bar progress-bar-remaining" role="progressbar" aria-valuenow="{{ 100 - rc["percent"] }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ 100 - rc["percent"] }}%;" data-toggle="tooltip" title="{{ 100 - rc["percent"] }}%">
+                                <span class="sr-only">{{ rc["percent"] }}%</span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-6 col-sm-4 col-md-4">
+            <div class="card-pf card-pf-accented card-pf-aggregate-status">
+                <div class="card-pf-heading">
+                    <h2 class="card-pf-title">
+                        Source
+                    </h2>
+                </div>
+                <div class="card-pf-body">
+                    <div id="chart-pf-sourceCount-5"></div>
+                    <div class="chart-pf-sparkline" id="chart-pf-count"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-6 col-sm-4 col-md-4">
+            <div class="card-pf card-pf-accented card-pf-aggregate-status">
+                <h2 class="card-pf-title">
+                    <span class="fa fa-clock-o"></span> Citellus Runtime (max/avg)
+                </h2>
+                <div class="card-pf-body">
+                    <p class="card-pf-aggregate-status-notifications">
+                    <span class="card-pf-aggregate-status-notification"><span class="fa fa-line-chart"></span> {{ durations.list[0].max }}s</span>
+                    <span class="card-pf-aggregate-status-notification">{{ durations.list[0].avg }}s</span>
+                    </p>
+                </div>
+            </div>
+            <div class="card-pf card-pf-accented card-pf-aggregate-status">
+                <h2 class="card-pf-title">
+                    <span class="fa fa-plus-o"></span> Report stats
+                </h2>
+                <div class="card-pf-body">
+                     <p class="card-pf-utilization-details">
+                    <span class="card-pf-utilization-card-details-count">{{ report_count.total }} Reports</span>
+                    <span class="card-pf-utilization-card-details-description">
+                        <span class="card-pf-utilization-card-details-line-1">{{ rcs.total }} Total Checks</span>
+                        <span class="card-pf-utilization-card-details-line-2">~ {{ checks_per_report }} Checks / Report</span>
+                    </span>
+                    </p>
+                </div>
+            </div>
+ 
+        </div>
+    </div>
+    <div class="row row-cards-pf">
+        {{ rdata.table_top_by_status("failed", top_failed) }}
+        {{ rdata.table_top_by_status("skipped", top_skipped) }}
+        {{ rdata.table_top_by_status("okay", top_okay) }}
+    </div><!-- /row -->
+    </div><!-- /container -->
+
+
+{% endblock %}
+{% block javascript %}
+    <script src="{{ url_for( 'static', filename='js/c3.min.js' ) }}"></script>
+    <script src="{{ url_for( 'static', filename='js/d3.min.js' ) }}"></script>
+    <script>
+        var c3ChartDefaults = $().c3ChartDefaults();
+var sourceCountConfig = c3ChartDefaults.getDefaultDonutConfig('A');
+sourceCountConfig.bindto = '#chart-pf-sourceCount-5';
+sourceCountConfig.legend = {
+    show: true,
+    position: 'right'
+};
+
+sourceCountConfig.data = {
+    type: "donut",
+    columns: [
+        {% for s in source_count.list %}
+            ["{{ s["source"] }}", {{ s["percent"] }}],
+    {% endfor %}
+    ],
+    groups: [
+        [{% for s in source_count.list %}"{{ s["source"] }}", {% endfor %}]
+    ],
+    order: null
+};
+sourceCountConfig.tooltip = {
+    contents: function (d) {
+        return '<span class="sourceCount-tooltip-pf" style="white-space: nowrap;">' +
+            Math.round(d[0].ratio * 100) + '%' + d[0].name +
+            '</span>';
+    }
+};
+
+var chart1 = c3.generate(sourceCountConfig);
+var sourceCountChartTitle = d3.select("#chart-pf-sourceCount-5").select('text.c3-chart-arcs-title');
+sourceCountChartTitle.text("");
+sourceCountChartTitle.insert('tspan').text("Source").classed('sourceCount-title-big-pf', true).attr('dy', 0).attr('x', 0);
+
+var sparklineConfig = c3ChartDefaults.getDefaultSparklineConfig();
+sparklineConfig.bindto = '#chart-pf-count';
+sparklineConfig.data = {
+    columns: [
+        [' reports', {% for s in reports_per_day.list %}"{{ s["count"] }}", {% endfor %}]
+    ],
+    type: 'area'
+};
+
+var chart2 = c3.generate(sparklineConfig);
+    </script>
+{% endblock %}
+

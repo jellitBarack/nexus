@@ -33,12 +33,20 @@ LOGGING = {
     },
 }
 
-# local imports
 from config import app_config
 
-# db variable initialization
 db = SQLAlchemy()
+
 login_manager = LoginManager()
+
+
+class DefaultObj(object):
+    def __init__(self, **kwargs):
+        [self.__setattr__(key, kwargs.get(key)) for key in kwargs.keys()]
+
+    def __repr__(self):
+        args = ['\n    {} => {}'.format(k, repr(v)) for (k, v) in vars(self).items()]
+        return self.__class__.__name__ + '({}\n)'.format(', '.join(args))
 
 
 def create_app(config_name, cli=False):
@@ -48,7 +56,6 @@ def create_app(config_name, cli=False):
     app = Flask(__name__, instance_relative_config=True, static_url_path='/static')
     app.config.from_object(app_config[config_name])
     app.config.from_pyfile('config.py')
-    # logging.debug("Config %s", app.config)
 
     db.init_app(app)
     Migrate(app, db)
@@ -57,9 +64,7 @@ def create_app(config_name, cli=False):
         'google',
         consumer_key=app.config.get('GOOGLE_ID'),
         consumer_secret=app.config.get('GOOGLE_SECRET'),
-        request_token_params={
-            'scope': 'email'
-        },
+        request_token_params={'scope': 'email'},
         base_url='https://www.googleapis.com/oauth2/v1/',
         request_token_url=None,
         access_token_method='POST',
@@ -79,6 +84,8 @@ def create_app(config_name, cli=False):
         app.register_blueprint(checks_blueprint, url_prefix='/checks')
         from .cases import cases as cases_blueprint
         app.register_blueprint(cases_blueprint, url_prefix='/cases')
+        from .trends import trends as trends_blueprint
+        app.register_blueprint(trends_blueprint, url_prefix='/trends')
         from .history import history as history_blueprint
         app.register_blueprint(history_blueprint, url_prefix='/history')
         from .metrics import metrics as metrics_blueprint

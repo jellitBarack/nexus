@@ -82,8 +82,8 @@
                     <li {% if 'history' == active_page %} class="active" {% endif %}>
                         <a class="nav-item-iconic" href="{{ url_for('history.history_list') }}">History</a>
                     </li>
-                    <li {% if 'trend' == active_page %} class="active" {% endif %}>
-                        <a class="nav-item-iconic" href="#">Trends</a>
+                    <li {% if 'trends' == active_page %} class="active" {% endif %}>
+                        <a class="nav-item-iconic" href="{{ url_for('trends.index') }}">Trends</a>
                     </li>
                     {% if config["TOOLS_MENU"] is defined %}
                         <li class="dropdown">

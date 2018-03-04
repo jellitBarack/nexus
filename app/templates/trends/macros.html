@@ -1,0 +1,34 @@
+{% macro table_top_by_status(type, plugin_list) %}
+{% call card_top_by_status(type, plugin_list) %}
+<table class="table">
+    <tr>
+        <th>Plugin</th>
+        <th>Count</th>
+        <th>Percent</th>
+    </tr>
+    {% for p in plugin_list.list %}
+        <tr>
+            <td><a href="#plugin-id-{{ p.plugin_id }}">{{ p.plugin_name }}</a></td>
+            <td>{{ p.count }}</span></td>
+            <td>{{ p.percent }}</td>
+        </tr>
+    {% endfor %}
+</table>
+{% endcall %}
+{% endmacro %} 
+
+{% macro card_top_by_status(type, plugin_list) %}
+{% set RC = 'RC_' + type|upper %}
+<div class="col-xs-6 col-sm-4 col-md-4">
+    <div class="card-pf card-pf-accented card-pf-aggregate-status">
+        <div class="card-pf-heading">
+            <h2 class="card-pf-title">
+                <span class="{{ config["PLUGIN_STATES"][config[RC]]["icon"] }}"></span> {{ type|capitalize }} Plugins
+            </h2>
+        </div>
+        <div class="card-pf-body">
+            {{ caller() }}
+        </div>
+    </div>
+</div>
+{% endmacro %}

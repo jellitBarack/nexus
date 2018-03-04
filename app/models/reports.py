@@ -145,6 +145,5 @@ class Report(db.Model):
         return code
 
     def __repr__(self):
-        args = ['\n    {} => {}'.format(k, repr(v))
-                for (k, v) in vars(self).items()]
+        args = ['\n    {} => {}'.format(k, repr(v)) for (k, v) in vars(self).items()]
         return self.__class__.__name__ + '({}\n)'.format(', '.join(args))
