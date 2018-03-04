@@ -42,6 +42,7 @@ class Report(db.Model):
     changed = False
     results = {}
     datahooks = {}
+    status = 0
 
     def __init__(self, **kwargs):
         super(Report, self).__init__(**kwargs)

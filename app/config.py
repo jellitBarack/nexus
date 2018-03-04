@@ -6,6 +6,7 @@ class Config(object):
     # Put any configurations here that are common across all environments
     REPORT_FILE_NAMES = ("citellus[0-9]*.json", "magui[0-9]*.json")
     CITELLUS_PATH = "/git/citellus"
+    CASES_PATH = "/cases"
     FS_ROOT = "/git/citellus-web"
     GITHUB_ROOT = "https://github.com/zerodayz/citellus/blob/master/"
     RC_OKAY = 10
@@ -94,6 +95,7 @@ class DevelopmentConfig(Config):
     DEBUG = True
     SQLALCHEMY_ECHO = True
     DEBUG_TB_INTERCEPT_REDIRECTS = False
+    SQLALCHEMY_TRACK_MODIFICATIONS = True
 
 
 class ProductionConfig(Config):
@@ -103,6 +105,7 @@ class ProductionConfig(Config):
 
     DEBUG = False
     SQLALCHEMY_ECHO = False
+    SQLALCHEMY_TRACK_MODIFICATIONS = True
 
 
 app_config = {
