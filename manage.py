@@ -44,20 +44,11 @@ def crawl():
                 logging.debug("Report Path: %s Changed: %s" % (report.fullpath, report.changed))
                 if report.changed is True:
                     report_delete.append(report.id)
-                    report.status = 1
+                    Check.query.filter(Check.report_id==report.id).delete(synchronize_session=False)
+                    loop_check(report, app)
                 if add_report_status is not None:
                     logging.error("Error adding report %s: %s" % (report.fullpath, add_report_status))
-                    report.status = 0
                  
-            # To make things faster, we need to bulk delete the
-            # checks for the reports that have changed.
-            if len(report_delete) > 0:
-                Check.query.filter(Check.report_id.in_(report_delete)).delete(synchronize_session=False)
-                 
-        for report in report_list:
-            if report.status == 1:
-                loop_checks(report, app)
-
         if root.count(os.sep) - path.count(os.sep) == 0:
             del dirs[:]
 
