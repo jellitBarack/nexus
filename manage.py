@@ -45,7 +45,7 @@ def crawl():
                 if report.changed is True:
                     report_delete.append(report.id)
                     Check.query.filter(Check.report_id==report.id).delete(synchronize_session=False)
-                    loop_check(report, app)
+                    loop_checks(report, app)
                 if add_report_status is not None:
                     logging.error("Error adding report %s: %s" % (report.fullpath, add_report_status))
                  
