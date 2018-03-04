@@ -5,7 +5,7 @@ class Meminfo:
 
     def __init__(self, report):
         self.report = report
-        self.memfile = report.fullpath.rstrip("/") + "/proc/meminfo"
+        self.memfile = report.path.rstrip("/") + "/proc/meminfo"
 
     def get(self):
         try:
