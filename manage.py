@@ -49,7 +49,7 @@ def crawl():
                     loop_checks(report, app)
                 if add_report_status is not None:
                     logging.error("Error adding report %s: %s" % (report.fullpath, add_report_status))
-                 
+
         if root.count(os.sep) - path.count(os.sep) == 0:
             del dirs[:]
 
