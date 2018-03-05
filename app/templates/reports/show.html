@@ -28,19 +28,22 @@
                     <button class="btn btn-link nx-sort-direction" data-direction="desc" type="button">
                         <span class="fa fa-sort-amount-desc"></span>
                     </button>
-                    <input type="hidden" class="nx-filter-status-btn" value="all">
-                    <div class="btn-group" role="group" aria-label="Status Filters">
-                        <button type="button" class="btn btn-success nx-filter-status" data-filter="okay">okay</button>
-                        <button type="button" class="btn btn-danger nx-filter-status" data-filter="failed">failed</button>
-                        <button type="button" class="btn btn-warning nx-filter-status" data-filter="skipped">skipped</button>
-                        <button type="button" class="btn btn-dark nx-filter-status" data-filter="all">all</button>
-                    </div>
-                    <!-- /btn-group -->
+                    <div class="dropdown btn-group">
+                        <button class="btn btn-link dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                          <span class="fa fa-filter" title="Apply filter"></span>
+                        </button>
+                        <ul class="dropdown-menu table-view-pf-colvis-menu">
+                            {{ rdata.checkbox_filter("okay") }}
+                            {{ rdata.checkbox_filter("failed") }}
+                            {{ rdata.checkbox_filter("skipped") }}
+                        </ul>
+                      </div>
+                      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#nx-modal-Include"><span class="fa fa-plus"></span> Include</button>
+                      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#nx-modal-Exclude"><span class="fa fa-minus"></span> Exclude</button>
+                      <button type="button" class="btn btn-secondary nx-toggle-all">Toggle All</button> 
+                   </div>
                 </div>
                 <!-- /form-group -->
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#nx-modal-Include">Include</button>
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#nx-modal-Exclude">Exclude</button>
-                <button type="button" class="btn btn-secondary nx-toggle-all">Toggle All</button> 
             </form>
         </div><!-- /col-->
     </div><!-- /row toolbar-pf -->

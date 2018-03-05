@@ -1,6 +1,10 @@
 from flask import render_template, current_app, url_for
 from flask_login import login_required
 
+from datetime import datetime, timedelta
+
+from app import db
+from app.models import Report
 from . import home
 
 
@@ -10,7 +14,11 @@ def index():
     """
     Render the homepage template on the / route
     """
-    return render_template('home/index.html')
+    q = db.session.query(Report)
+    q = q.filter(Report.collect_time.between(datetime.now(), datetime.now() - timedelta(hours=24)))
+    q = q.order_by(Report.collect_time.desc()).limit(15)
+
+    return render_template('home/index.html', last_reports=q)
 
 
 @home.route('/dashboard')

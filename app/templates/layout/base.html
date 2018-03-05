@@ -74,21 +74,21 @@
                         </li>
                     {% endif %}
                     <li {% if 'cases' == active_page %} class="active" {% endif %}>
-                        <a class="nav-item-iconic" href="{{ url_for('cases.search') }}">Cases</a>
+                        <a class="nav-item-iconic" href="{{ url_for('cases.search') }}"><span class="fa fa-suitcase"></span> Cases</a>
                     </li>
                     <li {% if 'upload' == active_page %} class="active" {% endif %}>
-                        <a class="nav-item-iconic" href="{{ url_for('reports.upload') }}">Upload</a>
+                        <a class="nav-item-iconic" href="{{ url_for('reports.upload') }}"><span class="fa fa-upload"></span> Upload</a>
                     </li>
                     <li {% if 'history' == active_page %} class="active" {% endif %}>
-                        <a class="nav-item-iconic" href="{{ url_for('history.history_list') }}">History</a>
+                        <a class="nav-item-iconic" href="{{ url_for('history.history_list') }}"><span class="fa fa-clock-o"></span> History</a>
                     </li>
                     <li {% if 'trends' == active_page %} class="active" {% endif %}>
-                        <a class="nav-item-iconic" href="{{ url_for('trends.index') }}">Trends</a>
+                        <a class="nav-item-iconic" href="{{ url_for('trends.index') }}"><span class="fa fa-line-chart"></span> Trends</a>
                     </li>
                     {% if config["TOOLS_MENU"] is defined %}
                         <li class="dropdown">
                             <a href="#0" class="dropdown-toggle nav-item-iconic" id="dropdownMenuTools" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                Tools
+                                <span class="fa fa-wrench"></span> Tools
                                 <span class="caret"></span>
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="dropdownMenuTools">

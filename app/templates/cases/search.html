@@ -21,8 +21,8 @@
                             <div class="input-group-btn">
                                 <button type="button" 
                                         name="actions" class="btn btn-default dropdown-toggle nx-actions" 
-                                                            data-toggle="dropdown" aria-haspopup="true" 
-                                                                                   aria-expanded="false">
+                                                       data-toggle="dropdown" aria-haspopup="true" 
+                                                                              aria-expanded="false">
                                     Actions <span class="caret"></span>
                                 </button>
                                 <ul class="dropdown-menu">
@@ -66,12 +66,12 @@
 
     <div class="list-group list-view-pf list-view-pf-view nx-list-group">
         {% for r in report_list %}
-            <div class="list-group-item" data-name="{{ r['name'] }}" data-source="{{ r['source'] }}" data-collect-time="{{ r['collect_time'] }}" data-size="{{ r['size'] }}" data-machine-id="{{ r['machine_id'] }}"> 
+            <div class="list-group-item" data-name="{{ r['name'] }}" data-source="{{ r['source'] }}"
+                                         data-collect-time="{{ r['collect_time'] }}" data-size="{{ r['size'] }}" 
+                                         data-machine-id="{{ r['machine_id'] }}"> 
                 <div class="list-view-pf-checkbox">
                     <input type="checkbox" {% if r['source'] == 'magui' %} disabled{% endif %} data-report-id="{{ r['id'] }}">
-                </div>
-
-                <!-- /list-view-pf-checkbox -->
+                </div><!-- /list-view-pf-checkbox -->
                 <div class="list-view-pf-actions">
                     <div class="dropdown pull-right dropdown-kebab-pf">
                         <button class="btn btn-link dropdown-toggle" 
@@ -98,24 +98,27 @@
                     <!-- /list-view-pf-left -->
                     <div class="list-view-pf-body" data-report-id="{{ r['id'] }}">
                         <div class="list-view-pf-description">
+                            <div class="list-group-item-heading timestamp-heading">
+                                <span title="Date that the sosreport was executed">{{ r['collect_time'] }}</span>
+                            </div>
                             <div class="list-group-item-heading">
                                 <a href="{{ url_for('reports.display_checks', report_id = r['id']) }}">{{ r['name'] }}</a>
                             </div>
-                            <!-- /list-group-item-heading -->
-                        </div>
-                        <!-- /list-view-pf-description -->
+                        </div><!-- /list-view-pf-description -->
                         <div class="list-view-pf-additional-info">
                             <div class="list-view-pf-additional-info-item">
                                 <div class="list-view-pf-expand nx-view-all-checks">
-                                    <span class="fa fa-calendar"></span>
-                                    <strong>{{ r['collect_time'] }}</strong> Checks
+                                    <div class="list-view-pf-additional-info-item">
+                                        <span class="fa fa-clock-o" title="Citellus Analysis time"></span>
+                                        <strong>{{ r['analyze_duration'] }}</strong>s
+                                    </div>
                                 </div>
                             </div>
                             <div class="list-view-pf-additional-info-item">
                                 <div class="list-view-pf-expand nx-view-all-checks">
                                     <span class="fa fa-angle-right"></span>
                                     <span class="fa fa-cubes"></span>
-                                    <strong>{{ r['checks_total'] }}</strong> Checks
+                                    <strong><a href="{{ url_for('reports.display_checks', report_id = r['id']) }}">{{ r['checks_total'] }}</a></strong> Checks
                                 </div>
                             </div>
 
@@ -151,11 +154,6 @@
                             </div>
                             <!-- /list-view-pf-additional-info-item -->
                             <div class="list-view-pf-additional-info-item">
-                                <span class="fa fa-clock-o"></span>
-                                <strong>{{ r['analyze_duration'] }}</strong>s
-                            </div>
-                            <!-- /list-view-pf-additional-info-item -->
-                            <div class="list-view-pf-additional-info-item">
                                 <span class="fa fa-hdd-o"></span>
                                 <strong>{{ r['hr_size'] }}</strong>
                             </div>
@@ -179,5 +177,5 @@
     </div>
 {% endblock %} 
 {% block javascript %}
-     {% include "layout/toolbar.html" %}
+    {% include "layout/toolbar.html" %}
 {% endblock %}

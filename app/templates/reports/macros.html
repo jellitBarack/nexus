@@ -74,3 +74,6 @@
     </div><!-- /modal-dialog -->
 </div><!-- /modal -->    
 {% endmacro %}
+{% macro checkbox_filter(type) %}
+<li><input type="checkbox" value="{{ type }}" data-filter="{{ type }}" class="nx-check-item nx-filter-status" checked><label> {{ type | capitalize }}</label></li>
+{% endmacro %}

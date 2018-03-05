@@ -107,5 +107,4 @@ def display_checks(report_id, rc=None):
                 c.bug_id = m.group(0)
             except:
                 pass
-    return render_template('reports/' + report_name + '.html', report=report[0], categories=categories,
-                           title='sosreport')
+    return render_template('reports/' + report_name + '.html', report=report[0], categories=categories)

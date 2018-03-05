@@ -44,7 +44,7 @@
             if (
                 ((/[a-z0-9]+/.test(cb_exclude) && !cb_exclude.test(plugin_cats)) || !/[a-z0-9]+/.test(cb_exclude)) &&
                 (cb_include.test(plugin_cats) && /[a-z0-9]+/.test(cb_include)) && 
-                (filter_status == "all" || filter_status == $(item).data("state")) && 
+                filter_status.includes($(item).data("state")) && 
                 (filter_text.length < ft_min_char || 
                     (filter_text.length >= ft_min_char && 
                         (plugin_txt && plugin_txt.toLowerCase().indexOf(filter_text) != -1) ||
@@ -62,10 +62,13 @@
 
         function filterCards() {
             var count = 0
-            var filter_status = $(".nx-filter-status-btn").val();
+            var filter_status = []
             var filter_text_ele = $(".nx-filter-text")
             var filter_text = filter_text_ele.val();
             var filter_type = filter_text_ele.data("type")
+            $(".nx-filter-status:checkbox:checked").each(function() {
+                filter_status.push($(this).data("filter"))
+            })
             $(".nx-list-group > div").each(function(i, j) {
                 if (filter_type == "checks") {
                     count += filterChecks(this, filter_text, filter_status)
