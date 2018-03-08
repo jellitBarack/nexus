@@ -194,6 +194,11 @@
                              url: "{{ url_for('cases.compare') }}",
                              success: function(msg) {
                                  warnMessage(msg.status, msg.msg)
+                                 if (msg.status == "success") {
+                                     setTimeout(function(){
+                                        window.location.reload(1);
+                                     }, 1500);
+                                }
                              }
                          });
                      }

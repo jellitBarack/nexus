@@ -2,6 +2,7 @@ from collections import defaultdict
 
 from sqlalchemy import func
 
+
 from app import db
 from app.models import CheckResult
 from app.models import Check
@@ -182,7 +183,7 @@ def add_check(report, c):
                       bugzilla=c["bugzilla"],
                       priority=c["priority"],
                       global_rc=c["global_rc"],
-                      execution_time=round(c["time"], 6))
+                      execution_time="{:6.3f}".format(float(c["time"])))
 
     if "datahook" in c:
         for event in c["datahook"]:

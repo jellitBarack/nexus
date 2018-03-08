@@ -24,7 +24,7 @@ class Check(db.Model):
     bugzilla = db.Column(db.String(250))
     global_rc = db.Column(db.SmallInteger)
     priority = db.Column(db.Integer)
-    execution_time = db.Column(db.Numeric(precision=6))
+    execution_time = db.Column(db.Numeric(precision=3))
 
     def __init__(self, **kwargs):
         super(Check, self).__init__(**kwargs)

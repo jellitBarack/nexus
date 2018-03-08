@@ -121,7 +121,7 @@ def compare():
         return jsonify({"status": "danger",
                         "msg": "We need at least 2 reports to compare"})
 
-    create_event("compare", "report", [reports])
+    create_event("compare", "report", reports)
     rlist = []
     for r in reports:
         report = db.session.query(Report).filter_by(id=r).first()

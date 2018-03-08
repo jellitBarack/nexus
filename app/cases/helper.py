@@ -56,4 +56,4 @@ def magui(outfile, reports, citellus_path):
         return jsonify({"status": "danger",
                         "msg": "An error occurred while executing command."})
     return jsonify({"status": "success",
-                    "msg": "Succesfully generated compare report"})
+                    "msg": "Succesfully generated compare report. Reloading..."})
