@@ -94,7 +94,7 @@ class Report(db.Model):
         try:
             out = re.search('^([0-9]+)', check_output('du -sb ' + self.path, shell=True)).group(1)
         except CalledProcessError:
-            out = ""
+            out = 0
         self.size = int(out)
 
     def get_hr_size(self, precision=2):
