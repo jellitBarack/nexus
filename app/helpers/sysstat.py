@@ -33,10 +33,12 @@ class sysstat:
             raise Exception("No file specified")
 
         if os.path.isfile(file) is False:
-            raise Exception("File %s is invalid", file)
+            logging.error("File %s is invalid" % (file))
+            return
 
         if os.access(file, os.R_OK) is False:
-            raise Exception("File %s is not readable", file)
+            logging.error("File %s is unreadable" % (file))
+            return
 
         args = [sadfbin]
         if data_type is "header":
